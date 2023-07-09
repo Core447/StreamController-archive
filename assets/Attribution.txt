@@ -1,4 +1,5 @@
-List of assets and their associated licenses:
+List of default assets and their associated licenses:
+The assets are located in the fonts and images folders
 
 
 - Elephant_Walking_animated.gif

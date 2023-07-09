@@ -14,7 +14,7 @@
                 ]
 
             ],
-            "default-image": "Assets/Exit.png",
+            "default-image": "Exit.png",
             "background": [0, 0, 0],
             "actions": {
                 "on-press": "none",
@@ -35,7 +35,7 @@
                 ]
 
             ],
-            "default-image": "Assets/Pressed.png",
+            "default-image": "Pressed.png",
             "background": [0, 0, 0],
             "actions": {
                 "on-press": "none",
