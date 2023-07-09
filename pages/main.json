@@ -1,0 +1,46 @@
+{
+    "buttons": {
+        "0x0": {
+            "captions": [
+                [
+                    {"text": "Hallo"},
+                    {"font-size": 12},
+                    {"text-location": 0.5}
+                ],
+                [
+                    {"text": "Hallo22"},
+                    {"font-size": 12},
+                    {"text-location": 1}
+                ]
+
+            ],
+            "default-image": "Assets/Exit.png",
+            "background": [0, 0, 0],
+            "actions": {
+                "on-press": "none",
+                "on-release": "none"
+            }
+        },
+        "1x1": {
+            "captions": [
+                [
+                    {"text": "Hallo"},
+                    {"font-size": 12},
+                    {"text-location": 0.5}
+                ],
+                [
+                    {"text": "Hallo22"},
+                    {"font-size": 12},
+                    {"text-location": 1}
+                ]
+
+            ],
+            "default-image": "Assets/Pressed.png",
+            "background": [0, 0, 0],
+            "actions": {
+                "on-press": "none",
+                "on-release": "none"
+            }
+        }
+    }
+}
