@@ -3,14 +3,14 @@
         "0x0": {
             "captions": [
                 [
-                    {"text": "Hallo"},
-                    {"font-size": 12},
-                    {"text-location": 0.5}
+                    {"text": "Hallo",
+                    "font-size": 12,
+                    "text-location": 0.5}
                 ],
                 [
-                    {"text": "Hallo22"},
-                    {"font-size": 12},
-                    {"text-location": 1}
+                    {"text": "Hallo2",
+                    "font-size": 12,
+                    "text-location": 1}
                 ]
 
             ],
@@ -24,14 +24,14 @@
         "1x1": {
             "captions": [
                 [
-                    {"text": "Hallo"},
-                    {"font-size": 12},
-                    {"text-location": 0.5}
+                    {"text": "Hallo3",
+                    "font-size": 12,
+                    "text-location": 0.5}
                 ],
                 [
-                    {"text": "Hallo22"},
-                    {"font-size": 12},
-                    {"text-location": 1}
+                    {"text": "Hallo4",
+                    "font-size": 12,
+                    "text-location": 1}
                 ]
 
             ],

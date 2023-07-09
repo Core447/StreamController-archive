@@ -1,6 +1,7 @@
 import os
 import threading
 import json
+import ast
 
 from PIL import Image, ImageDraw, ImageFont
 from StreamDeck.DeviceManager import DeviceManager
@@ -10,7 +11,7 @@ from StreamDeck.ImageHelpers import PILHelper
 ASSETS_PATH = os.path.join(os.path.dirname(__file__), "Assets")
 
 
-def render_key_image(deck, icon_filename, font_filename, label_text):
+def createDeckImage(deck, icon_filename, font_filename, captions):
     # Resize the source image asset to best-fit the dimensions of a single key,
     # leaving a margin at the bottom so that we can draw the key title
     # afterwards.
@@ -21,7 +22,19 @@ def render_key_image(deck, icon_filename, font_filename, label_text):
     # label onto the image a few pixels from the bottom of the key.
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype(font_filename, 14)
-    draw.text((image.width / 2, image.height -5), text=label_text, font=font, anchor="ms", fill="white")
+
+    captions = str(captions).replace("'",'"')
+    captions = json.loads(captions)
+    print("captions: ")
+    print(captions)
+    
+    for caption in captions:
+        print(caption[0]["text"])
+        draw.text((image.width / 2, image.height*caption[0]["text-location"]), text=caption[0]["text"], font=font, anchor="ms", fill="white")
+    
+    
+
+
 
     return PILHelper.to_native_format(deck, image)
 
@@ -34,10 +47,10 @@ def keyNameToIndex(keyName):
 #exit()
 
 
-def loadButton(deck, keyName, imagePath, captions):
+def loadButton(deck, keyName, imagePath, captions, font):
     print(imagePath)
     print(f"KeyName: {keyName}")
-    image = render_key_image(deck, imagePath, "Assets/Roboto-Regular.ttf","")
+    image = createDeckImage(deck, imagePath, font, captions)
     deck.set_key_image(keyNameToIndex(keyName), image)
 
 
@@ -54,7 +67,7 @@ def loadPage(deck, name: str):
 
     for button in buttons.items():
         #print(buttons[button[0]]["default-image"])
-        loadButton(deck, button[0], buttons[button[0]]["default-image"], buttons[button[0]]["captions"])
+        loadButton(deck, button[0], buttons[button[0]]["default-image"], buttons[button[0]]["captions"], "Assets/Roboto-Regular.ttf")
         
 
 
