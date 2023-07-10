@@ -15,34 +15,7 @@ import time
 ASSETS_PATH = os.path.join(os.path.dirname(__file__), "assets")
 
 
-def createDeckImage(deck, icon_filename, font_filename, captions):
-    # Resize the source image asset to best-fit the dimensions of a single key,
-    # leaving a margin at the bottom so that we can draw the key title
-    # afterwards.
-    icon = Image.open(os.path.join(ASSETS_PATH, "images", icon_filename))
-    image = PILHelper.create_scaled_image(deck, icon, margins=[0, 0, 20, 0], background=((0,0,0)))
 
-    # Load a custom TrueType font and use it to overlay the key index, draw key
-    # label onto the image a few pixels from the bottom of the key.
-    draw = ImageDraw.Draw(image)
-    
-
-    #load json from string
-    captions = str(captions).replace("'",'"')
-    captions = json.loads(captions)
-    
-    
-    for caption in captions:
-        #Load font
-        font = ImageFont.truetype(os.path.join(ASSETS_PATH, "fonts", font_filename), 14)
-        #Draw captions on to the image
-        draw.text((image.width / 2, image.height*caption[0]["text-location"]), text=caption[0]["text"], font=font, anchor="ms", fill="white")
-    
-    return PILHelper.to_native_format(deck, image)
-
-def keyNameToIndex(keyName):
-    keyName = keyName.split("x")
-    return int(keyName[0]) + int(keyName[1])*deck.key_layout()[1]
 
 
 
@@ -86,8 +59,8 @@ class Controller:
         self.loadedPageJson = self.getPageJson(name)
 
     def loadButton(self, keyName, imagePath, captions, font):
-        image = createDeckImage(deck, imagePath, font, captions)
-        self.deck.set_key_image(keyNameToIndex(keyName), image)
+        image = self.createDeckImage(deck, imagePath, font, captions)
+        self.deck.set_key_image(self.keyNameToIndex(keyName), image)
 
     def handleInputs(self):
         pass
@@ -134,6 +107,35 @@ class Controller:
                 actionIndex[action].onKeyDown(self, deck, keyIndex)
             else:
                 actionIndex[action].onKeyUp(self, deck, keyIndex)
+
+    def createDeckImage(self, deck, icon_filename, font_filename, captions):
+        # Resize the source image asset to best-fit the dimensions of a single key,
+        # leaving a margin at the bottom so that we can draw the key title
+        # afterwards.
+        icon = Image.open(os.path.join(ASSETS_PATH, "images", icon_filename))
+        image = PILHelper.create_scaled_image(deck, icon, margins=[0, 0, 20, 0], background=((0,0,0)))
+
+        # Load a custom TrueType font and use it to overlay the key index, draw key
+        # label onto the image a few pixels from the bottom of the key.
+        draw = ImageDraw.Draw(image)
+        
+
+        #load json from string
+        captions = str(captions).replace("'",'"')
+        captions = json.loads(captions)
+        
+        
+        for caption in captions:
+            #Load font
+            font = ImageFont.truetype(os.path.join(ASSETS_PATH, "fonts", font_filename), 14)
+            #Draw captions on to the image
+            draw.text((image.width / 2, image.height*caption[0]["text-location"]), text=caption[0]["text"], font=font, anchor="ms", fill="white")
+        
+        return PILHelper.to_native_format(deck, image)
+
+    def keyNameToIndex(self, keyName):
+        keyName = keyName.split("x")
+        return int(keyName[0]) + int(keyName[1])*deck.key_layout()[1]
 
 class PluginBase():
     #List of all instances
