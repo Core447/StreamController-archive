@@ -3,6 +3,7 @@ import threading
 import json
 import ast
 import math
+import importlib
 
 from PIL import Image, ImageDraw, ImageFont
 from StreamDeck.DeviceManager import DeviceManager
@@ -117,10 +118,66 @@ class Controller:
         
         if state == True and button[self.getJsonKeySyntaxByIndex(key)]["actions"]["on-press"] != "none":
             print(button[self.getJsonKeySyntaxByIndex(key)]["actions"]["on-press"])
+            self.doActions(button[self.getJsonKeySyntaxByIndex(key)]["actions"]["on-press"], key, True)
         elif state == False and button[self.getJsonKeySyntaxByIndex(key)]["actions"]["on-release"] != "none":
             print(button[self.getJsonKeySyntaxByIndex(key)]["actions"]["on-release"])
+            self.doActions(button[self.getJsonKeySyntaxByIndex(key)]["actions"]["on-release"], key, False)
 
-       
+    def doActions(self, actions: list, keyIndex, keyState: bool):
+        print("got:")
+        print(actions)
+        for action in actions:
+            if action not in list(actionIndex.keys()):
+                print(f"Action '{action}' not found, skipping")
+                continue
+            if keyState == True:
+                actionIndex[action].onKeyDown(self, deck, keyIndex)
+            else:
+                actionIndex[action].onKeyUp(self, deck, keyIndex)
+
+class PluginBase():
+    #List of all instances
+    instances = []
+    def __init__(self):
+        PluginBase.instances.append(self)
+        pass
+
+a = PluginBase()
+b = PluginBase()
+
+print(PluginBase.instances)
+
+
+#Load all plugins
+fileList = os.listdir("plugins/")
+for file in fileList:
+    if file.endswith(".py"):
+        importlib.import_module("plugins." + file[:-3])
+
+
+
+
+#print(ActionBase.actions)
+
+print("********************************************")
+
+from PluginBase import PluginBase
+#print(list(PluginBase.plugins.keys()))
+
+print("loaded plugins:")
+for key in list(PluginBase.plugins.keys()):
+    print(key)
+
+print("loaded actions:")
+actionIndex = {}
+for key in list(PluginBase.plugins.keys()):
+    for action in PluginBase.plugins[key].pluginActions:
+        print(f"action: {action.ACTION_NAME} from plugin: {key}")
+        if (key + ":" + action.ACTION_NAME) in list(actionIndex.keys()):
+            raise ValueError(f"Duplicate action {action.ACTION_NAME} in plugin {key}")
+        actionIndex[key + ":" + action.ACTION_NAME] = action
+
+print(actionIndex)
 
 
 
@@ -131,7 +188,10 @@ if __name__ == "__main__":
     print("Found {} Stream Deck(s).\n".format(len(streamdecks)))
 
     for index, deck in enumerate(streamdecks):       
-
+        deck.open()
+        deck.reset()
+        deck.set_brightness(50)
+     
         controller = Controller(deck)
         controller.loadPage("main")
         print(controller.getJsonKeySyntaxByIndex(14))

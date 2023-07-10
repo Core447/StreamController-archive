@@ -17,8 +17,8 @@
             "default-image": "Exit.png",
             "background": [0, 0, 0],
             "actions": {
-                "on-press": "press",
-                "on-release": "release"
+                "on-press": ["Media:pauseplay"],
+                "on-release": ["Media:pauseplay"]
             }
         },
         "1x1": {
@@ -38,8 +38,8 @@
             "default-image": "Pressed.png",
             "background": [0, 0, 0],
             "actions": {
-                "on-press": "none",
-                "on-release": "none"
+                "on-press": ["none"],
+                "on-release": ["none"]
             }
         }
     }
