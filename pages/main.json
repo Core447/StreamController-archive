@@ -1,0 +1,46 @@
+{
+    "buttons": {
+        "0x0": {
+            "captions": [
+                [
+                    {"text": "Hallo",
+                    "font-size": 12,
+                    "text-location": 0.5}
+                ],
+                [
+                    {"text": "Hallo2",
+                    "font-size": 12,
+                    "text-location": 1}
+                ]
+
+            ],
+            "default-image": "Exit.png",
+            "background": [0, 0, 0],
+            "actions": {
+                "on-press": ["Media:pauseplay"],
+                "on-release": ["Media:pauseplay"]
+            }
+        },
+        "1x1": {
+            "captions": [
+                [
+                    {"text": "Hallo3",
+                    "font-size": 12,
+                    "text-location": 0.5}
+                ],
+                [
+                    {"text": "Hallo4",
+                    "font-size": 12,
+                    "text-location": 1}
+                ]
+
+            ],
+            "default-image": "Pressed.png",
+            "background": [0, 0, 0],
+            "actions": {
+                "on-press": ["none"],
+                "on-release": ["none"]
+            }
+        }
+    }
+}
