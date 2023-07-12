@@ -23,6 +23,20 @@ class CommunicationHandler():
         for index, deck in enumerate(decks):
             deckController = DeckController(deck, self)
             deckController.loadPage("main")
+    
+    def closeDecks(self, reset:bool = False):
+        decks = DeviceManager().enumerate()
+        for deck in decks:
+            try:
+                deck.open()
+                if reset: deck.reset()
+            except:
+                pass
+
+            try:
+                deck.close()
+            except:
+                pass
 
     def loadActionIndex(self):
         self.actionIndex = {}
@@ -256,9 +270,5 @@ class DeckController():
                 self.communicationHandler.actionIndex[action].onKeyUp(self, self.deck, keyIndex)
 
 
-communicationHandler = CommunicationHandler()
-communicationHandler.loadPlugins()
-communicationHandler.loadActionIndex()
-communicationHandler.initDecks()
-while True: pass
-    
+
+#while True: pass    

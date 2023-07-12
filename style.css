@@ -1,0 +1,25 @@
+.cat-button{
+	
+}
+.label{
+	color: green;
+}
+.media{
+	color: green;
+}
+.gridButton{
+	min-width:75px;	
+	max-width:75px;
+	margin-right:10px;
+	min-height:75px;
+	max-height:75px;
+	margin-bottom:5px;
+	margin-top:5px;
+}
+.page-text {
+	font-size:30px;
+	font-weight: bold;
+	/* text-decoration: underline; */
+	margin:11px;
+
+}
