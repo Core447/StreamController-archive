@@ -10,15 +10,12 @@ class PausePlay(ActionBase):
         super().__init__()
         self.pluginBase = pluginBase
     def onKeyDown(self, controller, deck, keyIndex):
-        print("pressing")
         self.pluginBase.keyboard.press(Key.media_play_pause)
         sleep(0.1)
         self.pluginBase.keyboard.release(Key.media_play_pause)
-        controller.loadButton(keyIndex, "Pressed.png", [], "Roboto-Regular.ttf")
         return
     def onKeyUp(self, controller, deck, keyIndex):
         #self.pluginBase.keyboard.release(Key.pause)
-        controller.loadButton(keyIndex, "Exit.png", [], "Roboto-Regular.ttf")
         return
     
 class Next(ActionBase):

@@ -5,8 +5,16 @@ import sys
 import gi
 from controller import CommunicationHandler
 from PluginBase import PluginBase
+import importlib
+import os
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
+
+#import guiClasses
+from guiClasses.CategoryButton import CategoryButton
+from guiClasses.ConfigButton import ConfigButton
+from guiClasses.ActionButton import ActionButton
+from guiClasses.GridButton import GridButton
 
 
 #StreamDeck
@@ -33,115 +41,6 @@ def createPagesList():
 print(createPagesList())
 
 
-class ConfigButton(Gtk.Button):
-    def __init__(self, label: str):
-        if type(label) is not str: 
-            raise TypeError("label must be a String")
-        super().__init__(margin_bottom=6)
-        self.buttonGrid = Gtk.Grid()
-        self.buttonIcon = Gtk.Image(pixel_size=25, margin_end=10, margin_top=12.5, margin_bottom=12.5)
-        self.buttonLabel = Gtk.Label(label=label)
-
-        #Attachments
-        self.set_child(self.buttonGrid)
-        self.buttonGrid.attach(self.buttonIcon, 0, 0, 1, 1)
-        self.buttonGrid.attach(self.buttonLabel, 1, 0, 1, 1)
-
-
-
-
-
-
-class CategoryButton(ConfigButton):
-    def __init__(self, grid, stack: Gtk.Stack, row, label):
-        self.label = label
-        self.stack = stack
-        super().__init__(label)
-        self.buttonIcon.set_from_icon_name("stock_open")
-
-        grid.attach(self, 0, row, 1, 1)
-        self.connect("clicked", self.onClick)
-
-    def onClick(self, button):
-        self.stack.set_visible_child_name(self.label)
-        
-
-class ActionButton(ConfigButton):
-    def __init__(self, grid, row, label, iconPath):
-        super().__init__(label)
-        self.buttonIcon.set_from_file(iconPath)
-
-        self.createDnD()
-        grid.attach(self, 0, row, 1, 1)
-
-    def createDnD(self):
-        #Create all elements needed for drag and drop      
-        dnd = Gtk.DragSource()
-        dnd.set_actions(Gdk.DragAction.COPY)
-        dnd.connect('prepare', self.on_dnd_prepare)
-        dnd.connect('drag-begin', self.on_dnd_begin)
-        dnd.connect('drag-end', self.on_dnd_end)
-        self.buttonGrid.add_controller(dnd)
-
-    def on_dnd_prepare(self, drag_source, x, y):
-        print(f'in on_dnd_prepare(); drag_source={drag_source}, x={x}, y={y}')
-       
-        drag_source.set_icon(
-            Gtk.WidgetPaintable.new(self),
-            self.get_width() / 2, self.get_height() / 2
-        )
-
-        content = Gdk.ContentProvider.new_for_value(self)
-        return content
-
-    def on_dnd_begin(self, drag_source, data):
-        content = data.get_content()
-        print(f'in on_dnd_begin(); drag_source={drag_source}, data={data}, content={content}')
-
-    def on_dnd_end(self, drag, drag_data, flag):
-        print(f'in on_dnd_end(); drag={drag}, drag_data={drag_data}, flag={flag}')
-
-
-class GridButton(Gtk.Button):
-    def __init__(self, grid: Gtk.Grid, row: int, column: int):
-        super().__init__()
-        self.set_css_classes(["gridButton"])
-
-        grid.attach(self, column, row, 1, 1) 
-
-        #Drag and drop
-        #button.connect('drag_begin', self.dragBegin )
-
-        #button.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, [], Gdk.DragAction.COPY)
-        #button.drag_source_set(Gdk.ModifierType.BUTTON1_MASK, [], Gdk.DragAction.COPY)
-
-        
-        dnd = Gtk.DropTarget.new(Gdk.FileList, Gdk.DragAction.COPY)
-        dnd.connect('drop', self.on_dnd_drop)
-        dnd.connect('accept', self.on_dnd_accept)
-        dnd.connect('enter', self.on_dnd_enter)
-        dnd.connect('motion', self.on_dnd_motion)
-        dnd.connect('leave', self.on_dnd_leave)
-        self.add_controller(dnd)      
-    
-    def on_dnd_drop(self, drop_target, value, x, y):
-        print(f'in on_dnd_drop(); value={value}, x={x}, y={y}')
-        print(list(value))
-
-    def on_dnd_accept(self, drop, user_data):
-        print(f'in on_dnd_accept(); drop={drop}, user_data={user_data}')
-        return True
-
-    def on_dnd_enter(self, drop_target, x, y):
-        print(f'in on_dnd_enter(); drop_target={drop_target}, x={x}, y={y}')
-        return Gdk.DragAction.COPY
-
-    def on_dnd_motion(self, drop_target, x, y):
-        print(f'in on_dnd_motion(); drop_target={drop_target}, x={x}, y={y}')
-        return Gdk.DragAction.COPY
-
-    def on_dnd_leave(self, user_data):
-        print(f'in on_dnd_leave(); user_data={user_data}')
         
         
 class KeyGrid(Gtk.Grid):
