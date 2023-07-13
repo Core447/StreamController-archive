@@ -45,7 +45,7 @@ print(createPagesList())
         
 class KeyGrid(Gtk.Grid):
     def __init__(self):
-        super().__init__(halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER)
+        super().__init__(halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, column_homogeneous=True, row_homogeneous=True, hexpand=True, vexpand=True)
         self.loadedRows = 0
         self.loadedColumns = 0
 
@@ -246,13 +246,13 @@ class StreamControllerApp(Adw.Application):
         #self.actionGrid.attach(self.target, 5, 5, 1, 1)
 
 
-        self.leftSideGrid = builder.get_object("left-side-grid")
+        self.leftSideGrid = builder.get_object("bbox")
         
         self.keyGrid = KeyGrid()
         self.keyGrid.createGrid(streamdecksRaw[0].key_layout())
         #print(streamdecksRaw[0].key_layout())
 
-        self.leftSideGrid.attach(self.keyGrid, 0, 1, 1, 1)
+        self.leftSideGrid.append(self.keyGrid)
 
         self.keyGrid.createGrid((4, 8))
 

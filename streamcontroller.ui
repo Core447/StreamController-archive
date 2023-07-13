@@ -33,42 +33,6 @@
           </object>
         </child>
         <child>
-          <object class="GtkGrid" id="left-side-grid">
-            <property name="column-homogeneous">True</property>
-            <property name="row-homogeneous">True</property>
-            <child>
-              <object class="GtkGrid" id="page-selector-grid">
-                <property name="height-request">50</property>
-                <property name="margin-bottom">5</property>
-                <property name="margin-end">5</property>
-                <property name="margin-start">5</property>
-                <property name="margin-top">5</property>
-                <property name="orientation">vertical</property>
-                <property name="visible">False</property>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Page:</property>
-                    <property name="margin-end">10</property>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">0</property>
-                    </layout>
-                  </object>
-                </child>
-                <layout>
-                  <property name="column">0</property>
-                  <property name="row">0</property>
-                </layout>
-              </object>
-            </child>
-            <layout>
-              <property name="column">0</property>
-              <property name="column-span">2</property>
-              <property name="row">0</property>
-            </layout>
-          </object>
-        </child>
-        <child>
           <object class="GtkGrid">
             <property name="row-homogeneous">True</property>
             <child>
@@ -152,6 +116,40 @@
             </child>
             <layout>
               <property name="column">3</property>
+              <property name="row">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox" id="bbox">
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkGrid" id="page-selector-grid">
+                <property name="halign">start</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <property name="orientation">vertical</property>
+                <property name="valign">start</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">Page:</property>
+                    <property name="margin-end">10</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparator"/>
+            </child>
+            <layout>
+              <property name="column">0</property>
+              <property name="column-span">2</property>
               <property name="row">0</property>
             </layout>
           </object>
