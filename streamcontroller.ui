@@ -81,6 +81,18 @@
                       <object class="GtkSearchEntry">
                         <property name="hexpand">True</property>
                         <layout>
+                          <property name="column">1</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="action-back-button">
+                        <property name="icon-name">go-previous</property>
+                        <property name="margin-end">3</property>
+                        <property name="visible">False</property>
+                        <property name="width-request">80</property>
+                        <layout>
                           <property name="column">0</property>
                           <property name="row">0</property>
                         </layout>
@@ -92,7 +104,7 @@
                         <property name="margin-end">3</property>
                         <property name="margin-start">3</property>
                         <layout>
-                          <property name="column">1</property>
+                          <property name="column">2</property>
                           <property name="row">0</property>
                         </layout>
                       </object>
@@ -101,7 +113,7 @@
                       <object class="GtkButton">
                         <property name="icon-name">start-here</property>
                         <layout>
-                          <property name="column">2</property>
+                          <property name="column">3</property>
                           <property name="row">0</property>
                         </layout>
                       </object>

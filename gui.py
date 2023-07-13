@@ -98,8 +98,9 @@ allActions = {
 
 
 class CategorySelector(Gtk.Grid):
-    def __init__(self, stack):
+    def __init__(self, app, stack):
         self.stack = stack
+        self.app = app
         super().__init__(column_homogeneous=True)        
         self.label = Gtk.Label(label="Categories", xalign=0,
                                css_classes=["page-text"])
@@ -110,7 +111,7 @@ class CategorySelector(Gtk.Grid):
         print("*****************")
         
         for row in range(len(categories)):
-            categoryButton = CategoryButton(self, self.stack, row+1, categories[row])
+            categoryButton = CategoryButton(self.app, self, self.stack, row+1, categories[row])
             #actionSelector = ActionSelector(self.stack, categories[row])
             #actionSelector.loadActions(["A","B"])
 
@@ -188,7 +189,7 @@ class StreamControllerApp(Adw.Application):
         self.g.attach(self.pageSelector, 1, 0, 1, 1)
         
 
-        self.categoryGrid = CategorySelector(self.stack)
+        self.categoryGrid = CategorySelector(self, self.stack)
         #self.categoryGrid.loadCategories(["One", "Two", "Three"])
 
         
@@ -259,6 +260,10 @@ class StreamControllerApp(Adw.Application):
         self.deviceSelector = DeviceSelector(self.keyGrid)
         self.header.pack_start(self.deviceSelector)
 
+        self.actionBackButton = builder.get_object("action-back-button")
+        self.actionBackButton.set_visible(False)
+        self.actionBackButton.connect("clicked", self.goBackToCategories)
+
 
         
 
@@ -267,9 +272,9 @@ class StreamControllerApp(Adw.Application):
         print("catClick")
         self.stack.set_visible_child_name("actions")
 
-    def goBack(self, button):
-        print("catClick")
-        self.stack.set_visible_child(self.mainGrid)
+    def goBackToCategories(self, button):
+        self.stack.set_visible_child(self.categoryGrid)
+        self.actionBackButton.set_visible(False)
 
     def onWindowClose(self, window):
         print("windows close")
