@@ -3,12 +3,12 @@
         "0x0": {
             "captions": [
                 [
-                    {"text": "Hallo",
+                    {"text": "Text",
                     "font-size": 12,
                     "text-location": 0.5}
                 ],
                 [
-                    {"text": "Hallo2",
+                    {"text": "Text2",
                     "font-size": 12,
                     "text-location": 1}
                 ]
@@ -24,12 +24,12 @@
         "1x1": {
             "captions": [
                 [
-                    {"text": "Hallo3",
+                    {"text": "Text3",
                     "font-size": 12,
                     "text-location": 0.5}
                 ],
                 [
-                    {"text": "Hallo4",
+                    {"text": "Text4",
                     "font-size": 12,
                     "text-location": 1}
                 ]

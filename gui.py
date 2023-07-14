@@ -4,9 +4,11 @@ from gi.repository import GObject, Gio
 import sys
 import gi
 from controller import CommunicationHandler
+from controller import ASSETS_PATH
 from PluginBase import PluginBase
 import importlib
 import os
+import shutil
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 
@@ -29,16 +31,17 @@ for deck in streamdecksRaw:
     streamdecks.append(deck.deck_type())
 
 
-def createPagesList():
+def createPagesList(onlyName: bool = False):
+    #TODO: Delete
     pagesPath = "pages"
-    
     pages = []
     for file in os.listdir(pagesPath):
         if file.endswith(".json"):
+            if onlyName:
+                pages.append(file[:-5]) # remove .json extension
+                continue
             pages.append(file)
     return pages
-
-print(createPagesList())
 
 
         
@@ -142,18 +145,67 @@ class PageSelector(Gtk.Grid):
 
         #ComboBox
         self.pagesModel = Gtk.ListStore(str)
-        for page in createPagesList():
-            self.pagesModel.append([page.replace(".json","")])
+        for page in self.createPagesList(True):
+            self.pagesModel.append([page])
         
         self.comboBox = Gtk.ComboBox.new_with_model_and_entry(self.pagesModel)
+        #self.comboBox = Gtk.ComboBoxText.new_with_model_and_entry(self.pagesModel)
         self.comboBox.set_entry_text_column(0)
         self.comboBox.set_can_focus(True)
         self.comboBox.set_hexpand(False)
-
+        self.comboBox.connect("changed", self.onChange)
+        #self.comboBox.connect("leave-notify-event", self.onEntryFocusOut)
+        self.focusCtrl = Gtk.EventControllerFocus().new()
+        self.focusCtrl.connect("leave", self.onEntryFocusOut)
+        self.comboBox.add_controller(self.focusCtrl)
+        #TODO: Also add event for return key
 
         #Attachments
         self.attach(self.label, 0, 0, 1, 1)
         self.attach(self.comboBox, 1, 0, 1, 1)
+
+    def createPagesList(self, onlyName: bool = False):
+        pagesPath = "pages"
+        pages = []
+        for file in os.listdir(pagesPath):
+            if file.endswith(".json"):
+                if onlyName:
+                    pages.append(file[:-5]) # remove .json extension
+                    continue
+                pages.append(file)
+        return pages
+
+        
+
+    def onChange(self, combo: Gtk.ComboBox):
+        print(combo.get_child().get_text())
+        self.handlePageSelectorConfirmation()
+    
+    def onEntryFocusOut(self, event):
+        self.handlePageSelectorConfirmation()
+        
+
+    
+    def handlePageSelectorConfirmation(self):
+        print(self.comboBox.get_child().get_text())
+        if self.comboBox.get_child().get_text() in self.createPagesList(True):
+            #page already exists
+            #TODO: change page only for selected deck
+            for deckController in self.app.communicationHandler.deckController:
+                deckController.loadPage(self.comboBox.get_child().get_text())
+        else:
+            #page does not exist yet, we need to create it
+            #TODO: Show a dialog to the user to accept the creation of a new page
+            self.pagesModel.append([self.comboBox.get_child().get_text()])
+            if(os.path.exists(os.path.join("pages", self.comboBox.get_child().get_text()+".json"))):
+                return
+            shutil.copy(os.path.join(ASSETS_PATH, "templates", "emptyPage.json"), os.path.join("pages", self.comboBox.get_child().get_text()+".json"))
+
+
+            #TODO: change page only for selected deck
+            for deckController in self.app.communicationHandler.deckController:
+                deckController.loadPage(self.comboBox.get_child().get_text())
+    
 
 
 
@@ -197,8 +249,8 @@ class StreamControllerApp(Adw.Application):
 
 
         self.pagesModel = Gtk.ListStore(str)
-        for page in createPagesList():
-            self.pagesModel.append([page.replace(".json","")])
+        for page in createPagesList(True):
+            self.pagesModel.append()
 
         
         
@@ -273,7 +325,7 @@ class StreamControllerApp(Adw.Application):
 
         self.leftSideGrid.append(self.keyGrid)
 
-        self.keyGrid.createGrid(self.deck.key_layout())
+        self.keyGrid.createGrid((3, 5))
 
 
         self.deviceSelector = DeviceSelector(self.keyGrid)

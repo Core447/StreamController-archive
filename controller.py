@@ -18,12 +18,14 @@ class CommunicationHandler():
     def __init__(self):
         self.actionIndex = {}
         self.app = None
+        self.deckController = []
         return
     
     def initDecks(self):
         decks = DeviceManager().enumerate()
         for index, deck in enumerate(decks):
             deckController = DeckController(deck, self)
+            self.deckController.append(deckController)
             deckController.loadPage("main")
     
     def closeDecks(self, reset:bool = False):
@@ -91,6 +93,7 @@ class DeckController():
             None
         """
         #check if name is a string
+        print(f"** loading Page: {pageName}")
         if not isinstance(pageName, str):
             raise ValueError("Page name must be a string")
         
