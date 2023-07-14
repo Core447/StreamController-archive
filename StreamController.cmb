@@ -32,9 +32,7 @@
 	(1,154,"GtkImage",None,116,None,None,None,None,None),
 	(1,155,"GtkMenuButton",None,115,None,None,None,None,None),
 	(1,159,"GtkButton","action-back-button",138,None,None,None,None,None),
-	(1,166,"GtkBox","bbox",2,None,None,None,4,None),
-	(1,167,"GtkGrid","page-selector-grid",166,None,None,None,None,None),
-	(1,168,"GtkLabel",None,167,None,None,None,None,None),
+	(1,166,"GtkBox","left-side-grid",2,None,None,None,4,None),
 	(1,169,"GtkSeparator",None,166,None,None,None,1,None)
   </object>
   <object_property>
@@ -66,16 +64,7 @@
 	(1,159,"GtkWidget","tooltip-text","Go back to category page",None,None,None,None,None,None,None,None,None),
 	(1,159,"GtkWidget","visible","False",None,None,None,None,None,None,None,None,None),
 	(1,159,"GtkWidget","width-request","80",None,None,None,None,None,None,None,None,None),
-	(1,166,"GtkOrientable","orientation","vertical",None,None,None,None,None,None,None,None,None),
-	(1,167,"GtkOrientable","orientation","vertical",None,None,None,None,None,None,None,None,None),
-	(1,167,"GtkWidget","halign","start",None,None,None,None,None,None,None,None,None),
-	(1,167,"GtkWidget","margin-bottom","5",None,None,None,None,None,None,None,None,None),
-	(1,167,"GtkWidget","margin-end","5",None,None,None,None,None,None,None,None,None),
-	(1,167,"GtkWidget","margin-start","5",None,None,None,None,None,None,None,None,None),
-	(1,167,"GtkWidget","margin-top","5",None,None,None,None,None,None,None,None,None),
-	(1,167,"GtkWidget","valign","start",None,None,None,None,None,None,None,None,None),
-	(1,168,"GtkLabel","label","Page:",None,None,None,None,None,None,None,None,None),
-	(1,168,"GtkWidget","margin-end","10",None,None,None,None,None,None,None,None,None)
+	(1,166,"GtkOrientable","orientation","vertical",None,None,None,None,None,None,None,None,None)
   </object_property>
   <object_layout_property>
 	(1,2,4,"GtkGridLayoutChild","column","3",None,None,None,None),
@@ -89,8 +78,6 @@
 	(1,138,140,"GtkGridLayoutChild","column","2",None,None,None,None),
 	(1,138,140,"GtkGridLayoutChild","row","0",None,None,None,None),
 	(1,138,141,"GtkGridLayoutChild","column","3",None,None,None,None),
-	(1,138,141,"GtkGridLayoutChild","row","0",None,None,None,None),
-	(1,167,168,"GtkGridLayoutChild","column","0",None,None,None,None),
-	(1,167,168,"GtkGridLayoutChild","row","0",None,None,None,None)
+	(1,138,141,"GtkGridLayoutChild","row","0",None,None,None,None)
   </object_layout_property>
 </cambalache-project>

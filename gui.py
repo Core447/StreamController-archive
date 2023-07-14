@@ -133,6 +133,29 @@ class ActionSelector(Gtk.Grid):
             pass
 
 
+class PageSelector(Gtk.Grid):
+    def __init__(self, app):
+        super().__init__(margin_bottom=5, margin_top=5, margin_start=5, margin_end=5)
+        self.app = app
+
+        self.label = Gtk.Label(label="Page:", margin_end=5)
+
+        #ComboBox
+        self.pagesModel = Gtk.ListStore(str)
+        for page in createPagesList():
+            self.pagesModel.append([page.replace(".json","")])
+        
+        self.comboBox = Gtk.ComboBox.new_with_model_and_entry(self.pagesModel)
+        self.comboBox.set_entry_text_column(0)
+        self.comboBox.set_can_focus(True)
+        self.comboBox.set_hexpand(False)
+
+
+        #Attachments
+        self.attach(self.label, 0, 0, 1, 1)
+        self.attach(self.comboBox, 1, 0, 1, 1)
+
+
 
 class StreamControllerApp(Adw.Application):
     def __init__(self, communicationHandler: CommunicationHandler, **kwargs):
@@ -141,8 +164,7 @@ class StreamControllerApp(Adw.Application):
         self.connect('activate', self.on_activate)
         #self.connect('destroy', self.onWindowClose)
         #self.create_action('quit', self.quit)
-
-        
+       
 
     def on_activate(self, app):
         # Create a Builder
@@ -180,15 +202,7 @@ class StreamControllerApp(Adw.Application):
 
         
         
-        
-        self.g = builder.get_object("page-selector-grid")
-        
-        self.pageSelector = Gtk.ComboBox.new_with_model_and_entry(self.pagesModel)
-        self.pageSelector.set_entry_text_column(0)
-        self.pageSelector.set_can_focus(True)
-        self.pageSelector.set_hexpand(False)
-
-        self.g.attach(self.pageSelector, 1, 0, 1, 1)
+     
         
 
         self.categoryGrid = CategorySelector(self, self.stack)
@@ -248,7 +262,10 @@ class StreamControllerApp(Adw.Application):
         #self.actionGrid.attach(self.target, 5, 5, 1, 1)
 
 
-        self.leftSideGrid = builder.get_object("bbox")
+        self.leftSideGrid = builder.get_object("left-side-grid")
+
+        self.pageSelector = PageSelector(self)
+        self.leftSideGrid.prepend(self.pageSelector)
         
         self.keyGrid = KeyGrid()
         self.keyGrid.createGrid(streamdecksRaw[0].key_layout())
