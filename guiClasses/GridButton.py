@@ -23,6 +23,7 @@ class GridButton(Gtk.Button):
         self.add_controller(dnd)      
         
         self.image = Gtk.Image(hexpand=True, vexpand=True)
+        self.image.clear()
         self.set_child(self.image)
 
     

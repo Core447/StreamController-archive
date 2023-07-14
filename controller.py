@@ -9,6 +9,8 @@ from PIL import Image, ImageDraw, ImageFont
 import importlib
 from time import sleep
 
+from gi.repository import Gtk, Adw, Gdk
+
 
 # Folder location of image assets used by this example.
 ASSETS_PATH = os.path.join(os.path.dirname(__file__), "assets")
@@ -77,6 +79,23 @@ class DeckController():
         #Register callback function (handles key presses)
         deck.set_key_callback(self.keyChangeCallback)
 
+    def reset(self):
+        self.deck.reset()
+
+
+        #Wait until keyGrid is loaded
+        hadToWaitForKeyGrid = False
+        while not hasattr(self.communicationHandler.app, "keyGrid"):
+            hadToWaitForKeyGrid = True
+            pass #wait until keyGrid is loaded
+        if hadToWaitForKeyGrid:
+            sleep(0.25) #wait for keyGrid to load all keys
+        for button in self.communicationHandler.app.keyGrid.gridButtons:
+            #button.image = Gtk.Image(hexpand=True, vexpand=True)
+            button.image.clear()
+            continue
+
+
     #functions
     def loadPage(self, pageName: str):
         """
@@ -107,7 +126,7 @@ class DeckController():
             raise FileNotFoundError(f"Page {pageName} does not exist")
         
         #load page
-        self.deck.reset() #Reset the deck
+        self.reset() #Reset the deck
         with open(pageFilePath) as file:
             pageData = json.load(file)
 
@@ -139,19 +158,23 @@ class DeckController():
         
                     
         #load the button
-        image = self.createDeckImage(imageName, captions, fontName)
-        self.deck.set_key_image(keyIndex, image)
+        #image = self.createDeckImage(imageName, captions, fontName)
+        deckImage, uiImage = self.createDeckImages(imageName, captions, fontName)
+        self.deck.set_key_image(keyIndex, deckImage)
 
 
         
-        #self.communicationHandler.app.keyGrid.gridButtons[keyIndex].setImage(image)
+        #Wait until keyGrid is loaded
         hadToWaitForKeyGrid = False
         while not hasattr(self.communicationHandler.app, "keyGrid"):
             hadToWaitForKeyGrid = True
             pass #wait until keyGrid is loaded
         if hadToWaitForKeyGrid:
             sleep(0.25) #wait for keyGrid to load all keys
-        
+
+
+        uiImage.save(os.path.join("tmp", "lastLoadedIcon.png"))
+        #TODO: Find solution to avoid saving image
         self.communicationHandler.app.keyGrid.gridButtons[keyIndex].image.set_from_file(os.path.join("tmp", "lastLoadedIcon.png"))
 
     
@@ -162,11 +185,9 @@ class DeckController():
 
         return f"{row}x{column}"
     
-    def createDeckImage(self, iconFilename: str, captions: list = [], fontName: str = "Roboto-Regular.ttf"):
-        """
-        Create a image for the streamdeck with the given, icon, and captions
-        """
+    def createDeckImages(self, iconFilename: str, captions: list = [], fontName: str = "Roboto-Regular.ttf"):
 
+        #Create deck image
         #check if iconFilename is a string
         if not isinstance(iconFilename, str):
             raise ValueError("Icon filename must be a string")
@@ -193,12 +214,31 @@ class DeckController():
                         raise FileNotFoundError(f"Font {fontName} could not be found")
                     
         #create icon
-        icon = Image.open(os.path.join(ASSETS_PATH, "images", iconFilename))
-        image = PILHelper.create_scaled_image(self.deck, icon, margins=[0, 0, 0, 0], background=((0,0,0)))
+        deckIcon = Image.open(os.path.join(ASSETS_PATH, "images", iconFilename))
+        uiIcon = Image.open(os.path.join(ASSETS_PATH, "images", iconFilename))
+        deckImage = PILHelper.create_scaled_image(self.deck, deckIcon, margins=[0, 0, 0, 0], background=((0,0,0)))
+        uiImage = Image.new("RGBA", deckImage.size, (0,0,0,0))
        
         #create a draw object
-        draw = ImageDraw.Draw(image)
+        deckDraw = ImageDraw.Draw(deckImage)
+        uiDraw = ImageDraw.Draw(uiImage)
+
+        #scale uiIcon
+        thumbnail_max_width = deckImage.width
+        thumbnail_max_height = deckImage.height
+
+        thumbnail = uiIcon
+        uiIcon = uiIcon.thumbnail((thumbnail_max_width, thumbnail_max_height), Image.LANCZOS)
+
+        thumbnail_x = ((thumbnail_max_width - thumbnail.width) // 2)
+        thumbnail_y = ((thumbnail_max_height - thumbnail.height) // 2)
+
+        uiImage.paste(thumbnail, (thumbnail_x, thumbnail_y), thumbnail)
         
+        #Add icon to uiImage
+        #uiIcon = uiIcon.resize((50,50))
+        #uiImage.paste(uiIcon, (0, 0))
+
 
         #load json from string
         captions = str(captions).replace("'",'"')
@@ -210,10 +250,15 @@ class DeckController():
             #Load font
             font = ImageFont.truetype(os.path.join(ASSETS_PATH, "fonts", fontPath), 14)
             #Draw captions on to the image
-            draw.text((image.width / 2, image.height*caption[0]["text-location"]), text=caption[0]["text"], font=font, anchor="ms", fill="white")
+            deckDraw.text((deckImage.width / 2, deckImage.height*caption[0]["text-location"]), text=caption[0]["text"], font=font, anchor="ms", fill="white")
+            uiDraw.text((uiImage.width / 2, uiImage.height*caption[0]["text-location"]), text=caption[0]["text"], font=font, anchor="ms", fill="white")
         
-        image.save(os.path.join("tmp", "lastLoadedIcon.png"))
-        return PILHelper.to_native_format(self.deck, image)
+        deckImage.save(os.path.join("tmp", "lastLoadedIcon.png"))
+
+        
+
+
+        return PILHelper.to_native_format(self.deck, deckImage), uiImage
                     
     
     def buttonNameToIndex(self, buttonName: str):
