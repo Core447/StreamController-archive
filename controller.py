@@ -7,6 +7,7 @@ import os
 import json
 from PIL import Image, ImageDraw, ImageFont
 import importlib
+from time import sleep
 
 
 # Folder location of image assets used by this example.
@@ -16,6 +17,7 @@ from PluginBase import PluginBase
 class CommunicationHandler():
     def __init__(self):
         self.actionIndex = {}
+        self.app = None
         return
     
     def initDecks(self):
@@ -115,14 +117,14 @@ class DeckController():
         self.loadedPage = pageName
         self.loadedPageJson = pageData
 
-    def loadButton(self, keyIndex: int, imagePath: str, captions: list, fontName: str):
-        print(keyIndex, imagePath, captions, fontName)
+    def loadButton(self, keyIndex: int, imageName: str, captions: list, fontName: str):
+        print(keyIndex, imageName, captions, fontName)
 
         #check if keyIndex is an int
         if not isinstance(keyIndex, int):
             raise ValueError("Key index must be an int")
         #check if imagePath is a string
-        if not isinstance(imagePath, str):
+        if not isinstance(imageName, str):
             raise ValueError("Image path must be a string")
         #check if captions is a list
         if not isinstance(captions, list):
@@ -134,8 +136,20 @@ class DeckController():
         
                     
         #load the button
-        image = self.createDeckImage(imagePath, captions, fontName)
+        image = self.createDeckImage(imageName, captions, fontName)
         self.deck.set_key_image(keyIndex, image)
+
+
+        
+        #self.communicationHandler.app.keyGrid.gridButtons[keyIndex].setImage(image)
+        hadToWaitForKeyGrid = False
+        while not hasattr(self.communicationHandler.app, "keyGrid"):
+            hadToWaitForKeyGrid = True
+            pass #wait until keyGrid is loaded
+        if hadToWaitForKeyGrid:
+            sleep(0.25) #wait for keyGrid to load all keys
+        
+        self.communicationHandler.app.keyGrid.gridButtons[keyIndex].image.set_from_file(os.path.join("tmp", "lastLoadedIcon.png"))
 
     
     #helper functions
@@ -145,7 +159,7 @@ class DeckController():
 
         return f"{row}x{column}"
     
-    def createDeckImage(self, iconFilename: str, captions: list = [], fontName: str = "Assets/Roboto-Regular.ttf"):
+    def createDeckImage(self, iconFilename: str, captions: list = [], fontName: str = "Roboto-Regular.ttf"):
         """
         Create a image for the streamdeck with the given, icon, and captions
         """
@@ -178,7 +192,7 @@ class DeckController():
         #create icon
         icon = Image.open(os.path.join(ASSETS_PATH, "images", iconFilename))
         image = PILHelper.create_scaled_image(self.deck, icon, margins=[0, 0, 0, 0], background=((0,0,0)))
-
+       
         #create a draw object
         draw = ImageDraw.Draw(image)
         
@@ -186,6 +200,7 @@ class DeckController():
         #load json from string
         captions = str(captions).replace("'",'"')
         captions = json.loads(captions)
+        print(f"captions: {captions}")
         
         
         for caption in captions:
@@ -194,6 +209,7 @@ class DeckController():
             #Draw captions on to the image
             draw.text((image.width / 2, image.height*caption[0]["text-location"]), text=caption[0]["text"], font=font, anchor="ms", fill="white")
         
+        image.save(os.path.join("tmp", "lastLoadedIcon.png"))
         return PILHelper.to_native_format(self.deck, image)
                     
     

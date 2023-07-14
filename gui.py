@@ -48,9 +48,11 @@ class KeyGrid(Gtk.Grid):
         super().__init__(halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, column_homogeneous=True, row_homogeneous=True, hexpand=True, vexpand=True)
         self.loadedRows = 0
         self.loadedColumns = 0
+        self.gridButtons = []
 
     
     def createGrid(self, layout: tuple):
+        self.gridButtons = []
         if type(layout) is not tuple:
             raise TypeError("layout needs to be a tuple")
         if len(layout) != 2:
@@ -65,7 +67,7 @@ class KeyGrid(Gtk.Grid):
 
         for r in range(layout[0]):
             for c in range(layout[1]):
-                GridButton(self, r, c)
+                self.gridButtons.append(GridButton(self, r, c))
 
 class DeviceSelector(Gtk.ComboBox):
     def __init__(self, keyGrid: KeyGrid):
@@ -254,7 +256,7 @@ class StreamControllerApp(Adw.Application):
 
         self.leftSideGrid.append(self.keyGrid)
 
-        self.keyGrid.createGrid((4, 8))
+        self.keyGrid.createGrid(self.deck.key_layout())
 
 
         self.deviceSelector = DeviceSelector(self.keyGrid)

@@ -1,4 +1,4 @@
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, Gio
 from guiClasses.ConfigButton import ConfigButton
 class GridButton(Gtk.Button):
     def __init__(self, grid: Gtk.Grid, row: int, column: int):
@@ -21,6 +21,10 @@ class GridButton(Gtk.Button):
         dnd.connect('motion', self.on_dnd_motion)
         dnd.connect('leave', self.on_dnd_leave)
         self.add_controller(dnd)      
+        
+        self.image = Gtk.Image(hexpand=True, vexpand=True)
+        self.set_child(self.image)
+
     
     def on_dnd_drop(self, drop_target, value, x, y):
         print(f'in on_dnd_drop(); value={value}, x={x}, y={y}')

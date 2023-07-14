@@ -63,6 +63,7 @@
 	(1,155,"GtkMenuButton","icon-name","open-menu-symbolic",None,None,None,None,None,None,None,None,None),
 	(1,159,"GtkButton","icon-name","go-previous",None,None,None,None,None,None,None,None,None),
 	(1,159,"GtkWidget","margin-end","3",None,None,None,None,None,None,None,None,None),
+	(1,159,"GtkWidget","tooltip-text","Go back to category page",None,None,None,None,None,None,None,None,None),
 	(1,159,"GtkWidget","visible","False",None,None,None,None,None,None,None,None,None),
 	(1,159,"GtkWidget","width-request","80",None,None,None,None,None,None,None,None,None),
 	(1,166,"GtkOrientable","orientation","vertical",None,None,None,None,None,None,None,None,None),

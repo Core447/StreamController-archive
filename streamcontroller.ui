@@ -54,6 +54,7 @@
                       <object class="GtkButton" id="action-back-button">
                         <property name="icon-name">go-previous</property>
                         <property name="margin-end">3</property>
+                        <property name="tooltip-text">Go back to category page</property>
                         <property name="visible">False</property>
                         <property name="width-request">80</property>
                         <layout>

@@ -13,6 +13,7 @@ class PausePlay(ActionBase):
         self.pluginBase.keyboard.press(Key.media_play_pause)
         sleep(0.1)
         self.pluginBase.keyboard.release(Key.media_play_pause)
+        controller.loadButton(keyIndex, "Harold.jpg", [[{'text': 'Pressed', 'font-size': 12, 'text-location': 0.5}]], "Roboto-Regular.ttf")
         return
     def onKeyUp(self, controller, deck, keyIndex):
         #self.pluginBase.keyboard.release(Key.pause)
