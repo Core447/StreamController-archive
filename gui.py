@@ -218,6 +218,48 @@ class PageSelector(Gtk.Grid):
             for deckController in self.app.communicationHandler.deckController:
                 deckController.loadPage(self.comboBox.get_child().get_text())
     
+class HamburgerMenu(Gtk.MenuButton):
+    def __init__(self, app):
+        super().__init__()
+        self.app = app
+
+        #create a menu
+        self.menu = Gio.Menu.new()
+        self.menu.append("About", "app.aboutdialog")
+
+        #create a popover
+        self.popover = Gtk.PopoverMenu()
+        self.popover.set_menu_model(self.menu)
+
+        #setup the menubutton
+        self.set_popover(self.popover)
+        self.set_icon_name("open-menu-symbolic")
+
+class AboutDialog(Gtk.AboutDialog):
+    def __init__(self, app):
+        super().__init__()
+        self.app = app
+
+        self.set_transient_for(self.app.win)
+        self.set_modal(self.app.win)
+
+        self.set_authors(["Core447"])
+        self.set_copyright("Copyright 2023 Core447")
+        self.set_license_type(Gtk.License.GPL_3_0)
+        self.set_website("https://github.com/Core447/StreamController")
+        self.set_website_label("GitHub")
+        self.set_version("v0.1")
+        self.set_program_name("StreamController")
+        self.set_comments("A Linux app for the StreamDeck with plugin support")
+
+        
+        openAction = Gio.SimpleAction.new("aboutdialog", None)
+        openAction.connect("activate", self.showDialog)
+        self.app.add_action(openAction)
+    
+    def showDialog(self,action, parameter):
+        self.show()
+              
 
 
 
@@ -258,6 +300,11 @@ class StreamControllerApp(Adw.Application):
         self.header = builder.get_object("header")
 
         self.name_store = Gtk.ListStore(str)
+
+        self.hamburgerMenu = HamburgerMenu(self)
+        self.header.pack_end(self.hamburgerMenu)
+
+        self.aboutDialog = AboutDialog(self)
 
 
         self.pagesModel = Gtk.ListStore(str)

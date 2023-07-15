@@ -138,15 +138,6 @@
     </child>
     <child type="titlebar">
       <object class="GtkHeaderBar" id="header">
-        <child type="end">
-          <object class="GtkButton">
-            <child>
-              <object class="GtkImage">
-                <property name="icon-name">open-menu-symbolic</property>
-              </object>
-            </child>
-          </object>
-        </child>
         <child>
           <object class="GtkMenuButton">
             <property name="icon-name">open-menu-symbolic</property>
