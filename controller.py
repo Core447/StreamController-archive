@@ -7,6 +7,7 @@ import os
 import json
 from PIL import Image, ImageDraw, ImageFont
 import importlib
+import threading
 from time import sleep
 
 from gi.repository import Gtk, Adw, Gdk
@@ -16,11 +17,19 @@ from gi.repository import Gtk, Adw, Gdk
 ASSETS_PATH = os.path.join(os.path.dirname(__file__), "assets")
 from PluginBase import PluginBase
 
+
+
+
+
+
+
+
 class CommunicationHandler():
     def __init__(self):
         self.actionIndex = {}
         self.app = None
         self.deckController = []
+        self.startTickHandler()
         return
     
     def initDecks(self):
@@ -59,6 +68,33 @@ class CommunicationHandler():
         for file in pluginFileList:
             if file.endswith(".py"):
                 importlib.import_module("plugins." + file[:-3])
+
+    #helper methods
+    def getCurrentPageName(self) -> str:
+        return self.app.pageSelector.comboBox.get_child().get_text()
+        
+
+    def getCurrentPageJson(self):
+        pageName = self.getCurrentPageName()
+        #check if page exists
+        pageFilePath = os.path.join("pages", pageName + ".json")
+        if not os.path.exists(pageFilePath):
+            raise FileNotFoundError(f"Page {pageName} does not exist")
+
+        with open(pageFilePath) as file:
+            pageData = json.load(file)
+        
+        return pageData
+    
+    def startTickHandler(self):
+        tickThread = threading.Thread(target=self.handleTickMethods)
+        tickThread.start()
+    
+    def handleTickMethods(self):
+        while True:
+            for deckController in self.deckController:
+                deckController.handleTickMethods()
+            sleep(1)
 
 
     
@@ -216,8 +252,12 @@ class DeckController():
                         raise FileNotFoundError(f"Font {fontName} could not be found")
                     
         #create icon
-        deckIcon = Image.open(os.path.join(ASSETS_PATH, "images", iconFilename))
-        uiIcon = Image.open(os.path.join(ASSETS_PATH, "images", iconFilename))
+        if iconFilename == "":
+            deckIcon = Image.new("RGB", (32, 32), (0,0,0))
+            uiIcon = Image.new("RGBA", (32, 32), (0,0,0,0))
+        else:
+            deckIcon = Image.open(os.path.join(ASSETS_PATH, "images", iconFilename))
+            uiIcon = Image.open(os.path.join(ASSETS_PATH, "images", iconFilename))
         deckImage = PILHelper.create_scaled_image(self.deck, deckIcon, margins=[0, 0, 0, 0], background=((0,0,0)))
         uiImage = Image.new("RGBA", deckImage.size, (0,0,0,0))
        
@@ -235,6 +275,9 @@ class DeckController():
         thumbnail_x = ((thumbnail_max_width - thumbnail.width) // 2)
         thumbnail_y = ((thumbnail_max_height - thumbnail.height) // 2)
 
+        #uiImage = uiImage.convert("RGBA")
+        thumbnail = thumbnail.convert("RGBA")
+
         uiImage.paste(thumbnail, (thumbnail_x, thumbnail_y), thumbnail)
         
         #Add icon to uiImage
@@ -247,13 +290,13 @@ class DeckController():
         captions = json.loads(captions)
         print(f"captions: {captions}")
         
-        
+        fontSize = 14
         for caption in captions:
             #Load font
-            font = ImageFont.truetype(os.path.join(ASSETS_PATH, "fonts", fontPath), 14)
+            font = ImageFont.truetype(os.path.join(ASSETS_PATH, "fonts", fontPath), fontSize)
             #Draw captions on to the image
-            deckDraw.text((deckImage.width / 2, deckImage.height*caption[0]["text-location"]), text=caption[0]["text"], font=font, anchor="ms", fill="white")
-            uiDraw.text((uiImage.width / 2, uiImage.height*caption[0]["text-location"]), text=caption[0]["text"], font=font, anchor="ms", fill="white")
+            deckDraw.text((deckImage.width / 2, deckImage.height*caption[0]["text-location"]+fontSize/2), text=caption[0]["text"], font=font, anchor="ms", fill="white")
+            uiDraw.text((uiImage.width / 2, uiImage.height*caption[0]["text-location"]+fontSize/2), text=caption[0]["text"], font=font, anchor="ms", fill="white")
         
         deckImage.save(os.path.join("tmp", "lastLoadedIcon.png"))
 
@@ -334,6 +377,32 @@ class DeckController():
                 self.communicationHandler.actionIndex[action].onKeyDown(self, self.deck, keyIndex)
             else:
                 self.communicationHandler.actionIndex[action].onKeyUp(self, self.deck, keyIndex)
+
+    def handleTickMethods(self):
+        if self.loadedPageJson == None:
+            #no page loaded (yet)
+            return
+
+        pageData = self.loadedPageJson
+        for buttonName in pageData["buttons"]:
+            actionName = pageData["buttons"][buttonName]["actions"]["on-press"][0] #TODO: Find solution to show not only the first, maybe only allow one action and seperate multiactions completely
+            if actionName == "none":
+                #no action defined
+                return
+            action = self.communicationHandler.actionIndex[actionName]
+            if hasattr(action, "tick"):
+                print("object hast tick method")
+
+                controller = self
+                deck = self.deck
+                keyIndex = self.buttonNameToIndex(buttonName)
+
+                action.tick(controller, deck, keyIndex)
+        
+
+
+
+    
 
 
 

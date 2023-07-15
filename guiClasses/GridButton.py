@@ -68,26 +68,12 @@ class GridButton(Gtk.Button):
     def on_dnd_leave(self, user_data):
         print(f'in on_dnd_leave(); user_data={user_data}')
 
-    def getCurrentPageName(self) -> str:
-        return self.app.pageSelector.comboBox.get_child().get_text()
-        
-
-    def getCurrentPageJson(self):
-        pageName = self.getCurrentPageName()
-        #check if page exists
-        pageFilePath = os.path.join("pages", pageName + ".json")
-        if not os.path.exists(pageFilePath):
-            raise FileNotFoundError(f"Page {pageName} does not exist")
-
-        with open(pageFilePath) as file:
-            pageData = json.load(file)
-        
-        return pageData
+    
 
 
     def addActionToGrid(self, actionButton: ActionButton):
         print(actionButton.eventTag)
-        pageName = self.getCurrentPageName()
+        pageName = self.app.communicationHandler.getCurrentPageName()
 
         
         #print(pageData)
@@ -103,7 +89,7 @@ class GridButton(Gtk.Button):
         print(jsonButtonCoords)
         newButtonJson = {jsonButtonCoords: buttonInitialJson}
         
-        pageData = self.getCurrentPageJson()
+        pageData = self.app.communicationHandler.getCurrentPageJson()
 
         #get first deck #TODO: use the selected deck
         deckController = self.app.communicationHandler.deckController[0]
@@ -125,7 +111,7 @@ class GridButton(Gtk.Button):
     def onEntryFocusIn(self, event):
         self.clearActionConfigBox()
 
-        pageData = self.getCurrentPageJson()
+        pageData = self.app.communicationHandler.getCurrentPageJson()
         jsonButtonCoords = f"{self.gridPosition[0]}x{self.gridPosition[1]}"
         if jsonButtonCoords not in pageData["buttons"]:
             #no action assigned

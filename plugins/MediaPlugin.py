@@ -18,17 +18,28 @@ class PausePlay(ActionBase):
         if self.runShellCommand("type -p playerctl") != None:
             self.playerctlAvailable = True
         print(self.playerctlAvailable)
+
+        self.oldMediaStatus = None
                     
     def onKeyDown(self, controller, deck, keyIndex):
         self.pluginBase.keyboard.press(Key.media_play_pause)
         sleep(0.1)
         self.pluginBase.keyboard.release(Key.media_play_pause)
-        controller.loadButton(keyIndex, "Harold.jpg", [[{'text': 'Pressed', 'font-size': 12, 'text-location': 0.5}]], "Roboto-Regular.ttf")
+        controller.loadButton(keyIndex, "Pressed.png", [[{'text': 'Pressed', 'font-size': 12, 'text-location': 0.5}]], "Roboto-Regular.ttf")
         return
     def onKeyUp(self, controller, deck, keyIndex):
         #self.pluginBase.keyboard.release(Key.pause)
         return
     
+    def tick(self, controller, deck, keyIndex):
+        """
+        This function is called every second to allow constant updating
+        """
+        newMediaStatus = self.getMediaStatus()
+        if self.oldMediaStatus != newMediaStatus:
+            controller.loadButton(keyIndex, "", [[{'text': newMediaStatus, 'font-size': 12, 'text-location': 0.5}]], "Roboto-Regular.ttf")
+            self.oldMediaStatus = newMediaStatus
+
     def getInitialJson(self):
         return {'captions': [[{'text': 'Pause', 'font-size': 12, 'text-location': 0.5}]], 'default-image': 'Exit.png', 'background': [0, 0, 0], 'actions': {'on-press': ['Media:pauseplay'], 'on-release': []}}
     
@@ -47,6 +58,9 @@ class PausePlay(ActionBase):
 
         # Return the output as a string
         return output
+    
+    def getMediaStatus(self) -> str:
+        return self.runShellCommand("playerctl status")
     
 class Next(ActionBase):
     ACTION_NAME = "next"
