@@ -1,45 +1,33 @@
 {
     "buttons": {
         "0x0": {
-            "captions": [
-                [
-                    {"text": "Text",
-                    "font-size": 12,
-                    "text-location": 0.5}
-                ],
-                [
-                    {"text": "Text2",
-                    "font-size": 12,
-                    "text-location": 1}
-                ]
-
+            "captions": [],
+            "default-image": "plugins/MediaPlugin/images/stop.png",
+            "background": [
+                0,
+                0,
+                0
             ],
-            "default-image": "Exit.png",
-            "background": [0, 0, 0],
             "actions": {
-                "on-press": ["Media:pauseplay"],
+                "on-press": [
+                    "Media:pauseplay"
+                ],
                 "on-release": []
             }
         },
         "1x1": {
-            "captions": [
-                [
-                    {"text": "Text3",
-                    "font-size": 12,
-                    "text-location": 0.5}
-                ],
-                [
-                    {"text": "Text4",
-                    "font-size": 12,
-                    "text-location": 1}
-                ]
-
+            "captions": [],
+            "default-image": "plugins/MediaPlugin/images/next.png",
+            "background": [
+                0,
+                0,
+                0
             ],
-            "default-image": "Pressed.png",
-            "background": [0, 0, 0],
             "actions": {
-                "on-press": ["none"],
-                "on-release": ["none"]
+                "on-press": [
+                    "Media:next"
+                ],
+                "on-release": []
             }
         }
     }

@@ -117,6 +117,7 @@ class DeckController():
         self.deck.open()
         self.loadedPage = None
         self.loadedPageJson = None
+        self.loadedButtons = {} #a dict that keeps track of loaded buttons to avoid reloading them when not needed
 
         #Register callback function (handles key presses)
         deck.set_key_callback(self.keyChangeCallback)
@@ -177,14 +178,17 @@ class DeckController():
         buttons = pageData["buttons"]
         for button in buttons.items():
             buttonIndex = self.buttonNameToIndex(button[0])
-            self.loadButton(buttonIndex, buttons[button[0]]["default-image"], buttons[button[0]]["captions"], "Roboto-Regular.ttf")
+            self.loadButton(buttonIndex, buttons[button[0]]["default-image"], buttons[button[0]]["captions"], "Roboto-Regular.ttf", update=update)
 
         #set loadedPage variables
         self.loadedPage = pageName
         self.loadedPageJson = pageData
 
-    def loadButton(self, keyIndex: int, imageName: str, captions: list, fontName: str):
-        print(keyIndex, imageName, captions, fontName)
+    def loadButton(self, keyIndex: int, imageName: str, captions: list, fontName: str, update: bool = False):
+        if keyIndex in self.loadedButtons and not update:
+            if self.loadedButtons[keyIndex] == [imageName, captions, fontName]:
+                #exact same button is already loaded, skipping...
+                return
 
         #check if keyIndex is an int
         if not isinstance(keyIndex, int):
@@ -220,6 +224,8 @@ class DeckController():
         uiImage.save(os.path.join("tmp", "lastLoadedIcon.png"))
         #TODO: Find solution to avoid saving image
         self.communicationHandler.app.keyGrid.gridButtons[keyIndex].image.set_from_file(os.path.join("tmp", "lastLoadedIcon.png"))
+
+        self.loadedButtons[keyIndex] = [imageName, captions, fontName]
 
     
     #helper functions
@@ -273,8 +279,9 @@ class DeckController():
             deckIcon = Image.new("RGB", (32, 32), (0,0,0))
             uiIcon = Image.new("RGBA", (32, 32), (0,0,0,0))
         else:
-            deckIcon = Image.open(os.path.join(ASSETS_PATH, "images", iconFilename))
-            uiIcon = Image.open(os.path.join(ASSETS_PATH, "images", iconFilename))
+            imagePath = os.path.join(ASSETS_PATH, "images", iconFilename) if "/" not in iconFilename else iconFilename
+            deckIcon = Image.open(imagePath)
+            uiIcon = Image.open(imagePath)
         deckImage = PILHelper.create_scaled_image(self.deck, deckIcon, margins=[0, 0, 0, 0], background=((0,0,0)))
         uiImage = Image.new("RGBA", deckImage.size, (0,0,0,0))
        
