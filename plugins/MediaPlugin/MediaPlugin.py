@@ -6,11 +6,13 @@ from pynput.keyboard import Key, Controller
 import json
 from gi.repository import Gtk, Adw, Gdk
 import subprocess
+import os
 
 class PausePlay(ActionBase):
     ACTION_NAME = "pauseplay"
     def __init__(self, pluginBase: PluginBase):
         super().__init__()
+        self.PLUGIN_FOLDER = os.path.dirname(__file__) #set to the folder of the plugin
         self.pluginBase = pluginBase
 
         #check if playerctl is installed on the system
@@ -35,7 +37,8 @@ class PausePlay(ActionBase):
         """
         This function is called every second to allow constant updating
         """
-        newMediaStatus = self.getMediaStatus()
+        newMediaStatus = str(self.getMediaStatus()) #convert None to "None"
+        print(newMediaStatus)
         if self.oldMediaStatus != newMediaStatus or True: #FIXME: if this statement is active only the first of all buttons with this function will be updated
             controller.loadButton(keyIndex, "", [[{'text': newMediaStatus, 'font-size': 12, 'text-location': 0.5}]], "Roboto-Regular.ttf")
             self.oldMediaStatus = newMediaStatus

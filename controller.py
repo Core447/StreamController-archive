@@ -64,10 +64,16 @@ class CommunicationHandler():
 
     def loadPlugins(self):
         #Load all plugins
-        pluginFileList = os.listdir("plugins/")
-        for file in pluginFileList:
-            if file.endswith(".py"):
-                importlib.import_module("plugins." + file[:-3])
+        path = "plugins"
+
+        for folder in os.listdir(path):
+            if not os.path.isdir(os.path.join(path, folder)):
+                continue
+            if os.path.exists(os.path.join(path, folder, folder+".py")):
+                modulePath = path.replace("/",".") + "." + folder + "." + folder
+                if modulePath[0] == ".": modulePath = modulePath[1:]
+                print(modulePath)
+                importlib.import_module(modulePath)
 
     #helper methods
     def getCurrentPageName(self) -> str:
