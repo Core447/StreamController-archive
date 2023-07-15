@@ -12,7 +12,13 @@ class GridButton(Gtk.Button):
         self.gridPosition = (row, column)
         self.set_css_classes(["gridButton"])
 
+        self.set_focusable(True)
+        self.set_focus_on_click(True)
+        self.set_can_focus(True)
+        self.set_can_target(True)
         grid.attach(self, column, row, 1, 1) 
+        
+        self.loadedActionConfigLayout = None
 
         #Drag and drop
         #button.connect('drag_begin', self.dragBegin )
@@ -28,12 +34,16 @@ class GridButton(Gtk.Button):
         #dnd.connect('motion', self.on_dnd_motion)
         #dnd.connect('leave', self.on_dnd_leave)
         self.add_controller(dnd)      
+
+        #focus controller
+        self.focusCtrl = Gtk.EventControllerFocus().new()
+        self.focusCtrl.connect("enter", self.onEntryFocusIn)
+        self.add_controller(self.focusCtrl)
         
         self.image = Gtk.Image(hexpand=True, vexpand=True)
         self.image.clear()
         self.set_child(self.image)
-
-    #TODO: only accept ActionButtons    
+  
     def on_dnd_drop(self, drop_target, value, x, y):
         #print(f'in on_dnd_drop(); value={value}, x={x}, y={y}')
         #print(list(value))
@@ -58,10 +68,12 @@ class GridButton(Gtk.Button):
     def on_dnd_leave(self, user_data):
         print(f'in on_dnd_leave(); user_data={user_data}')
 
-    def addActionToGrid(self, actionButton: ActionButton):
-        print(actionButton.eventTag)
-        pageName = self.app.pageSelector.comboBox.get_child().get_text()
+    def getCurrentPageName(self) -> str:
+        return self.app.pageSelector.comboBox.get_child().get_text()
+        
 
+    def getCurrentPageJson(self):
+        pageName = self.getCurrentPageName()
         #check if page exists
         pageFilePath = os.path.join("pages", pageName + ".json")
         if not os.path.exists(pageFilePath):
@@ -69,6 +81,15 @@ class GridButton(Gtk.Button):
 
         with open(pageFilePath) as file:
             pageData = json.load(file)
+        
+        return pageData
+
+
+    def addActionToGrid(self, actionButton: ActionButton):
+        print(actionButton.eventTag)
+        pageName = self.getCurrentPageName()
+
+        
         #print(pageData)
 
         #button_data = {'position': '0x0', 'captions': [[{'text': 'New Button', 'font-size': 12, 'text-location': 0.5}], [{'text': 'New Button Text', 'font-size': 12, 'text-location': 1}]], 'default-image': 'NewButton.png', 'background': [0, 0, 0], 'actions': {'on-press': ['none'], 'on-release': ['none']}}
@@ -81,13 +102,43 @@ class GridButton(Gtk.Button):
         jsonButtonCoords = f"{self.gridPosition[0]}x{self.gridPosition[1]}"
         print(jsonButtonCoords)
         newButtonJson = {jsonButtonCoords: buttonInitialJson}
-        pageData["buttons"].update(newButtonJson)
-
-        with open(pageFilePath, 'w') as file:
-            json.dump(pageData, file, indent=4)
+        
+        pageData = self.getCurrentPageJson()
 
         #get first deck #TODO: use the selected deck
         deckController = self.app.communicationHandler.deckController[0]
         #print(deckController.)
         print(f"loading Page: {pageName}")
         deckController.loadPage(pageName, True)
+
+    def clearActionConfigBox(self):
+        self.app.leftSideGrid.remove(self.app.actionConfigBox)
+        self.app.actionConfigBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True)
+        self.app.leftSideGrid.append(self.app.actionConfigBox)
+
+        return
+        #FIXME: the code above would be cleaner but is not working, no idea why
+        #clear all children in actionConfigBox
+        while(self.app.actionConfigBox.get_first_child() != None):
+            self.app.actionConfigBox.remove(self.get_first_child())  
+
+    def onEntryFocusIn(self, event):
+        self.clearActionConfigBox()
+
+        pageData = self.getCurrentPageJson()
+        jsonButtonCoords = f"{self.gridPosition[0]}x{self.gridPosition[1]}"
+        if jsonButtonCoords not in pageData["buttons"]:
+            #no action assigned
+            return
+        
+        actionKey = pageData["buttons"][jsonButtonCoords]["actions"]["on-press"][0] #TODO: Find solution to show not only the first, maybe only allow one action and seperate multiactions completely
+        if actionKey not in self.app.communicationHandler.actionIndex:
+            return
+        
+        actionConfigLayout = self.app.communicationHandler.actionIndex[actionKey].getConfigLayout()
+        if actionConfigLayout == None:
+            #no config layout defined
+            return
+    
+        #add configLayout from action
+        self.app.actionConfigBox.append(actionConfigLayout)

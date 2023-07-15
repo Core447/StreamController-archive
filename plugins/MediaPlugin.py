@@ -4,6 +4,7 @@ from PluginBase import PluginBase
 from time import sleep
 from pynput.keyboard import Key, Controller
 import json
+from gi.repository import Gtk, Adw, Gdk
 
 class PausePlay(ActionBase):
     ACTION_NAME = "pauseplay"
@@ -22,6 +23,11 @@ class PausePlay(ActionBase):
     
     def getInitialJson(self):
         return {'captions': [[{'text': 'Pause', 'font-size': 12, 'text-location': 0.5}]], 'default-image': 'Exit.png', 'background': [0, 0, 0], 'actions': {'on-press': ['Media:pauseplay'], 'on-release': []}}
+    
+    def getConfigLayout(self):
+        return Gtk.Button(label="Pause config")
+    
+    #custom functions
     
 class Next(ActionBase):
     ACTION_NAME = "next"

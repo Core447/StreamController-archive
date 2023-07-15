@@ -387,6 +387,17 @@ class StreamControllerApp(Adw.Application):
         self.keyGrid.createGrid((3, 5))
 
 
+        #add grid where all action configs can be displayed
+        self.actionConfigBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True)
+        self.leftSideGrid.append(self.actionConfigBox)
+
+                              
+
+
+    
+
+
+
         self.deviceSelector = DeviceSelector(self.keyGrid)
         self.header.pack_start(self.deviceSelector)
 
