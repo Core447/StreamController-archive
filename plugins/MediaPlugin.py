@@ -36,9 +36,10 @@ class PausePlay(ActionBase):
         This function is called every second to allow constant updating
         """
         newMediaStatus = self.getMediaStatus()
-        if self.oldMediaStatus != newMediaStatus:
+        if self.oldMediaStatus != newMediaStatus or True: #FIXME: if this statement is active only the first of all buttons with this function will be updated
             controller.loadButton(keyIndex, "", [[{'text': newMediaStatus, 'font-size': 12, 'text-location': 0.5}]], "Roboto-Regular.ttf")
             self.oldMediaStatus = newMediaStatus
+        print(f"tick from on index: {keyIndex} is over")
 
     def getInitialJson(self):
         return {'captions': [[{'text': 'Pause', 'font-size': 12, 'text-location': 0.5}]], 'default-image': 'Exit.png', 'background': [0, 0, 0], 'actions': {'on-press': ['Media:pauseplay'], 'on-release': []}}

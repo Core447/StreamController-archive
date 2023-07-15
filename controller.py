@@ -224,6 +224,17 @@ class DeckController():
         return f"{row}x{column}"
     
     def createDeckImages(self, iconFilename: str, captions: list = [], fontName: str = "Roboto-Regular.ttf"):
+        """
+        Generate the deck images with captions and icons.
+
+        Parameters:
+            iconFilename (str): The filename of the icon image, empty string for black background.
+            captions (list, optional): The list of captions to be added to the images. Defaults to an empty list.
+            fontName (str, optional): The filename or path of the font. Defaults to "Roboto-Regular.ttf".
+
+        Returns:
+            tuple: A tuple containing the deck image and the UI image.
+        """
 
         #Create deck image
         #check if iconFilename is a string
@@ -382,28 +393,21 @@ class DeckController():
         if self.loadedPageJson == None:
             #no page loaded (yet)
             return
+        print("tick....")
 
         pageData = self.loadedPageJson
         for buttonName in pageData["buttons"]:
             actionName = pageData["buttons"][buttonName]["actions"]["on-press"][0] #TODO: Find solution to show not only the first, maybe only allow one action and seperate multiactions completely
             if actionName == "none":
+                print(f"buttonName: {buttonName}, no action defined")
                 #no action defined
-                return
+                continue
             action = self.communicationHandler.actionIndex[actionName]
             if hasattr(action, "tick"):
-                print("object hast tick method")
+                print("object has tick method")
 
                 controller = self
                 deck = self.deck
                 keyIndex = self.buttonNameToIndex(buttonName)
-
+                print(f"updating index: {keyIndex}")
                 action.tick(controller, deck, keyIndex)
-        
-
-
-
-    
-
-
-
-#while True: pass    

@@ -73,23 +73,19 @@ class GridButton(Gtk.Button):
 
     def addActionToGrid(self, actionButton: ActionButton):
         print(actionButton.eventTag)
-        pageName = self.app.communicationHandler.getCurrentPageName()
-
+        pageName = self.app.communicationHandler.deckController[0].loadedPage
         
-        #print(pageData)
-
-        #button_data = {'position': '0x0', 'captions': [[{'text': 'New Button', 'font-size': 12, 'text-location': 0.5}], [{'text': 'New Button Text', 'font-size': 12, 'text-location': 1}]], 'default-image': 'NewButton.png', 'background': [0, 0, 0], 'actions': {'on-press': ['none'], 'on-release': ['none']}}
-        #pageData['buttons'].update({button_data['position']: button_data})
-
-        #if "0x0" in pageData["buttons"]:
-        #    print("exists")
-
         buttonInitialJson = self.app.communicationHandler.actionIndex[actionButton.eventTag].getInitialJson()
         jsonButtonCoords = f"{self.gridPosition[0]}x{self.gridPosition[1]}"
         print(jsonButtonCoords)
         newButtonJson = {jsonButtonCoords: buttonInitialJson}
         
-        pageData = self.app.communicationHandler.getCurrentPageJson()
+        pageData = self.app.communicationHandler.deckController[0].loadedPageJson
+
+        pageData["buttons"].update(newButtonJson)
+
+        with open(os.path.join("pages", pageName + ".json"), 'w') as file:
+            json.dump(pageData, file, indent=4)
 
         #get first deck #TODO: use the selected deck
         deckController = self.app.communicationHandler.deckController[0]
@@ -103,7 +99,7 @@ class GridButton(Gtk.Button):
         self.app.leftSideGrid.append(self.app.actionConfigBox)
 
         return
-        #FIXME: the code above would be cleaner but is not working, no idea why
+        #FIXME: the code below would be cleaner but is not working, no idea why
         #clear all children in actionConfigBox
         while(self.app.actionConfigBox.get_first_child() != None):
             self.app.actionConfigBox.remove(self.get_first_child())  
@@ -111,7 +107,7 @@ class GridButton(Gtk.Button):
     def onEntryFocusIn(self, event):
         self.clearActionConfigBox()
 
-        pageData = self.app.communicationHandler.getCurrentPageJson()
+        pageData = self.app.communicationHandler.deckController[0].loadedPageJson
         jsonButtonCoords = f"{self.gridPosition[0]}x{self.gridPosition[1]}"
         if jsonButtonCoords not in pageData["buttons"]:
             #no action assigned
