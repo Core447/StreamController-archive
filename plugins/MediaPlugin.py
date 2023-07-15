@@ -3,6 +3,7 @@ from PluginBase import PluginBase
 
 from time import sleep
 from pynput.keyboard import Key, Controller
+import json
 
 class PausePlay(ActionBase):
     ACTION_NAME = "pauseplay"
@@ -19,6 +20,9 @@ class PausePlay(ActionBase):
         #self.pluginBase.keyboard.release(Key.pause)
         return
     
+    def getInitialJson(self):
+        return {'captions': [[{'text': 'Pause', 'font-size': 12, 'text-location': 0.5}]], 'default-image': 'Exit.png', 'background': [0, 0, 0], 'actions': {'on-press': ['Media:pauseplay'], 'on-release': []}}
+    
 class Next(ActionBase):
     ACTION_NAME = "next"
     def __init__(self, pluginBase: PluginBase):
@@ -27,6 +31,9 @@ class Next(ActionBase):
     def onKeyDown(self, controller, deck, keyIndex):
         print("next")
         return
+    def getInitialJson(self):
+        return {'captions': [[{'text': 'Text', 'font-size': 12, 'text-location': 0.5}], [{'text': 'Text2', 'font-size': 12, 'text-location': 1}]], 'default-image': 'Exit.png', 'background': [0, 0, 0], 'actions': {'on-press': ['Media:next'], 'on-release': []}}
+
 
 #The plugin class
 class MediaPlugin(PluginBase):

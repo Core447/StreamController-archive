@@ -60,7 +60,7 @@ class CommunicationHandler():
             if file.endswith(".py"):
                 importlib.import_module("plugins." + file[:-3])
 
-        
+
     
 
 class DeckController():
@@ -81,6 +81,7 @@ class DeckController():
 
     def reset(self):
         self.deck.reset()
+        
 
 
         #Wait until keyGrid is loaded
@@ -97,7 +98,7 @@ class DeckController():
 
 
     #functions
-    def loadPage(self, pageName: str):
+    def loadPage(self, pageName: str, update: bool = False):
         """
         Load a page by its name.
 
@@ -117,7 +118,7 @@ class DeckController():
             raise ValueError("Page name must be a string")
         
         #check if page is already loaded
-        if self.loadedPage == pageName:
+        if self.loadedPage == pageName and not update:
             return
         
         #check if page exists
@@ -126,6 +127,7 @@ class DeckController():
             raise FileNotFoundError(f"Page {pageName} does not exist")
         
         #load page
+        #TODO: only reload and clear buttons that changed
         self.reset() #Reset the deck
         with open(pageFilePath) as file:
             pageData = json.load(file)

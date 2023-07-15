@@ -1,7 +1,15 @@
 from gi.repository import Gtk, Gdk
 from guiClasses.ConfigButton import ConfigButton
 class ActionButton(ConfigButton):
-    def __init__(self, grid, row, label, iconPath):
+    def __init__(self, grid, row, label, iconPath, eventTag: str):
+        #TODO: check if eventTag is already in use
+        #check eventTag
+        if not isinstance(eventTag, str):
+            raise TypeError("eventTag must be a String")
+        if len(eventTag) == 0:
+            print(f"No eventTag given, skipping creation of ActionButton with label: {label}")
+            return
+        self.eventTag = eventTag
         super().__init__(label)
         self.buttonIcon.set_from_file(iconPath)
 
@@ -18,7 +26,7 @@ class ActionButton(ConfigButton):
         self.buttonGrid.add_controller(dnd)
 
     def on_dnd_prepare(self, drag_source, x, y):
-        print(f'in on_dnd_prepare(); drag_source={drag_source}, x={x}, y={y}')
+        #print(f'in on_dnd_prepare(); drag_source={drag_source}, x={x}, y={y}')
        
         drag_source.set_icon(
             Gtk.WidgetPaintable.new(self),
@@ -30,7 +38,8 @@ class ActionButton(ConfigButton):
 
     def on_dnd_begin(self, drag_source, data):
         content = data.get_content()
-        print(f'in on_dnd_begin(); drag_source={drag_source}, data={data}, content={content}')
+        #print(f'in on_dnd_begin(); drag_source={drag_source}, data={data}, content={content}')
 
     def on_dnd_end(self, drag, drag_data, flag):
-        print(f'in on_dnd_end(); drag={drag}, drag_data={drag_data}, flag={flag}')
+        #print(f'in on_dnd_end(); drag={drag}, drag_data={drag_data}, flag={flag}')
+        pass

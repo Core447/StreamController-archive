@@ -47,8 +47,9 @@ def createPagesList(onlyName: bool = False):
         
         
 class KeyGrid(Gtk.Grid):
-    def __init__(self):
+    def __init__(self, app):
         super().__init__(halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, column_homogeneous=True, row_homogeneous=True, hexpand=True, vexpand=True)
+        self.app = app
         self.loadedRows = 0
         self.loadedColumns = 0
         self.gridButtons = []
@@ -70,7 +71,7 @@ class KeyGrid(Gtk.Grid):
 
         for r in range(layout[0]):
             for c in range(layout[1]):
-                self.gridButtons.append(GridButton(self, r, c))
+                self.gridButtons.append(GridButton(self.app, self, r, c))
 
 class DeviceSelector(Gtk.ComboBox):
     def __init__(self, keyGrid: KeyGrid):
@@ -130,9 +131,9 @@ class ActionSelector(Gtk.Grid):
 
         self.stack.add_titled(self, categoryName, categoryName)
 
-    def loadActions(self, actions: list):
+    def loadActions(self, actions: list, categoryName: str):
         for row in range(len(actions)):
-            actionButton = ActionButton(self, row+1, actions[row], "")
+            actionButton = ActionButton(self, row+1, actions[row], "", categoryName+":"+actions[row])
             pass
 
 
@@ -153,6 +154,7 @@ class PageSelector(Gtk.Grid):
         self.comboBox.set_entry_text_column(0)
         self.comboBox.set_can_focus(True)
         self.comboBox.set_hexpand(False)
+        
         self.comboBox.connect("changed", self.onChange)
         #self.comboBox.connect("leave-notify-event", self.onEntryFocusOut)
         self.focusCtrl = Gtk.EventControllerFocus().new()
@@ -163,6 +165,16 @@ class PageSelector(Gtk.Grid):
         #Attachments
         self.attach(self.label, 0, 0, 1, 1)
         self.attach(self.comboBox, 1, 0, 1, 1)
+
+
+        #set first page to default
+        for page in range(len(self.pagesModel)):
+            print(self.pagesModel[page][0])
+            if self.pagesModel[page][0] == "main":
+                print(page)
+                break #FIXME: setting the default page causes the programm to freeze
+                self.comboBox.set_active(page)
+        
 
     def createPagesList(self, onlyName: bool = False):
         pagesPath = "pages"
@@ -286,7 +298,7 @@ class StreamControllerApp(Adw.Application):
 
         for key in list(allActions.keys()):
             actionGrid = ActionSelector(self.stack, key)
-            actionGrid.loadActions(allActions[key])
+            actionGrid.loadActions(allActions[key], key)
 
         
         #exit()
@@ -300,12 +312,12 @@ class StreamControllerApp(Adw.Application):
         #self.createButton(self.actionGrid, 0, "Open URL")
 
         #Add action page to stack
-        self.stack.add_titled(self.actionGrid, "Media", "Media")
+        
 
 
 
 
-        self.stack.set_visible_child_name("categories")
+        self.stack.set_visible_child_name("Categories")
 
         #Drag drop
         #self.categoryGrid.drag_dest_set(Gtk.DestDefaults.ALL, [], Gdk.DragAction.COPY)
@@ -319,7 +331,7 @@ class StreamControllerApp(Adw.Application):
         self.pageSelector = PageSelector(self)
         self.leftSideGrid.prepend(self.pageSelector)
         
-        self.keyGrid = KeyGrid()
+        self.keyGrid = KeyGrid(self)
         self.keyGrid.createGrid(streamdecksRaw[0].key_layout())
         #print(streamdecksRaw[0].key_layout())
 

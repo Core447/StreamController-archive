@@ -3,6 +3,8 @@ from gui import *
 import threading
 from time import sleep
 
+app = None
+
 def runApp():
     print("started app thread")
     #exit()
