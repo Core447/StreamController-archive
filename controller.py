@@ -181,7 +181,7 @@ class DeckController():
             self.loadButton(buttonIndex, buttons[button[0]]["default-image"], buttons[button[0]]["captions"], "Roboto-Regular.ttf", update=update)
 
             #update eventTag of ui button
-            eventTag = buttons[button[0]]["actions"]["on-press"][0]
+            eventTag = buttons[button[0]]["actions"][0]
             self.communicationHandler.app.keyGrid.gridButtons[buttonIndex].eventTag = eventTag
 
 
@@ -371,13 +371,14 @@ class DeckController():
             #button is not defined
             return
         
-        if state == True and button[self.getJsonKeySyntaxByIndex(key)]["actions"]["on-press"] != "none":
-            print(button[self.getJsonKeySyntaxByIndex(key)]["actions"]["on-press"])
-            self.doActions(button[self.getJsonKeySyntaxByIndex(key)]["actions"]["on-press"], key, True)
+        if state == True and button[self.getJsonKeySyntaxByIndex(key)]["actions"] != []:
+            print(button[self.getJsonKeySyntaxByIndex(key)]["actions"])
+            self.doActions(button[self.getJsonKeySyntaxByIndex(key)]["actions"], key, True)
+        '''
         elif state == False and button[self.getJsonKeySyntaxByIndex(key)]["actions"]["on-release"] != "none":
             print(button[self.getJsonKeySyntaxByIndex(key)]["actions"]["on-release"])
             self.doActions(button[self.getJsonKeySyntaxByIndex(key)]["actions"]["on-release"], key, False)
-
+        '''
 
     def doActions(self, actions: list, keyIndex: int, keyState: bool):
         """
@@ -404,9 +405,11 @@ class DeckController():
                 continue
             if keyState == True:
                 self.communicationHandler.actionIndex[action].onKeyDown(self, self.deck, keyIndex)
+            '''
             else:
                 self.communicationHandler.actionIndex[action].onKeyUp(self, self.deck, keyIndex)
-
+            '''
+                
     def handleTickMethods(self):
         if self.loadedPageJson == None:
             #no page loaded (yet)
@@ -415,7 +418,7 @@ class DeckController():
 
         pageData = self.loadedPageJson
         for buttonName in pageData["buttons"]:
-            actionName = pageData["buttons"][buttonName]["actions"]["on-press"][0] #TODO: Find solution to show not only the first, maybe only allow one action and seperate multiactions completely
+            actionName = pageData["buttons"][buttonName]["actions"][0] #TODO: Find solution to show not only the first, maybe only allow one action and seperate multiactions completely
             if actionName == "none":
                 print(f"buttonName: {buttonName}, no action defined")
                 #no action defined

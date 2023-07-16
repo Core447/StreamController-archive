@@ -27,9 +27,6 @@ class PausePlay(ActionBase):
         sleep(0.1)
         self.pluginBase.keyboard.release(Key.media_play_pause)
         return
-    def onKeyUp(self, controller, deck, keyIndex):
-        self.updateIcon(controller, deck, keyIndex)
-        return
     
     def tick(self, controller, deck, keyIndex):
         """
@@ -38,7 +35,7 @@ class PausePlay(ActionBase):
         self.updateIcon(controller, deck, keyIndex)
 
     def getInitialJson(self):
-        return {'captions': [], 'default-image': os.path.join(self.pluginBase.PLUGIN_PATH, "images", "stop.png"), 'background': [0, 0, 0], 'actions': {'on-press': ['Media:pauseplay'], 'on-release': []}}
+        return {'captions': [], 'default-image': os.path.join(self.pluginBase.PLUGIN_PATH, "images", "stop.png"), 'background': [0, 0, 0], 'actions': ['Media:pauseplay']}
     
     def getConfigLayout(self):
         if self.playerctlAvailable:
@@ -80,7 +77,7 @@ class Next(ActionBase):
         self.pluginBase.keyboard.release(Key.media_next)
         return
     def getInitialJson(self):
-        return {'captions': [], 'default-image': os.path.join(self.pluginBase.PLUGIN_PATH, "images", "next.png"), 'background': [0, 0, 0], 'actions': {'on-press': ['Media:next'], 'on-release': []}}
+        return {'captions': [], 'default-image': os.path.join(self.pluginBase.PLUGIN_PATH, "images", "next.png"), 'background': [0, 0, 0], 'actions': ['Media:next']}
 
 
 #The plugin class

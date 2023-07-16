@@ -1,3 +1,11 @@
 {
-    "buttons": {}
+    "buttons": {
+        "1x2": {
+            "captions": [],
+            "default-image": "plugins/MediaPlugin/images/stop.png",
+            "actions": [
+                "Media:pauseplay"
+            ]
+        }
+    }
 }
