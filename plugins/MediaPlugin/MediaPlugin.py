@@ -37,10 +37,8 @@ class PausePlay(ActionBase):
         """
         self.updateIcon(controller, deck, keyIndex)
 
-
-
     def getInitialJson(self):
-        return {'captions': [], 'default-image': os.path.join(self.pluginBase.PLUGIN_FOLDER, "images", "stop.png"), 'background': [0, 0, 0], 'actions': {'on-press': ['Media:pauseplay'], 'on-release': []}}
+        return {'captions': [], 'default-image': os.path.join(self.pluginBase.PLUGIN_PATH, "images", "stop.png"), 'background': [0, 0, 0], 'actions': {'on-press': ['Media:pauseplay'], 'on-release': []}}
     
     def getConfigLayout(self):
         if self.playerctlAvailable:
@@ -65,11 +63,11 @@ class PausePlay(ActionBase):
         mediaStatus = str(self.getMediaStatus()) #convert None to "None"
         #load icons
         if mediaStatus == "Playing":
-            controller.loadButton(keyIndex, os.path.join(self.pluginBase.PLUGIN_FOLDER, "images", "pause.png"), [], "Roboto-Regular.ttf")
+            controller.loadButton(keyIndex, os.path.join(self.pluginBase.PLUGIN_PATH, "images", "pause.png"), [], "Roboto-Regular.ttf")
         elif mediaStatus == "Paused":
-            controller.loadButton(keyIndex, os.path.join(self.pluginBase.PLUGIN_FOLDER, "images", "play.png"), [], "Roboto-Regular.ttf")
+            controller.loadButton(keyIndex, os.path.join(self.pluginBase.PLUGIN_PATH, "images", "play.png"), [], "Roboto-Regular.ttf")
         elif mediaStatus in ["No players found", "None"]:
-            controller.loadButton(keyIndex, os.path.join(self.pluginBase.PLUGIN_FOLDER, "images", "stop.png"), [], "Roboto-Regular.ttf")
+            controller.loadButton(keyIndex, os.path.join(self.pluginBase.PLUGIN_PATH, "images", "stop.png"), [], "Roboto-Regular.ttf")
     
 class Next(ActionBase):
     ACTION_NAME = "next"
@@ -82,17 +80,17 @@ class Next(ActionBase):
         self.pluginBase.keyboard.release(Key.media_next)
         return
     def getInitialJson(self):
-        return {'captions': [], 'default-image': os.path.join(self.pluginBase.PLUGIN_FOLDER, "images", "next.png"), 'background': [0, 0, 0], 'actions': {'on-press': ['Media:next'], 'on-release': []}}
+        return {'captions': [], 'default-image': os.path.join(self.pluginBase.PLUGIN_PATH, "images", "next.png"), 'background': [0, 0, 0], 'actions': {'on-press': ['Media:next'], 'on-release': []}}
 
 
 #The plugin class
 class MediaPlugin(PluginBase):
     PLUGIN_NAME = "Media"
+    PLUGIN_PATH = os.path.dirname(os.path.relpath(__file__)) #set path to plugin
     #pluginActions = []
     def __init__(self):
         super().__init__()
         self.initActions()
-        self.PLUGIN_FOLDER = os.path.dirname(os.path.relpath(__file__)) #set to the folder of the plugin
 
         self.keyboard = Controller()
         return
