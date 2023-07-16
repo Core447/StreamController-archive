@@ -95,7 +95,7 @@ class GridButton(Gtk.Button):
 
     def clearActionConfigBox(self):
         self.app.leftSideGrid.remove(self.app.actionConfigBox)
-        self.app.actionConfigBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True)
+        self.app.actionConfigBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, margin_bottom=10)
         self.app.leftSideGrid.append(self.app.actionConfigBox)
 
         return
@@ -117,10 +117,19 @@ class GridButton(Gtk.Button):
         if actionKey not in self.app.communicationHandler.actionIndex:
             return
         
+        if not hasattr(self.app.communicationHandler.actionIndex[actionKey], "getConfigLayout"):
+            #no config layout defined
+            return
         actionConfigLayout = self.app.communicationHandler.actionIndex[actionKey].getConfigLayout()
         if actionConfigLayout == None:
             #no config layout defined
             return
+        
+        #add seperator
+        self.app.actionConfigBox.append(Gtk.Separator(orientation=Gtk.Orientation.VERTICAL, margin_bottom=0))
+
+        #add label
+        self.app.actionConfigBox.append(Gtk.Label(label=actionKey, css_classes=["action-config-header"], xalign=0, margin_start=5))
     
         #add configLayout from action
         self.app.actionConfigBox.append(actionConfigLayout)

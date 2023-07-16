@@ -388,7 +388,7 @@ class StreamControllerApp(Adw.Application):
 
 
         #add grid where all action configs can be displayed
-        self.actionConfigBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True)
+        self.actionConfigBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, margin_bottom=10)
         self.leftSideGrid.append(self.actionConfigBox)
 
                               

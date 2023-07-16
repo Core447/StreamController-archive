@@ -44,7 +44,7 @@ class PausePlay(ActionBase):
     
     def getConfigLayout(self):
         if self.playerctlAvailable:
-            return
+            return Gtk.Label(label="You have playerctl installed on your system, you're good to go!")
         return Gtk.Label(label="Please install playerctl on your system")
     
     #custom functions
