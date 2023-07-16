@@ -9,6 +9,7 @@ class GridButton(Gtk.Button):
     def __init__(self, app, grid: Gtk.Grid, row: int, column: int):
         super().__init__()
         self.app = app
+        self.grid = grid
         self.gridPosition = (row, column)
         self.set_css_classes(["gridButton"])
 
@@ -17,6 +18,7 @@ class GridButton(Gtk.Button):
         self.set_can_focus(True)
         self.set_can_target(True)
         grid.attach(self, column, row, 1, 1) 
+        self.eventTag = None
         
         self.loadedActionConfigLayout = None
 
@@ -49,7 +51,6 @@ class GridButton(Gtk.Button):
         self.image = Gtk.Image(hexpand=True, vexpand=True)
         self.image.clear()
         self.set_child(self.image)
-        self.buildContextMenu()#create the context menu
   
     def on_dnd_drop(self, drop_target, value, x, y):
         #print(f'in on_dnd_drop(); value={value}, x={x}, y={y}')
@@ -79,10 +80,13 @@ class GridButton(Gtk.Button):
 
 
     def addActionToGrid(self, actionButton: ActionButton):
-        print(actionButton.eventTag)
+        self.addActionByEventTag(actionButton.eventTag)  
+       
+
+    def addActionByEventTag(self, eventTag: str):
         pageName = self.app.communicationHandler.deckController[0].loadedPage
-        
-        buttonInitialJson = self.app.communicationHandler.actionIndex[actionButton.eventTag].getInitialJson()
+        buttonInitialJson = self.app.communicationHandler.actionIndex[eventTag].getInitialJson()
+
         jsonButtonCoords = f"{self.gridPosition[0]}x{self.gridPosition[1]}"
         print(jsonButtonCoords)
         newButtonJson = {jsonButtonCoords: buttonInitialJson}
@@ -91,7 +95,7 @@ class GridButton(Gtk.Button):
 
         pageData["buttons"].update(newButtonJson)
 
-        with open(os.path.join("pages", pageName + ".json"), 'w') as file:
+        with open(os.path.join("pages", self.app.communicationHandler.deckController[0].loadedPage + ".json"), 'w') as file:
             json.dump(pageData, file, indent=4)
 
         #get first deck #TODO: use the selected deck
@@ -99,6 +103,9 @@ class GridButton(Gtk.Button):
         #print(deckController.)
         print(f"loading Page: {pageName}")
         deckController.loadPage(pageName, True)
+
+        self.eventTag = eventTag
+
 
     def clearActionConfigBox(self):
         self.app.leftSideGrid.remove(self.app.actionConfigBox)
@@ -142,26 +149,89 @@ class GridButton(Gtk.Button):
         self.app.actionConfigBox.append(actionConfigLayout)
 
     def onRightMouseButtonPress(self, widget, nPress, x, y):
-        self.popover.popup()
+        contextMenu = GridButtonContextMenu(self.app, self)
+        contextMenu.popover.popup()
+
+    def removeAction(self):
+        pageData = self.app.communicationHandler.deckController[0].loadedPageJson
+        jsonButtonCoords = f"{self.gridPosition[0]}x{self.gridPosition[1]}"
+
+        if jsonButtonCoords not in pageData["buttons"]:
+            #button is not configured
+            return
+        
+        del pageData["buttons"][jsonButtonCoords]
+        #save new page json
+        with open(os.path.join("pages", self.app.communicationHandler.deckController[0].loadedPage + ".json"), 'w') as file:
+            json.dump(pageData, file, indent=4)
+
+        self.app.communicationHandler.deckController[0].loadPage(self.app.communicationHandler.deckController[0].loadedPage, True)
+
+        self.eventTag = None
 
 
+    
+        
+class GridButtonContextMenu:
+    copiedEventTag = None
+    def __init__(self, app, gridButton: GridButton):
+        self.app = app
+        self.gridButton = gridButton
+        self.buildContextMenu()
+    
     def buildContextMenu(self):
-        #create the menus
+        # Create the menus
         self.mainMenu = Gio.Menu.new()
         self.copyPasteMenu = Gio.Menu.new()
         self.removeMenu = Gio.Menu.new()
-        
-        self.copyPasteMenu.append_item(Gio.MenuItem.new(label="Cut"))
-        self.copyPasteMenu.append_item(Gio.MenuItem.new(label="Copy"))
-        self.copyPasteMenu.append_item(Gio.MenuItem.new(label="Paste"))
-        self.removeMenu.append_item(Gio.MenuItem.new(label="Remove"))
 
+        # Create actions for each menu item
+        cut_action = Gio.SimpleAction.new("cut", None)
+        copy_action = Gio.SimpleAction.new("copy", None)
+        paste_action = Gio.SimpleAction.new("paste", None)
+        remove_action = Gio.SimpleAction.new("remove", None)
+
+        cut_action.connect("activate", self.cut)
+        copy_action.connect("activate", self.copy)
+        paste_action.connect("activate", self.paste)
+        remove_action.connect("activate", self.remove)
+
+        self.app.add_action(cut_action)
+        self.app.add_action(copy_action)
+        self.app.add_action(paste_action)
+        self.app.add_action(remove_action)
+
+        # Append menu items to the copyPasteMenu and removeMenu
+        self.copyPasteMenu.append("Cut", "app.cut")
+        self.copyPasteMenu.append("Copy", "app.copy")
+        self.copyPasteMenu.append("Paste", "app.paste")
+        self.removeMenu.append("Remove", "app.remove")
+
+        # Append the copyPasteMenu and removeMenu to the mainMenu
         self.mainMenu.append_section("Edit", self.copyPasteMenu)
         self.mainMenu.append_section("Remove", self.removeMenu)
 
-        
-        #create the popover
+        # Create the popover
         self.popover = Gtk.PopoverMenu()
         self.popover.set_menu_model(self.mainMenu)
-        self.popover.set_parent(self)
+        self.popover.set_parent(self.gridButton)
         self.popover.set_has_arrow(False)
+
+
+    def cut(self, action, param):
+        #store eventTag
+        GridButtonContextMenu.copiedEventTag = self.gridButton.eventTag
+        #remove action
+        self.gridButton.removeAction()
+        self.gridButton.clearActionConfigBox()
+        
+
+    def remove(self, action, param):
+        self.gridButton.removeAction()
+        self.gridButton.clearActionConfigBox()
+
+    def copy(self, action, param):
+        GridButtonContextMenu.copiedEventTag = self.gridButton.eventTag #store eventTag
+
+    def paste(self, action, param):
+        self.gridButton.addActionByEventTag(GridButtonContextMenu.copiedEventTag)

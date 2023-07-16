@@ -180,6 +180,11 @@ class DeckController():
             buttonIndex = self.buttonNameToIndex(button[0])
             self.loadButton(buttonIndex, buttons[button[0]]["default-image"], buttons[button[0]]["captions"], "Roboto-Regular.ttf", update=update)
 
+            #update eventTag of ui button
+            eventTag = buttons[button[0]]["actions"]["on-press"][0]
+            self.communicationHandler.app.keyGrid.gridButtons[buttonIndex].eventTag = eventTag
+
+
         #set loadedPage variables
         self.loadedPage = pageName
         self.loadedPageJson = pageData
