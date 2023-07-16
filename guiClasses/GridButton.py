@@ -33,16 +33,23 @@ class GridButton(Gtk.Button):
         #dnd.connect('enter', self.on_dnd_enter)
         #dnd.connect('motion', self.on_dnd_motion)
         #dnd.connect('leave', self.on_dnd_leave)
-        self.add_controller(dnd)      
+        self.add_controller(dnd)     
 
         #focus controller
         self.focusCtrl = Gtk.EventControllerFocus().new()
         self.focusCtrl.connect("enter", self.onEntryFocusIn)
         self.add_controller(self.focusCtrl)
+
+        #click controller
+        self.clickCtrl = Gtk.GestureClick().new()
+        self.clickCtrl.connect("pressed", self.onRightMouseButtonPress)
+        self.clickCtrl.set_button(3) #right mouse button
+        self.add_controller(self.clickCtrl)
         
         self.image = Gtk.Image(hexpand=True, vexpand=True)
         self.image.clear()
         self.set_child(self.image)
+        self.buildContextMenu()#create the context menu
   
     def on_dnd_drop(self, drop_target, value, x, y):
         #print(f'in on_dnd_drop(); value={value}, x={x}, y={y}')
@@ -133,3 +140,28 @@ class GridButton(Gtk.Button):
     
         #add configLayout from action
         self.app.actionConfigBox.append(actionConfigLayout)
+
+    def onRightMouseButtonPress(self, widget, nPress, x, y):
+        self.popover.popup()
+
+
+    def buildContextMenu(self):
+        #create the menus
+        self.mainMenu = Gio.Menu.new()
+        self.copyPasteMenu = Gio.Menu.new()
+        self.removeMenu = Gio.Menu.new()
+        
+        self.copyPasteMenu.append_item(Gio.MenuItem.new(label="Cut"))
+        self.copyPasteMenu.append_item(Gio.MenuItem.new(label="Copy"))
+        self.copyPasteMenu.append_item(Gio.MenuItem.new(label="Paste"))
+        self.removeMenu.append_item(Gio.MenuItem.new(label="Remove"))
+
+        self.mainMenu.append_section("Edit", self.copyPasteMenu)
+        self.mainMenu.append_section("Remove", self.removeMenu)
+
+        
+        #create the popover
+        self.popover = Gtk.PopoverMenu()
+        self.popover.set_menu_model(self.mainMenu)
+        self.popover.set_parent(self)
+        self.popover.set_has_arrow(False)
