@@ -73,20 +73,20 @@ class PluginBase():
         with open(pluginSettingsFilePath, 'w') as file:
             json.dump(pluginData, file, indent=4)
 
-    def getButtonSetting(self, buttonCoords, pageName, key):
+    def getButtonSetting(self, buttonCoords, pageName, key, actionIndex = 0):
         buttonSettingsFilePath = os.path.join(self.PLUGIN_PATH, "buttonSettings.json")
         buttonData = {}
-        
+
         if os.path.exists(buttonSettingsFilePath):
             with open(buttonSettingsFilePath) as file:
                 buttonData = json.load(file)
-        
-        if buttonData.get(pageName) and buttonData[pageName].get(buttonCoords):
-            return buttonData[pageName][buttonCoords].get(key)
-        
+
+        if buttonData.get(pageName) and buttonData[pageName].get(buttonCoords) and buttonData[pageName][buttonCoords].get(key):
+            return buttonData[pageName][buttonCoords][key].get(actionIndex)
+
         return None
-    
-    def setButtonSetting(self, buttonCoords, pageName, key, value):
+
+    def setButtonSetting(self, buttonCoords, pageName, key, value, actionIndex = 0):
         buttonSettingsFilePath = os.path.join(self.PLUGIN_PATH, "buttonSettings.json")
         buttonData = {}
 
@@ -98,9 +98,12 @@ class PluginBase():
             buttonData[pageName] = {}
         if buttonCoords not in buttonData[pageName]:
             buttonData[pageName][buttonCoords] = {}
+        if key not in buttonData[pageName][buttonCoords]:
+            buttonData[pageName][buttonCoords][key] = {}
 
-        buttonData[pageName][buttonCoords][key] = value
+        buttonData[pageName][buttonCoords][key][actionIndex] = value
 
         with open(buttonSettingsFilePath, 'w') as file:
             json.dump(buttonData, file, indent=4)
+
 
