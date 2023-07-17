@@ -33,3 +33,8 @@
 	min-height: 75px;
 	border-radius: 10px;
 }
+.multi-action-config-title{
+	margin-left: 5px;
+	font-size: 22px;
+	font-weight: bold;
+}

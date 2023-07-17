@@ -393,7 +393,7 @@ class StreamControllerApp(Adw.Application):
 
         self.leftMainBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
-        self.leftStack.add_titled(self.leftMainBox, "grid", "grid")
+        self.leftStack.add_titled(self.leftMainBox, "main", "main")
         self.leftMainBox.append(self.pageSelector)
         self.leftMainBox.append(Gtk.Separator(orientation=Gtk.Orientation.VERTICAL))
         self.leftMainBox.append(self.keyGrid)
