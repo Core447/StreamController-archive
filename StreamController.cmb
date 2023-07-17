@@ -28,7 +28,6 @@
 	(1,140,"GtkButton",None,138,None,None,None,1,None),
 	(1,141,"GtkButton",None,138,None,None,None,2,None),
 	(1,142,"GtkStack","stack",137,None,None,None,2,None),
-	(1,155,"GtkMenuButton",None,115,None,None,None,None,None),
 	(1,159,"GtkButton","action-back-button",138,None,None,None,None,None),
 	(1,166,"GtkBox","left-side-grid",2,None,None,None,4,None),
 	(1,170,"GtkStack","left-stack",166,None,None,None,1,None)
@@ -55,7 +54,6 @@
 	(1,140,"GtkWidget","margin-start","3",None,None,None,None,None,None,None,None,None),
 	(1,141,"GtkButton","icon-name","start-here",None,None,None,None,None,None,None,None,None),
 	(1,142,"GtkStack","transition-type","slide-left-right",None,None,None,None,None,None,None,None,None),
-	(1,155,"GtkMenuButton","icon-name","open-menu-symbolic",None,None,None,None,None,None,None,None,None),
 	(1,159,"GtkButton","icon-name","go-previous",None,None,None,None,None,None,None,None,None),
 	(1,159,"GtkWidget","margin-end","3",None,None,None,None,None,None,None,None,None),
 	(1,159,"GtkWidget","tooltip-text","Go back to category page",None,None,None,None,None,None,None,None,None),

@@ -10,11 +10,6 @@ class MultiActionConfig(Gtk.Box):
         self.infoGrid = Gtk.Grid(margin_start=5, margin_bottom=5, margin_top=5)
         self.append(self.infoGrid)
 
-        #add back button
-        self.backButton = Gtk.Button(icon_name="go-previous")
-        self.backButton.connect("clicked", self.onBack)
-        self.infoGrid.attach(self.backButton, 0, 0, 1, 1)
-
         #add title
         self.title = Gtk.Label(label="Multi Action Config", css_classes=["multi-action-config-title"])
         self.infoGrid.attach(self.title, 1, 0, 1, 1)
@@ -22,9 +17,14 @@ class MultiActionConfig(Gtk.Box):
         #add seperator
         self.append(Gtk.Separator())
 
-        
         #add actionBox
         self.append(self.actionBox)
+
+        #add back button to header
+        self.backButton = Gtk.Button(icon_name="go-previous")
+        self.backButton.connect("clicked", self.onBack)
+        self.app.header.pack_start(self.backButton)
+        self.backButton.set_visible(False) #hide back button
 
     def addActionButton(self, action):
         label = self.app.communicationHandler.actionIndex[action].ACTION_NAME
@@ -39,10 +39,12 @@ class MultiActionConfig(Gtk.Box):
             self.addActionButton(action)
 
         self.app.leftStack.set_visible_child(self)
-
+        self.backButton.set_visible(True)
+        
     def clearAllLoadedButtons(self):
         while self.actionBox.get_first_child() != None:
             self.actionBox.remove(self.get_first_child())
 
     def onBack(self, widget):
         self.app.leftStack.set_visible_child_name("main")
+        self.backButton.set_visible(False)
