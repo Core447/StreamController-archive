@@ -18,7 +18,7 @@ class GridButton(Gtk.Button):
         self.set_can_focus(True)
         self.set_can_target(True)
         grid.attach(self, column, row, 1, 1) 
-        self.eventTag = None
+        self.actions = None
         
         self.loadedActionConfigLayout = None
 
@@ -83,9 +83,9 @@ class GridButton(Gtk.Button):
         self.addActionByEventTag(actionButton.eventTag)  
        
 
-    def addActionByEventTag(self, eventTag: str):
+    def addActionByEventTag(self, actions: str):
         pageName = self.app.communicationHandler.deckController[0].loadedPage
-        buttonInitialJson = self.app.communicationHandler.actionIndex[eventTag].getInitialJson()
+        buttonInitialJson = self.app.communicationHandler.actionIndex[actions].getInitialJson()
 
         jsonButtonCoords = f"{self.gridPosition[0]}x{self.gridPosition[1]}"
         print(jsonButtonCoords)
@@ -104,7 +104,7 @@ class GridButton(Gtk.Button):
         print(f"loading Page: {pageName}")
         deckController.loadPage(pageName, True)
 
-        self.eventTag = eventTag
+        self.actions = actions
 
 
     def clearActionConfigBox(self):
@@ -167,7 +167,7 @@ class GridButton(Gtk.Button):
 
         self.app.communicationHandler.deckController[0].loadPage(self.app.communicationHandler.deckController[0].loadedPage, True)
 
-        self.eventTag = None
+        self.actions = None
 
 
     
@@ -183,33 +183,39 @@ class GridButtonContextMenu:
         # Create the menus
         self.mainMenu = Gio.Menu.new()
         self.copyPasteMenu = Gio.Menu.new()
+        self.editMultiActionMenu = Gio.Menu.new()
         self.removeMenu = Gio.Menu.new()
 
         # Create actions for each menu item
-        cut_action = Gio.SimpleAction.new("cut", None)
-        copy_action = Gio.SimpleAction.new("copy", None)
-        paste_action = Gio.SimpleAction.new("paste", None)
-        remove_action = Gio.SimpleAction.new("remove", None)
+        cutAction = Gio.SimpleAction.new("cut", None)
+        copyAction = Gio.SimpleAction.new("copy", None)
+        pasteAction = Gio.SimpleAction.new("paste", None)
+        removeAction = Gio.SimpleAction.new("remove", None)
+        editMultiAction = Gio.SimpleAction.new("editMulti", None)
 
-        cut_action.connect("activate", self.cut)
-        copy_action.connect("activate", self.copy)
-        paste_action.connect("activate", self.paste)
-        remove_action.connect("activate", self.remove)
+        cutAction.connect("activate", self.cut)
+        copyAction.connect("activate", self.copy)
+        pasteAction.connect("activate", self.paste)
+        removeAction.connect("activate", self.remove)
+        editMultiAction.connect("activate", self.editMulti)
 
-        self.app.add_action(cut_action)
-        self.app.add_action(copy_action)
-        self.app.add_action(paste_action)
-        self.app.add_action(remove_action)
+        self.app.add_action(cutAction)
+        self.app.add_action(copyAction)
+        self.app.add_action(pasteAction)
+        self.app.add_action(removeAction)
+        self.app.add_action(editMultiAction)
 
-        # Append menu items to the copyPasteMenu and removeMenu
+        # Append menu items to the copyPasteMenu, removeMenu and editMultiMenu
         self.copyPasteMenu.append("Cut", "app.cut")
         self.copyPasteMenu.append("Copy", "app.copy")
         self.copyPasteMenu.append("Paste", "app.paste")
         self.removeMenu.append("Remove", "app.remove")
+        self.editMultiActionMenu.append("Edit Multiaction", "app.editMulti")
 
         # Append the copyPasteMenu and removeMenu to the mainMenu
-        self.mainMenu.append_section("Edit", self.copyPasteMenu)
-        self.mainMenu.append_section("Remove", self.removeMenu)
+        self.mainMenu.append_section(None, self.copyPasteMenu)
+        self.mainMenu.append_section(None, self.editMultiActionMenu)
+        self.mainMenu.append_section(None, self.removeMenu)
 
         # Create the popover
         self.popover = Gtk.PopoverMenu()
@@ -220,7 +226,7 @@ class GridButtonContextMenu:
 
     def cut(self, action, param):
         #store eventTag
-        GridButtonContextMenu.copiedEventTag = self.gridButton.eventTag
+        GridButtonContextMenu.copiedEventTag = self.gridButton.actions
         #remove action
         self.gridButton.removeAction()
         self.gridButton.clearActionConfigBox()
@@ -231,7 +237,12 @@ class GridButtonContextMenu:
         self.gridButton.clearActionConfigBox()
 
     def copy(self, action, param):
-        GridButtonContextMenu.copiedEventTag = self.gridButton.eventTag #store eventTag
+        GridButtonContextMenu.copiedEventTag = self.gridButton.actions #store eventTag
 
     def paste(self, action, param):
         self.gridButton.addActionByEventTag(GridButtonContextMenu.copiedEventTag)
+
+    def editMulti(self, action, param):
+        print(f"Multi: {self.gridButton.actions}")
+        #self.app.leftStack.set_visible_child(self.app.MultiActionConfig)
+        self.app.MultiActionConfig.loadFromActions(self.gridButton.actions)

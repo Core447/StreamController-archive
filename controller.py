@@ -175,14 +175,13 @@ class DeckController():
         with open(pageFilePath) as file:
             pageData = json.load(file)
 
-        buttons = pageData["buttons"]
-        for button in buttons.items():
-            buttonIndex = self.buttonNameToIndex(button[0])
-            self.loadButton(buttonIndex, buttons[button[0]]["default-image"], buttons[button[0]]["captions"], "Roboto-Regular.ttf", update=update)
+        for button in pageData["buttons"]:
+            buttonIndex = self.buttonNameToIndex(button)
+            self.loadButton(buttonIndex, pageData["buttons"][button]["default-image"], pageData["buttons"][button]["captions"], "Roboto-Regular.ttf", update=update)
 
             #update eventTag of ui button
-            eventTag = buttons[button[0]]["actions"][0]
-            self.communicationHandler.app.keyGrid.gridButtons[buttonIndex].eventTag = eventTag
+            eventTag = pageData["buttons"][button]["actions"][0]
+            self.communicationHandler.app.keyGrid.gridButtons[buttonIndex].actions = pageData["buttons"][button]["actions"]
 
 
         #set loadedPage variables

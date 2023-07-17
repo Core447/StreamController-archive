@@ -125,7 +125,9 @@
           <object class="GtkBox" id="left-side-grid">
             <property name="orientation">vertical</property>
             <child>
-              <object class="GtkSeparator"/>
+              <object class="GtkStack" id="left-stack">
+                <property name="transition-type">over-up</property>
+              </object>
             </child>
             <layout>
               <property name="column">0</property>

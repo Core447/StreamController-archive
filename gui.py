@@ -17,6 +17,7 @@ from guiClasses.CategoryButton import CategoryButton
 from guiClasses.ConfigButton import ConfigButton
 from guiClasses.ActionButton import ActionButton
 from guiClasses.GridButton import GridButton
+from guiClasses.MultiActionConfig import MultiActionConfig
 
 
 #StreamDeck
@@ -120,7 +121,7 @@ class CategorySelector(Gtk.Grid):
         
         for row in range(len(categories)):
             categoryButton = CategoryButton(self.app, self, self.stack, row+1, categories[row])
-            #actionSelector = ActionSelector(self.stack, categories[row])
+            #actionSelector = ActionSelector(self., categories[row])
             #actionSelector.loadActions(["A","B"])
 
 class ActionSelector(Gtk.Grid):
@@ -362,6 +363,8 @@ class StreamControllerApp(Adw.Application):
 
         #Add action page to stack
         
+        #add page selector                              
+        self.pageSelector = PageSelector(self)
 
 
 
@@ -377,14 +380,24 @@ class StreamControllerApp(Adw.Application):
 
         self.leftSideGrid = builder.get_object("left-side-grid")
 
-        self.pageSelector = PageSelector(self)
-        self.leftSideGrid.prepend(self.pageSelector)
         
         self.keyGrid = KeyGrid(self)
         self.keyGrid.createGrid(streamdecksRaw[0].key_layout())
         #print(streamdecksRaw[0].key_layout())
 
-        self.leftSideGrid.append(self.keyGrid)
+        #self.leftSideGrid.append(self.keyGrid)
+
+        self.leftStack = builder.get_object("left-stack")
+        self.leftStack.set_transition_type(Gtk.StackTransitionType.CROSSFADE) #nice-looking alternative: SLIDE_UP_DOWN
+        #self.leftStack.append(self.keyGrid)
+
+        self.leftMainBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+
+        self.leftStack.add_titled(self.leftMainBox, "grid", "grid")
+        self.leftMainBox.append(self.pageSelector)
+        self.leftMainBox.append(Gtk.Separator(orientation=Gtk.Orientation.VERTICAL))
+        self.leftMainBox.append(self.keyGrid)
+
 
         self.keyGrid.createGrid((3, 5))
 
@@ -393,12 +406,11 @@ class StreamControllerApp(Adw.Application):
         self.actionConfigBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, margin_bottom=10)
         self.leftSideGrid.append(self.actionConfigBox)
 
-                              
 
-
+        #add multiaction edit page to stack
+        self.MultiActionConfig = MultiActionConfig(self)
+        self.leftStack.add_titled(self.MultiActionConfig, "multi", "multi")
     
-
-
 
         self.deviceSelector = DeviceSelector(self.keyGrid)
         self.header.pack_start(self.deviceSelector)
