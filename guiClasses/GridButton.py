@@ -108,15 +108,8 @@ class GridButton(Gtk.Button):
 
 
     def clearActionConfigBox(self):
-        self.app.leftSideGrid.remove(self.app.actionConfigBox)
-        self.app.actionConfigBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, margin_bottom=10)
-        self.app.leftSideGrid.append(self.app.actionConfigBox)
-
-        return
-        #FIXME: the code below would be cleaner but is not working, no idea why
-        #clear all children in actionConfigBox
         while(self.app.actionConfigBox.get_first_child() != None):
-            self.app.actionConfigBox.remove(self.get_first_child())  
+            self.app.actionConfigBox.remove(self.app.actionConfigBox.get_first_child())  
 
     def onEntryFocusIn(self, event):
         self.clearActionConfigBox()
