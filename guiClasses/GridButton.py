@@ -127,7 +127,7 @@ class GridButton(Gtk.Button):
             #no action assigned
             return
         
-        actionKey = pageData["buttons"][jsonButtonCoords]["actions"]["on-press"][0] #TODO: Find solution to show not only the first, maybe only allow one action and seperate multiactions completely
+        actionKey = pageData["buttons"][jsonButtonCoords]["actions"][0] #TODO: Find solution to show not only the first, maybe only allow one action and seperate multiactions completely
         if actionKey not in self.app.communicationHandler.actionIndex:
             return
         
