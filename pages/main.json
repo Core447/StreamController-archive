@@ -3,7 +3,14 @@
         "1x2": {
             "captions": [],
             "default-image": "plugins/MediaPlugin/images/stop.png",
+            "background": [
+                0,
+                0,
+                0
+            ],
             "actions": [
+                "Media:pauseplay",
+                "Media:next",
                 "Media:pauseplay"
             ]
         }
