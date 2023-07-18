@@ -413,7 +413,7 @@ class StreamControllerApp(Adw.Application):
     
 
         self.deviceSelector = DeviceSelector(self.keyGrid)
-        self.header.pack_start(self.deviceSelector)
+        self.header.set_title_widget(self.deviceSelector)
 
         self.actionBackButton = builder.get_object("action-back-button")
         self.actionBackButton.set_visible(False)
