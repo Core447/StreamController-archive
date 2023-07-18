@@ -65,7 +65,7 @@
                     </child>
                     <child>
                       <object class="GtkButton">
-                        <property name="icon-name">edit-copy</property>
+                        <property name="icon-name">edit-copy-symbolic</property>
                         <property name="margin-end">3</property>
                         <property name="margin-start">3</property>
                         <layout>
@@ -76,7 +76,7 @@
                     </child>
                     <child>
                       <object class="GtkButton">
-                        <property name="icon-name">start-here</property>
+                        <property name="icon-name">format-justify-fill-symbolic</property>
                         <layout>
                           <property name="column">3</property>
                           <property name="row">0</property>
