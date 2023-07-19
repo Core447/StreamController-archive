@@ -71,13 +71,28 @@ class MultiActionConfigButtonDropPreview(Gtk.Button):
 
 class MultiActionConfigButton(Gtk.Button):
     def __init__(self, app, multiActionConfig: MultiActionConfig, label, eventTag) -> None:
-        super().__init__(label=label, height_request=75, width_request=500)
+        #super().__init__(label=label, height_request=75, width_request=500)
+        super().__init__(height_request=75, width_request=500)
         self.app = app
         self.multiActionConfig = multiActionConfig
         self.label = label,
         self.eventTag = eventTag
 
+        self.createButton()
         self.createDnd()
+
+    def createButton(self):
+        self.mainGrid = Gtk.Grid(margin_start=5, margin_bottom=5, margin_top=5, hexpand=True, vexpand=True)
+        self.rightBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, vexpand=True, margin_top=7.5)
+        self.eventLabel = Gtk.Label(label="".join(self.eventTag.split(":")[1:]), margin_end=35)
+        self.categoryLabel = Gtk.Label(label=self.eventTag.split(":")[0], margin_end=35, css_classes=["category-label"])
+        self.icon = Gtk.Image(pixel_size=25, margin_end=10, margin_top=12.5, margin_bottom=12.5, file="")
+
+        self.rightBox.append(self.eventLabel)
+        self.rightBox.append(self.categoryLabel)
+        self.mainGrid.attach(self.icon, 0, 0, 1, 1)
+        self.mainGrid.attach(self.rightBox, 1, 0, 1, 1)
+        self.set_child(self.mainGrid)
 
         
 
@@ -99,7 +114,7 @@ class MultiActionConfigButton(Gtk.Button):
 
     def on_dnd_prepare(self, drag_source, x, y):
         print(f'in on_dnd_prepare(); drag_source={drag_source}, x={x}, y={y}')
-        self.multiActionConfig.preview.set_label(self.get_label())
+        self.multiActionConfig.preview.set_label(self.eventLabel.get_label())
        
         drag_source.set_icon(
             Gtk.WidgetPaintable.new(self),
