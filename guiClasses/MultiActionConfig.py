@@ -115,6 +115,7 @@ class MultiActionConfigButton(Gtk.Button):
     def on_dnd_prepare(self, drag_source, x, y):
         print(f'in on_dnd_prepare(); drag_source={drag_source}, x={x}, y={y}')
         self.multiActionConfig.preview.set_label(self.eventLabel.get_label())
+        self.set_visible(False)
        
         drag_source.set_icon(
             Gtk.WidgetPaintable.new(self),
@@ -131,6 +132,8 @@ class MultiActionConfigButton(Gtk.Button):
     def on_dnd_end(self, drag, drag_data, flag):
         print(f'in on_dnd_end(); drag={drag}, drag_data={drag_data}, flag={flag}')
         self.multiActionConfig.preview.set_visible(False)
+        self.multiActionConfig.actionBox.reorder_child_after(self, self.multiActionConfig.preview)
+        self.set_visible(True)
         pass
 
     #drop

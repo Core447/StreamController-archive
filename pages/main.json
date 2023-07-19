@@ -10,8 +10,8 @@
             ],
             "actions": [
                 "Media:pauseplay",
-                "Media:next",
-                "Media:pauseplay"
+                "Media:pauseplay",
+                "Media:next"
             ]
         }
     }
