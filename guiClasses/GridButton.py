@@ -238,4 +238,4 @@ class GridButtonContextMenu:
     def editMulti(self, action, param):
         print(f"Multi: {self.gridButton.actions}")
         #self.app.leftStack.set_visible_child(self.app.MultiActionConfig)
-        self.app.MultiActionConfig.loadFromActions(self.gridButton.actions)
+        self.app.MultiActionConfig.loadFromButton(self.gridButton)

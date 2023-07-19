@@ -1,6 +1,7 @@
 from gi.repository import Gtk, Gdk
 from guiClasses.ActionButton import ActionButton #TODO: Remove unused import
 from copy import copy
+import os, json
 class MultiActionConfig(Gtk.Box):
     def __init__(self, app) -> None:
         super().__init__(orientation=Gtk.Orientation.VERTICAL, hexpand=True, vexpand=True)
@@ -34,10 +35,13 @@ class MultiActionConfig(Gtk.Box):
 
     def addActionButton(self, action):
         label = self.app.communicationHandler.actionIndex[action].ACTION_NAME
-        self.actionBox.append(MultiActionConfigButton(self.app, self, label))
+        eventTag = self.app.communicationHandler.actionIndex[action].pluginBase.PLUGIN_NAME + ":" + label
+        self.actionBox.append(MultiActionConfigButton(self.app, self, label, eventTag))
 
-    def loadFromActions(self, actions: list):
+    def loadFromButton(self, gridButton):
         #check if there are any actions
+        self.gridButton = gridButton
+        actions = self.gridButton.actions
         if actions == None: return
 
         self.clearAllLoadedButtons()
@@ -50,7 +54,7 @@ class MultiActionConfig(Gtk.Box):
     def clearAllLoadedButtons(self):
         while self.actionBox.get_first_child() != None:
             self.actionBox.remove(self.actionBox.get_first_child())
-            break
+        self.actionBox.append(self.preview)
         
 
     def onBack(self, widget):
@@ -66,11 +70,12 @@ class MultiActionConfigButtonDropPreview(Gtk.Button):
 
 
 class MultiActionConfigButton(Gtk.Button):
-    def __init__(self, app, multiActionConfig: MultiActionConfig, label) -> None:
+    def __init__(self, app, multiActionConfig: MultiActionConfig, label, eventTag) -> None:
         super().__init__(label=label, height_request=75, width_request=500)
         self.app = app
         self.multiActionConfig = multiActionConfig
-        self.label = label
+        self.label = label,
+        self.eventTag = eventTag
 
         self.createDnd()
 
@@ -130,6 +135,38 @@ class MultiActionConfigButton(Gtk.Button):
                 print("buttom")
             pass
 
+
+        #print(self.multiActionConfig.actionBox.get_first_child().get_label())
+        #self.multiActionConfig.gridButton.actions = ["action1", "action2", "action3"]
+
+        self.multiActionConfig.gridButton.actions = []
+
+        alreadyHadPreview = False
+
+        print("label")
+        child = self.multiActionConfig.actionBox.get_first_child() 
+        while True:
+            if child == None: break
+            if child == self.multiActionConfig.preview:
+                if alreadyHadPreview:
+                    break
+                alreadyHadPreview = True
+                child = child.get_next_sibling()
+                continue
+            print(child.eventTag)
+            self.multiActionConfig.gridButton.actions.append(child.eventTag)
+            child = child.get_next_sibling()
+
+        #save to page json
+        pageName = self.app.communicationHandler.deckController[0].loadedPage
+        pageData = self.app.communicationHandler.deckController[0].loadedPageJson
+        buttonPosition = f"{self.multiActionConfig.gridButton.gridPosition[0]}x{self.multiActionConfig.gridButton.gridPosition[1]}"
+
+        pageData["buttons"][buttonPosition]["actions"] = self.multiActionConfig.gridButton.actions
+
+        with open(os.path.join("pages", pageName + ".json"), 'w') as file:
+            json.dump(pageData, file, indent=4)
+            
 
         return True
     def on_dnd_motion(self, drop_target, x, y):
