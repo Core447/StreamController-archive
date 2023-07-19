@@ -1,4 +1,4 @@
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, Gio
 from guiClasses.ActionButton import ActionButton #TODO: Remove unused import
 from copy import copy
 import os, json
@@ -81,6 +81,12 @@ class MultiActionConfigButton(Gtk.Button):
         self.createButton()
         self.createDnd()
 
+        #click controller
+        self.clickCtrl = Gtk.GestureClick().new()
+        self.clickCtrl.connect("pressed", self.onRightMouseButtonPress)
+        self.clickCtrl.set_button(3) #right mouse button
+        self.add_controller(self.clickCtrl)
+
     def createButton(self):
         self.mainGrid = Gtk.Grid(margin_start=5, margin_bottom=5, margin_top=5, hexpand=True, vexpand=True)
         self.rightBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, vexpand=True, margin_top=7.5)
@@ -93,6 +99,35 @@ class MultiActionConfigButton(Gtk.Button):
         self.mainGrid.attach(self.icon, 0, 0, 1, 1)
         self.mainGrid.attach(self.rightBox, 1, 0, 1, 1)
         self.set_child(self.mainGrid)
+
+    def saveConfig(self):
+        self.multiActionConfig.gridButton.actions = []
+
+        alreadyHadPreview = False
+
+        print("label")
+        child = self.multiActionConfig.actionBox.get_first_child() 
+        while True:
+            if child == None: break
+            if child == self.multiActionConfig.preview:
+                if alreadyHadPreview:
+                    break
+                alreadyHadPreview = True
+                child = child.get_next_sibling()
+                continue
+            print(child.eventTag)
+            self.multiActionConfig.gridButton.actions.append(child.eventTag)
+            child = child.get_next_sibling()
+
+        #save to page json
+        pageName = self.app.communicationHandler.deckController[0].loadedPage
+        pageData = self.app.communicationHandler.deckController[0].loadedPageJson
+        buttonPosition = f"{self.multiActionConfig.gridButton.gridPosition[0]}x{self.multiActionConfig.gridButton.gridPosition[1]}"
+
+        pageData["buttons"][buttonPosition]["actions"] = self.multiActionConfig.gridButton.actions
+
+        with open(os.path.join("pages", pageName + ".json"), 'w') as file:
+            json.dump(pageData, file, indent=4)
 
         
 
@@ -157,36 +192,12 @@ class MultiActionConfigButton(Gtk.Button):
         #print(self.multiActionConfig.actionBox.get_first_child().get_label())
         #self.multiActionConfig.gridButton.actions = ["action1", "action2", "action3"]
 
-        self.multiActionConfig.gridButton.actions = []
-
-        alreadyHadPreview = False
-
-        print("label")
-        child = self.multiActionConfig.actionBox.get_first_child() 
-        while True:
-            if child == None: break
-            if child == self.multiActionConfig.preview:
-                if alreadyHadPreview:
-                    break
-                alreadyHadPreview = True
-                child = child.get_next_sibling()
-                continue
-            print(child.eventTag)
-            self.multiActionConfig.gridButton.actions.append(child.eventTag)
-            child = child.get_next_sibling()
-
-        #save to page json
-        pageName = self.app.communicationHandler.deckController[0].loadedPage
-        pageData = self.app.communicationHandler.deckController[0].loadedPageJson
-        buttonPosition = f"{self.multiActionConfig.gridButton.gridPosition[0]}x{self.multiActionConfig.gridButton.gridPosition[1]}"
-
-        pageData["buttons"][buttonPosition]["actions"] = self.multiActionConfig.gridButton.actions
-
-        with open(os.path.join("pages", pageName + ".json"), 'w') as file:
-            json.dump(pageData, file, indent=4)
+        self.saveConfig()
             
 
         return True
+    
+
     def on_dnd_motion(self, drop_target, x, y):
         if not self.multiActionConfig.preview.get_visible():
             self.multiActionConfig.preview.set_visible(True)
@@ -202,3 +213,95 @@ class MultiActionConfigButton(Gtk.Button):
         print(self.get_allocation().y)
         return Gdk.DragAction.COPY
     
+    def onRightMouseButtonPress(self, widget, nPress, x, y):
+        contextMenu = MultiActionConfigButtonContextMenu(self.app, self)
+        contextMenu.popover.popup()
+    
+class MultiActionConfigButtonContextMenu:
+    def __init__(self, app, configButton):
+        super().__init__()
+        self.app = app
+        self.configButton = configButton
+        self.buildContextMenu()
+
+    def buildContextMenu(self):
+    # Create the menus
+        self.mainMenu = Gio.Menu.new()
+        self.moveMenu = Gio.Menu.new()
+        self.copyPasteMenu = Gio.Menu.new()
+        self.editMultiActionMenu = Gio.Menu.new()
+        self.removeMenu = Gio.Menu.new()
+        
+
+        # Create actions for each menu item
+        cutAction = Gio.SimpleAction.new("cut", None)
+        copyAction = Gio.SimpleAction.new("copy", None)
+        pasteBelowAction = Gio.SimpleAction.new("pasteBelow", None)
+        removeAction = Gio.SimpleAction.new("remove", None)
+        moveUpAction = Gio.SimpleAction.new("moveUp", None)
+        moveDownAction = Gio.SimpleAction.new("moveDown", None)
+
+        cutAction.connect("activate", self.cut)
+        copyAction.connect("activate", self.copy)
+        pasteBelowAction.connect("activate", self.pasteBelow)
+        removeAction.connect("activate", self.remove)
+        moveUpAction.connect("activate", self.moveUp)
+        moveDownAction.connect("activate", self.moveDown)
+
+        self.app.add_action(cutAction)
+        self.app.add_action(copyAction)
+        self.app.add_action(pasteBelowAction)
+        self.app.add_action(removeAction)
+        self.app.add_action(moveUpAction)
+        self.app.add_action(moveDownAction)
+
+        # Append menu items to the copyPasteMenu, removeMenu and editMultiMenu
+        self.copyPasteMenu.append("Cut", "app.cut") #TODO: switch from app. to something else, to avoid conflicts with other events
+        self.copyPasteMenu.append("Copy", "app.copy")
+        self.copyPasteMenu.append("Paste below", "app.pasteBelow")
+        self.removeMenu.append("Remove", "app.remove")
+        self.moveMenu.append("Move Up", "app.moveUp")
+        self.moveMenu.append("Move Down", "app.moveDown")
+
+        # Append the copyPasteMenu and removeMenu to the mainMenu
+        self.mainMenu.append_section("Move", self.moveMenu)
+        self.mainMenu.append_section(None, self.copyPasteMenu)
+        self.mainMenu.append_section(None, self.removeMenu)
+
+        # Create the popover
+        self.popover = Gtk.PopoverMenu()
+        self.popover.set_menu_model(self.mainMenu)
+        self.popover.set_parent(self.configButton)
+        self.popover.set_has_arrow(False)
+
+
+    def cut(self, action, param):
+        pass
+
+    def remove(self, action, param):
+        self.configButton.multiActionConfig.actionBox.remove(self.configButton)
+        self.configButton.saveConfig()
+
+    def copy(self, action, param):
+        MultiActionConfigButtonContextMenu.copiedEventTag = self.configButton.eventTag
+
+    def pasteBelow(self, action, param):
+        print(f"tag: {MultiActionConfigButtonContextMenu.copiedEventTag}")
+        eventTag = MultiActionConfigButtonContextMenu.copiedEventTag
+        newButton = MultiActionConfigButton(self.app, self.configButton.multiActionConfig,  "".join(eventTag.split(":")[1:]), eventTag)
+        self.configButton.multiActionConfig.actionBox.append(newButton)
+
+        #move newButton below clicked button
+        self.configButton.multiActionConfig.actionBox.reorder_child_after(newButton, self.configButton)
+        self.configButton.saveConfig()
+
+    def moveUp(self, action, param):
+        buttonOnTop = self.configButton.get_prev_sibling()
+        self.configButton.multiActionConfig.actionBox.reorder_child_after(self.configButton, buttonOnTop)
+        self.configButton.multiActionConfig.actionBox.reorder_child_after(buttonOnTop, self.configButton)
+        self.configButton.saveConfig()
+
+    def moveDown(self, action, param):
+        buttonBelow = self.configButton.get_next_sibling()
+        self.configButton.multiActionConfig.actionBox.reorder_child_after(self.configButton, buttonBelow)
+        self.configButton.saveConfig()
