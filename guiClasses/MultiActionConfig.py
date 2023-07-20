@@ -33,6 +33,9 @@ class MultiActionConfig(Gtk.Box):
         self.preview.set_visible(False)
         self.actionBox.append(self.preview)
 
+
+        self.initDrop()
+
     def addActionButton(self, action):
         label = self.app.communicationHandler.actionIndex[action].ACTION_NAME
         eventTag = self.app.communicationHandler.actionIndex[action].pluginBase.PLUGIN_NAME + ":" + label
@@ -60,6 +63,48 @@ class MultiActionConfig(Gtk.Box):
     def onBack(self, widget):
         self.app.leftStack.set_visible_child_name("main")
         self.backButton.set_visible(False)
+
+    #drop functions
+    def initDrop(self):
+        self.dndTarget = Gtk.DropTarget.new(MultiActionConfigButton, Gdk.DragAction.COPY)
+        self.dndTarget.connect("drop", self.onDndDrop)
+        self.dndTarget.connect("motion", self.onDndMotion)
+        self.add_controller(self.dndTarget)
+
+    def onDndDrop(self, drop_target, value, x, y):
+        #self.actionBox.get_first_child().saveConfig()
+        return True
+
+    def onDndMotion(self, drop_target, x, y):
+        firstButton = self.actionBox.get_first_child()
+        lastButton = self.actionBox.get_last_child()
+
+        self.preview.set_visible(True)
+        if y < (self.actionBox.get_allocation().y + (firstButton.get_allocation().height * (self.getNRealActions() - 1)/2)):
+            #mouse on top of actions
+            self.actionBox.reorder_child_after(self.preview, firstButton)
+            self.actionBox.reorder_child_after(firstButton, self.preview)
+        elif y > ((lastButton.get_allocation().height * self.getNRealActions() - 1)/2 + (lastButton.get_allocation().height * (self.getNRealActions() - 1))):
+            #mouse below actions
+            self.actionBox.reorder_child_after(self.preview, lastButton)
+
+
+
+
+        return Gdk.DragAction.COPY
+    
+    def getNRealActions(self) -> int:
+        child = self.actionBox.get_first_child()
+        nChildren = 0
+        while True:
+            if child == None: break
+
+            nChildren += 1
+
+            if child == self.actionBox.get_last_child(): break
+            child = child.get_next_sibling()
+
+        return nChildren
 
 
 class MultiActionConfigButtonDropPreview(Gtk.Button):
@@ -169,6 +214,7 @@ class MultiActionConfigButton(Gtk.Button):
         self.multiActionConfig.preview.set_visible(False)
         self.multiActionConfig.actionBox.reorder_child_after(self, self.multiActionConfig.preview)
         self.set_visible(True)
+        self.saveConfig()
         pass
 
     #drop
@@ -183,16 +229,18 @@ class MultiActionConfigButton(Gtk.Button):
         if isinstance(value, MultiActionConfigButton):
             #MultiActionConfigButton got dropped
             if y < self.get_allocation().height/2:
-                print("top")
+                #print("top")
+                pass
             else:
-                print("buttom")
+                #print("buttom")
+                pass
             pass
 
 
         #print(self.multiActionConfig.actionBox.get_first_child().get_label())
         #self.multiActionConfig.gridButton.actions = ["action1", "action2", "action3"]
 
-        self.saveConfig()
+        #self.saveConfig()
             
 
         return True
