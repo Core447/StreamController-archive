@@ -39,7 +39,9 @@ class MultiActionConfig(Gtk.Box):
     def addActionButton(self, action):
         label = self.app.communicationHandler.actionIndex[action].ACTION_NAME
         eventTag = self.app.communicationHandler.actionIndex[action].pluginBase.PLUGIN_NAME + ":" + label
-        self.actionBox.append(MultiActionConfigButton(self.app, self, label, eventTag))
+        button = MultiActionConfigButton(self.app, self, label, eventTag)
+        self.actionBox.append(button)
+        return button
 
     def loadFromButton(self, gridButton):
         #check if there are any actions
@@ -67,12 +69,19 @@ class MultiActionConfig(Gtk.Box):
     #drop functions
     def initDrop(self):
         self.dndTarget = Gtk.DropTarget.new(MultiActionConfigButton, Gdk.DragAction.COPY)
+        self.dndTarget.set_gtypes([MultiActionConfigButton, ActionButton])
         self.dndTarget.connect("drop", self.onDndDrop)
         self.dndTarget.connect("motion", self.onDndMotion)
+        self.dndTarget.connect("accept", self.onDndAccept)
+        self.dndTarget.connect("enter", self.onDndEnter)
         self.add_controller(self.dndTarget)
 
     def onDndDrop(self, drop_target, value, x, y):
-        #self.actionBox.get_first_child().saveConfig()
+        if isinstance(value, ActionButton):
+            self.preview.set_visible(False)
+            button = self.addActionButton(value.eventTag)
+            self.actionBox.reorder_child_after(button, self.preview)
+            self.saveConfig()
         return True
 
     def onDndMotion(self, drop_target, x, y):
@@ -93,6 +102,15 @@ class MultiActionConfig(Gtk.Box):
 
         return Gdk.DragAction.COPY
     
+    def onDndAccept(self, drop, userData):
+        self.dropUserData = userData
+        print(f'in on_dnd_accept(); drop={drop}, user_data={userData}')
+        return True
+    
+    def onDndEnter(self, dropTarget, x, y):
+        print("FIND ME")
+        print(type(self.dropUserData))
+        return Gdk.DragAction.COPY
     def getNRealActions(self) -> int:
         child = self.actionBox.get_first_child()
         nChildren = 0
@@ -105,6 +123,35 @@ class MultiActionConfig(Gtk.Box):
             child = child.get_next_sibling()
 
         return nChildren
+    
+    def saveConfig(self):
+        self.gridButton.actions = []
+
+        alreadyHadPreview = False
+
+        print("label")
+        child = self.actionBox.get_first_child() 
+        while True:
+            if child == None: break
+            if child == self.preview:
+                if alreadyHadPreview:
+                    break
+                alreadyHadPreview = True
+                child = child.get_next_sibling()
+                continue
+            print(child.eventTag)
+            self.gridButton.actions.append(child.eventTag)
+            child = child.get_next_sibling()
+
+        #save to page json
+        pageName = self.app.communicationHandler.deckController[0].loadedPage
+        pageData = self.app.communicationHandler.deckController[0].loadedPageJson
+        buttonPosition = f"{self.gridButton.gridPosition[0]}x{self.gridButton.gridPosition[1]}"
+
+        pageData["buttons"][buttonPosition]["actions"] = self.gridButton.actions
+
+        with open(os.path.join("pages", pageName + ".json"), 'w') as file:
+            json.dump(pageData, file, indent=4)
 
 
 class MultiActionConfigButtonDropPreview(Gtk.Button):
@@ -145,34 +192,7 @@ class MultiActionConfigButton(Gtk.Button):
         self.mainGrid.attach(self.rightBox, 1, 0, 1, 1)
         self.set_child(self.mainGrid)
 
-    def saveConfig(self):
-        self.multiActionConfig.gridButton.actions = []
-
-        alreadyHadPreview = False
-
-        print("label")
-        child = self.multiActionConfig.actionBox.get_first_child() 
-        while True:
-            if child == None: break
-            if child == self.multiActionConfig.preview:
-                if alreadyHadPreview:
-                    break
-                alreadyHadPreview = True
-                child = child.get_next_sibling()
-                continue
-            print(child.eventTag)
-            self.multiActionConfig.gridButton.actions.append(child.eventTag)
-            child = child.get_next_sibling()
-
-        #save to page json
-        pageName = self.app.communicationHandler.deckController[0].loadedPage
-        pageData = self.app.communicationHandler.deckController[0].loadedPageJson
-        buttonPosition = f"{self.multiActionConfig.gridButton.gridPosition[0]}x{self.multiActionConfig.gridButton.gridPosition[1]}"
-
-        pageData["buttons"][buttonPosition]["actions"] = self.multiActionConfig.gridButton.actions
-
-        with open(os.path.join("pages", pageName + ".json"), 'w') as file:
-            json.dump(pageData, file, indent=4)
+    
 
         
 
@@ -181,6 +201,7 @@ class MultiActionConfigButton(Gtk.Button):
         #create all elements needed for drag and drop
         dndSource = Gtk.DragSource()
         dndTarget = Gtk.DropTarget.new(MultiActionConfigButton, Gdk.DragAction.COPY)
+        dndTarget.set_gtypes([MultiActionConfigButton, ActionButton])
 
         dndSource.set_actions(Gdk.DragAction.COPY)
         dndSource.connect('prepare', self.on_dnd_prepare)
@@ -214,35 +235,15 @@ class MultiActionConfigButton(Gtk.Button):
         self.multiActionConfig.preview.set_visible(False)
         self.multiActionConfig.actionBox.reorder_child_after(self, self.multiActionConfig.preview)
         self.set_visible(True)
-        self.saveConfig()
+        self.multiActionConfig.saveConfig()
         pass
 
     #drop
     def on_dnd_drop(self, drop_target, value, x, y):
-        #print(f'in on_dnd_drop(); value={value}, x={x}, y={y}')
-        print(f"dropped onto button with y:{self.get_allocation().y}, at: {y}")
-        
-
-        #self.multiActionConfig.actionBox.reorder_child_after(self, value)
-        #self.set_opacity(0.5)
-
-        if isinstance(value, MultiActionConfigButton):
-            #MultiActionConfigButton got dropped
-            if y < self.get_allocation().height/2:
-                #print("top")
-                pass
-            else:
-                #print("buttom")
-                pass
-            pass
-
-
-        #print(self.multiActionConfig.actionBox.get_first_child().get_label())
-        #self.multiActionConfig.gridButton.actions = ["action1", "action2", "action3"]
-
-        #self.saveConfig()
-            
-
+        if isinstance(value, ActionButton):
+            self.multiActionConfig.preview.set_visible(False)
+            button = self.multiActionConfig.addActionButton(value.eventTag)
+            self.multiActionConfigactionBox.reorder_child_after(button, self.preview)
         return True
     
 

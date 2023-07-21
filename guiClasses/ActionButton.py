@@ -1,9 +1,10 @@
 from gi.repository import Gtk, Gdk
 from guiClasses.ConfigButton import ConfigButton
 class ActionButton(ConfigButton):
-    def __init__(self, grid, row, label, iconPath, eventTag: str):
+    def __init__(self, app, grid, row, label, iconPath, eventTag: str):
         #TODO: check if eventTag is already in use
         #check eventTag
+        self.app = app
         if not isinstance(eventTag, str):
             raise TypeError("eventTag must be a String")
         if len(eventTag) == 0:
@@ -39,6 +40,10 @@ class ActionButton(ConfigButton):
     def on_dnd_begin(self, drag_source, data):
         content = data.get_content()
         #print(f'in on_dnd_begin(); drag_source={drag_source}, data={data}, content={content}')
+
+        #config preview in multiaction config button
+        if self.app.leftStack.get_visible_child_name() == "multi":
+            self.app.MultiActionConfig.preview.set_label("".join(self.eventTag.split(":")[1:]))
 
     def on_dnd_end(self, drag, drag_data, flag):
         #print(f'in on_dnd_end(); drag={drag}, drag_data={drag_data}, flag={flag}')

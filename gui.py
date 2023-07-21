@@ -125,8 +125,9 @@ class CategorySelector(Gtk.Grid):
             #actionSelector.loadActions(["A","B"])
 
 class ActionSelector(Gtk.Grid):
-    def __init__(self, stack, categoryName):
+    def __init__(self, app, stack, categoryName):
         self.stack = stack
+        self.app = app
         super().__init__(column_homogeneous=True)        
         self.label = Gtk.Label(label=categoryName, xalign=0,
                                css_classes=["page-text"])
@@ -136,7 +137,7 @@ class ActionSelector(Gtk.Grid):
 
     def loadActions(self, actions: list, categoryName: str):
         for row in range(len(actions)):
-            actionButton = ActionButton(self, row+1, actions[row], "", categoryName+":"+actions[row])
+            actionButton = ActionButton(self.app, self, row+1, actions[row], "", categoryName+":"+actions[row])
             pass
 
 
@@ -347,7 +348,7 @@ class StreamControllerApp(Adw.Application):
 
 
         for key in list(allActions.keys()):
-            actionGrid = ActionSelector(self.stack, key)
+            actionGrid = ActionSelector(self, self.stack, key)
             actionGrid.loadActions(allActions[key], key)
 
         
