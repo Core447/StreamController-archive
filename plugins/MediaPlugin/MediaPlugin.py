@@ -37,7 +37,7 @@ class PausePlay(ActionBase):
     def getInitialJson(self):
         return {'captions': [], 'default-image': os.path.join(self.pluginBase.PLUGIN_PATH, "images", "stop.png"), 'background': [0, 0, 0], 'actions': ['Media:pauseplay']}
     
-    def getConfigLayout(self):
+    def getConfigLayout(self, buttonJsonName, actionIndex):
         if self.playerctlAvailable:
             return Gtk.Label(label="You have playerctl installed on your system, you're good to go!")
         return Gtk.Label(label="Please install playerctl on your system")

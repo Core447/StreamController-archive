@@ -112,34 +112,21 @@ class GridButton(Gtk.Button):
             self.app.actionConfigBox.remove(self.app.actionConfigBox.get_first_child())  
 
     def onEntryFocusIn(self, event):
-        self.clearActionConfigBox()
+        if self.actions == None:
+            #no actions specified
+            return
 
-        pageData = self.app.communicationHandler.deckController[0].loadedPageJson
-        jsonButtonCoords = f"{self.gridPosition[0]}x{self.gridPosition[1]}"
-        if jsonButtonCoords not in pageData["buttons"]:
-            #no action assigned
+        if len(self.actions) > 1:
+            #button is a multiaction
+            self.app.actionConfigBox.clear()
             return
-        
-        actionKey = pageData["buttons"][jsonButtonCoords]["actions"][0] #TODO: Find solution to show not only the first, maybe only allow one action and seperate multiactions completely
-        if actionKey not in self.app.communicationHandler.actionIndex:
-            return
-        
-        if not hasattr(self.app.communicationHandler.actionIndex[actionKey], "getConfigLayout"):
-            #no config layout defined
-            return
-        actionConfigLayout = self.app.communicationHandler.actionIndex[actionKey].getConfigLayout()
-        if actionConfigLayout == None:
-            #no config layout defined
-            return
-        
-        #add seperator
-        self.app.actionConfigBox.append(Gtk.Separator(orientation=Gtk.Orientation.VERTICAL, margin_bottom=0))
 
-        #add label
-        self.app.actionConfigBox.append(Gtk.Label(label=actionKey, css_classes=["action-config-header"], xalign=0, margin_start=5))
-    
-        #add configLayout from action
-        self.app.actionConfigBox.append(actionConfigLayout)
+        eventTag = self.actions[0]
+        pageName = self.app.communicationHandler.deckController[0].loadedPage
+        buttonJsonName = f"{self.gridPosition[0]}x{self.gridPosition[1]}"
+        actionIndex = 0 # because it isn't a multiaction
+
+        self.app.actionConfigBox.load(pageName, eventTag, buttonJsonName, actionIndex)
 
     def onRightMouseButtonPress(self, widget, nPress, x, y):
         contextMenu = GridButtonContextMenu(self.app, self)

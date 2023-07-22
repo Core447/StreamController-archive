@@ -33,6 +33,7 @@ class MultiActionConfig(Gtk.Box):
         self.preview.set_visible(False)
         self.actionBox.append(self.preview)
 
+        self.gridButtonPosition = None
 
         self.initDrop()
 
@@ -47,6 +48,8 @@ class MultiActionConfig(Gtk.Box):
         #check if there are any actions
         self.gridButton = gridButton
         actions = self.gridButton.actions
+        self.gridButtonPosition = f"{self.gridButton.gridPosition[0]}x{self.gridButton.gridPosition[1]}"
+
         if actions == None: return
 
         self.clearAllLoadedButtons()
@@ -154,6 +157,9 @@ class MultiActionConfig(Gtk.Box):
             json.dump(pageData, file, indent=4)
 
 
+    
+
+
 class MultiActionConfigButtonDropPreview(Gtk.Button):
     def __init__(self, label):
         super().__init__(label=label, height_request=75, width_request=500)
@@ -178,6 +184,10 @@ class MultiActionConfigButton(Gtk.Button):
         self.clickCtrl.connect("pressed", self.onRightMouseButtonPress)
         self.clickCtrl.set_button(3) #right mouse button
         self.add_controller(self.clickCtrl)
+        #focus controller
+        self.focusCtrl = Gtk.EventControllerFocus().new()
+        self.focusCtrl.connect("enter", self.onEntryFocusIn)
+        self.add_controller(self.focusCtrl)
 
     def createButton(self):
         self.mainGrid = Gtk.Grid(margin_start=5, margin_bottom=5, margin_top=5, hexpand=True, vexpand=True)
@@ -265,6 +275,23 @@ class MultiActionConfigButton(Gtk.Button):
     def onRightMouseButtonPress(self, widget, nPress, x, y):
         contextMenu = MultiActionConfigButtonContextMenu(self.app, self)
         contextMenu.popover.popup()
+
+    def getRealChildNumber(self, child):
+        number = -1
+        currentchild = self.multiActionConfig.actionBox.get_first_child()
+        while currentchild != None:
+            number += 1
+            if currentchild == child:
+                return number
+            currentchild = currentchild.get_next_sibling()
+        return None
+
+    #focus
+    def onEntryFocusIn(self, event):
+        print("focus FINDME")
+        print(f"Tag: {self.eventTag}; Number: {self.getRealChildNumber(self)}; Coords: {self.multiActionConfig.gridButtonPosition}")
+        pageName = self.app.communicationHandler.deckController[0].loadedPage
+        self.app.actionConfigBox.load(pageName, self.eventTag, self.multiActionConfig.gridButtonPosition, self.getRealChildNumber(self))
     
 class MultiActionConfigButtonContextMenu:
     def __init__(self, app, configButton):

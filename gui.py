@@ -263,7 +263,30 @@ class AboutDialog(Gtk.AboutDialog):
     
     def showDialog(self,action, parameter):
         self.show()
-              
+
+
+class ActionConfigBox(Gtk.Box):
+    def __init__(self, app):
+        super().__init__(orientation=Gtk.Orientation.VERTICAL, hexpand=True, margin_bottom=10)
+        self.app = app
+
+    def clear(self):
+        while self.get_first_child() != None:
+            self.remove(self.get_first_child())
+
+    def load(self, pageName, eventTag, buttonJsonName, actionIndex):
+        self.clear()
+
+        
+        action = self.app.communicationHandler.actionIndex[eventTag]
+        if not hasattr(action, "getConfigLayout"):
+            return
+        configLayout = action.getConfigLayout(buttonJsonName, actionIndex)
+        self.append(configLayout)
+
+        #add separator
+        self.prepend(Gtk.Separator(orientation=Gtk.Orientation.VERTICAL, margin_bottom=10))
+
 
 
 
@@ -404,7 +427,7 @@ class StreamControllerApp(Adw.Application):
 
 
         #add grid where all action configs can be displayed
-        self.actionConfigBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, margin_bottom=10)
+        self.actionConfigBox = ActionConfigBox(self)
         self.leftSideGrid.append(self.actionConfigBox)
 
 
