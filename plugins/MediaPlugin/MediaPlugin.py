@@ -22,13 +22,13 @@ class PausePlay(ActionBase):
 
         self.oldMediaStatus = None
                     
-    def onKeyDown(self, controller, deck, keyIndex):
+    def onKeyDown(self, controller, deck, keyIndex, actionIndex):
         self.pluginBase.keyboard.press(Key.media_play_pause)
         sleep(0.1)
         self.pluginBase.keyboard.release(Key.media_play_pause)
         return
     
-    def tick(self, controller, deck, keyIndex):
+    def tick(self, controller, deck, keyIndex, actionIndex):
         """
         This function is called every second to allow constant updating
         """
@@ -71,7 +71,7 @@ class Next(ActionBase):
     def __init__(self, pluginBase: PluginBase):
         super().__init__()
         self.pluginBase = pluginBase
-    def onKeyDown(self, controller, deck, keyIndex):
+    def onKeyDown(self, controller, deck, keyIndex, actionIndex):
         self.pluginBase.keyboard.press(Key.media_next)
         sleep(0.1)
         self.pluginBase.keyboard.release(Key.media_next)

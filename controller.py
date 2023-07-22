@@ -398,12 +398,12 @@ class DeckController():
 
         print("got:")
         print(actions)
-        for action in actions:
-            if action not in list(self.communicationHandler.actionIndex.keys()):
-                print(f"Action '{action}' not found, skipping")
+        for actionIndex in range(len(actions)):
+            if actions[actionIndex] not in list(self.communicationHandler.actionIndex.keys()):
+                print(f"Action '{actions[actionIndex]}' not found, skipping")
                 continue
             if keyState == True:
-                self.communicationHandler.actionIndex[action].onKeyDown(self, self.deck, keyIndex)
+                self.communicationHandler.actionIndex[actions[actionIndex]].onKeyDown(self, self.deck, keyIndex, actionIndex)
             '''
             else:
                 self.communicationHandler.actionIndex[action].onKeyUp(self, self.deck, keyIndex)
@@ -417,17 +417,19 @@ class DeckController():
 
         pageData = self.loadedPageJson
         for buttonName in pageData["buttons"]:
-            actionName = pageData["buttons"][buttonName]["actions"][0] #TODO: Find solution to show not only the first, maybe only allow one action and seperate multiactions completely
-            if actionName == "none":
-                print(f"buttonName: {buttonName}, no action defined")
-                #no action defined
-                continue
-            action = self.communicationHandler.actionIndex[actionName]
-            if hasattr(action, "tick"):
-                print("object has tick method")
+            actions = pageData["buttons"][buttonName]["actions"]
+            for actionIndex in range(len(actions)):
+                actionName = actions[actionIndex]
+                if actionName == "none":
+                    print(f"buttonName: {buttonName}, no action defined")
+                    #no action defined
+                    continue
+                action = self.communicationHandler.actionIndex[actionName]
+                if hasattr(action, "tick"):
+                    print("object has tick method")
 
-                controller = self
-                deck = self.deck
-                keyIndex = self.buttonNameToIndex(buttonName)
-                print(f"updating index: {keyIndex}")
-                action.tick(controller, deck, keyIndex)
+                    controller = self
+                    deck = self.deck
+                    keyIndex = self.buttonNameToIndex(buttonName)
+                    print(f"updating index: {keyIndex}")
+                    action.tick(controller, deck, keyIndex, actionIndex)
