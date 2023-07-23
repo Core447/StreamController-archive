@@ -68,6 +68,7 @@ class PausePlay(ActionBase):
     #custom functions
     def configRadioToggled(self, button):
         self.showCurrentMediaState = self.showCurrentCheck.get_active()
+        self.pluginBase.saveConfig()
 
     def runShellCommand(self, command):
         # Run the shell command and capture the output
