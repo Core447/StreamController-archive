@@ -281,7 +281,7 @@ class ActionConfigBox(Gtk.Box):
         action = self.app.communicationHandler.actionIndex[eventTag]
         if not hasattr(action, "getConfigLayout"):
             return
-        configLayout = action.getConfigLayout(buttonJsonName, actionIndex)
+        configLayout = action.getConfigLayout(pageName, buttonJsonName, actionIndex)
         self.append(configLayout)
 
         #add separator

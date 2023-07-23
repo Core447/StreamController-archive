@@ -21,6 +21,8 @@ class PausePlay(ActionBase):
         print(self.playerctlAvailable)
 
         self.oldMediaStatus = None
+
+        self.showCurrentMediaState = None
                     
     def onKeyDown(self, controller, deck, keyIndex, actionIndex):
         self.pluginBase.keyboard.press(Key.media_play_pause)
@@ -37,12 +39,36 @@ class PausePlay(ActionBase):
     def getInitialJson(self):
         return {'captions': [], 'default-image': os.path.join(self.pluginBase.PLUGIN_PATH, "images", "stop.png"), 'background': [0, 0, 0], 'actions': ['Media:pauseplay']}
     
-    def getConfigLayout(self, buttonJsonName, actionIndex):
-        if self.playerctlAvailable:
-            return Gtk.Label(label="You have playerctl installed on your system, you're good to go!")
-        return Gtk.Label(label="Please install playerctl on your system")
+    def getConfigLayout(self, pageName, buttonJsonName, actionIndex):
+        configBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+
+        if not self.playerctlAvailable:
+            configBox.append(Gtk.Label(label="Please install playerctl on your system"))
+            return configBox
+        configBox.append(Gtk.Label(label="You have playerctl installed on your system, you're good to go!"))
+
+        #set vars
+        self.configLayoutPageName = pageName
+        self.configLayoutButtonJsonName = buttonJsonName
+        self.configLayoutActionIndex = actionIndex
+
+        #user preferences
+        self.showCurrentCheck = Gtk.CheckButton(label="Show current media status")
+        self.showOnPressCheck = Gtk.CheckButton(label="Show media action executed on press", group=self.showCurrentCheck)
+
+        self.showCurrentCheck.connect("toggled", self.configRadioToggled)
+        self.showOnPressCheck.connect("toggled", self.configRadioToggled)
+
+        configBox.append(self.showCurrentCheck)
+        configBox.append(self.showOnPressCheck)
+
+
+        return configBox
     
     #custom functions
+    def configRadioToggled(self, button):
+        self.showCurrentMediaState = self.showCurrentCheck.get_active()
+
     def runShellCommand(self, command):
         # Run the shell command and capture the output
         try:
@@ -57,12 +83,16 @@ class PausePlay(ActionBase):
         return self.runShellCommand("playerctl status")
     
     def updateIcon(self, controller, deck, keyIndex: int):
+
+        pause = "pause.png" if self.showCurrentMediaState else "play.png"
+        play = "play.png" if self.showCurrentMediaState else "pause.png"
+
         mediaStatus = str(self.getMediaStatus()) #convert None to "None"
         #load icons
         if mediaStatus == "Playing":
-            controller.loadButton(keyIndex, os.path.join(self.pluginBase.PLUGIN_PATH, "images", "pause.png"), [], "Roboto-Regular.ttf")
+            controller.loadButton(keyIndex, os.path.join(self.pluginBase.PLUGIN_PATH, "images", play), [], "Roboto-Regular.ttf")
         elif mediaStatus == "Paused":
-            controller.loadButton(keyIndex, os.path.join(self.pluginBase.PLUGIN_PATH, "images", "play.png"), [], "Roboto-Regular.ttf")
+            controller.loadButton(keyIndex, os.path.join(self.pluginBase.PLUGIN_PATH, "images", pause), [], "Roboto-Regular.ttf")
         elif mediaStatus in ["No players found", "None"]:
             controller.loadButton(keyIndex, os.path.join(self.pluginBase.PLUGIN_PATH, "images", "stop.png"), [], "Roboto-Regular.ttf")
     
