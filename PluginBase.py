@@ -47,42 +47,6 @@ class PluginBase():
             return None
         return pluginData[key]
     
-    def setPluginSetting(self, value, *keys):
-        """
-        Set a value for a plugin setting.
-
-        Parameters:
-            value (Any): The value to be set for the setting.
-            keys (str): The keys of the setting to be set.
-
-        Returns:
-            None
-        """
-        # check if file exists
-        pluginSettingsFilePath = os.path.join(self.PLUGIN_PATH, "pluginSettings.json")
-        if not os.path.exists(pluginSettingsFilePath):
-            pluginData = {}
-        else:
-            # load json
-            with open(pluginSettingsFilePath) as file:
-                pluginData = json.load(file)
-
-        # traverse the dictionary to the desired key
-        temp_data = pluginData
-        for key in keys[:-1]:
-            if key not in temp_data:
-                temp_data[key] = {}
-            temp_data = temp_data[key]
-
-        # set the value at the final key
-        temp_data[keys[-1]] = value
-
-        # save file
-        with open(pluginSettingsFilePath, 'w') as file:
-            json.dump(pluginData, file, indent=4, ensure_ascii=False)
-
-
-
     def getButtonSetting(self, buttonCoords, pageName, key, actionIndex = 0):
         buttonSettingsFilePath = os.path.join(self.PLUGIN_PATH, "buttonSettings.json")
         buttonData = {}
