@@ -55,7 +55,6 @@ class PausePlay(ActionBase):
         #user preferences
         self.showCurrentCheck = Gtk.CheckButton(label="Show current media status")
         self.showOnPressCheck = Gtk.CheckButton(label="Show media action executed on press", group=self.showCurrentCheck)
-
         self.showCurrentCheck.connect("toggled", self.configRadioToggled)
         self.showOnPressCheck.connect("toggled", self.configRadioToggled)
 
@@ -68,7 +67,7 @@ class PausePlay(ActionBase):
     #custom functions
     def configRadioToggled(self, button):
         self.showCurrentMediaState = self.showCurrentCheck.get_active()
-        self.pluginBase.saveConfig()
+        self.pluginBase.setButtonSetting(self.configLayoutButtonJsonName, self.configLayoutPageName, "showCurrentMediaState", self.showCurrentMediaState, self.configLayoutActionIndex)
 
     def runShellCommand(self, command):
         # Run the shell command and capture the output
