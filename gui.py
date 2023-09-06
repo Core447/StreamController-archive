@@ -77,6 +77,7 @@ class KeyGrid(Gtk.Grid):
                 self.gridButtons.append(GridButton(self.app, self, r, c))
 
 class DeviceSelector(Gtk.ComboBox):
+    #TODO: Switch to Gtk.DropDown because combobox got deprecated in 4.10
     def __init__(self, keyGrid: KeyGrid):
         self.keyGrid = keyGrid
 
