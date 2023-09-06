@@ -151,6 +151,7 @@ class DeckController():
 
         Args:
             pageName (str): The name of the page to load.
+            update (bool, optional): Whether to update the page if it is already loaded. Defaults to False.
 
         Raises:
             ValueError: If `pageName` is not a string.
