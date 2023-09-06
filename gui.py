@@ -148,39 +148,31 @@ class PageSelector(Gtk.Grid):
 
         self.label = Gtk.Label(label="Page:", margin_end=5)
 
-        #ComboBox
-        self.pagesModel = Gtk.ListStore(str)
-        for page in self.createPagesList(True):
-            self.pagesModel.append([page])
-        
-        self.comboBox = Gtk.ComboBox.new_with_model_and_entry(self.pagesModel)
-        #self.comboBox = Gtk.ComboBoxText.new_with_model_and_entry(self.pagesModel)
-        self.comboBox.set_entry_text_column(0)
-        self.comboBox.set_can_focus(True)
-        self.comboBox.set_hexpand(False)
-        
-        self.comboBox.connect("changed", self.onChange)
-        #self.comboBox.connect("leave-notify-event", self.onEntryFocusOut)
-        self.focusCtrl = Gtk.EventControllerFocus().new()
-        self.focusCtrl.connect("leave", self.onEntryFocusOut)
-        self.comboBox.add_controller(self.focusCtrl)
-        #TODO: Also add event for return key
+        # Drop down menu
+        self.pageList = self.createPagesList(True)
+        self.dropDown = Gtk.DropDown().new_from_strings(self.pageList)
+        self.dropDown.set_size_request(150, -1)
+        # self.dropDown.set_enable_search(True) #TODO: Enable search
+
+        # Get index of main page
+        mainPageIndex = self.pageList.index('main')
+        # Select main page
+        self.dropDown.set_selected(mainPageIndex)
+
+        self.dropDown.connect('notify::selected-item', self.onChange) # Connecting after switching to the main page to avoid double loading 
 
         #Attachments
         self.attach(self.label, 0, 0, 1, 1)
-        self.attach(self.comboBox, 1, 0, 1, 1)
-
-
-        #set first page to default
-        for page in range(len(self.pagesModel)):
-            print(self.pagesModel[page][0])
-            if self.pagesModel[page][0] == "main":
-                print(page)
-                break #FIXME: setting the default page causes the programm to freeze
-                self.comboBox.set_active(page)
+        self.attach(self.dropDown, 2, 0, 1, 1)
         
+    def onChange(self, dropdown, _pspec):
+        selected = dropdown.props.selected_item
+        if selected is not None:
+            print(f'Selected: {selected.props.string}')
+            # return
+            self.loadNewPageOnDeck(selected.props.string)
 
-    def createPagesList(self, onlyName: bool = False):
+    def createPagesList(self, onlyName: bool = False) -> list:
         pagesPath = "pages"
         pages = []
         for file in os.listdir(pagesPath):
@@ -190,38 +182,11 @@ class PageSelector(Gtk.Grid):
                     continue
                 pages.append(file)
         return pages
-
-        
-
-    def onChange(self, combo: Gtk.ComboBox):
-        print(combo.get_child().get_text())
-        self.handlePageSelectorConfirmation()
-    
-    def onEntryFocusOut(self, event):
-        self.handlePageSelectorConfirmation()
-        
-
-    
-    def handlePageSelectorConfirmation(self):
-        print(self.comboBox.get_child().get_text())
-        if self.comboBox.get_child().get_text() in self.createPagesList(True):
-            #page already exists
-            #TODO: change page only for selected deck
-            for deckController in self.app.communicationHandler.deckController:
-                deckController.loadPage(self.comboBox.get_child().get_text())
-        else:
-            #page does not exist yet, we need to create it
-            #TODO: Show a dialog to the user to accept the creation of a new page
-            self.pagesModel.append([self.comboBox.get_child().get_text()])
-            if(os.path.exists(os.path.join("pages", self.comboBox.get_child().get_text()+".json"))):
-                return
-            shutil.copy(os.path.join(ASSETS_PATH, "templates", "emptyPage.json"), os.path.join("pages", self.comboBox.get_child().get_text()+".json"))
-
-
-            #TODO: change page only for selected deck
-            for deckController in self.app.communicationHandler.deckController:
-                deckController.loadPage(self.comboBox.get_child().get_text())
-    
+   
+    def loadNewPageOnDeck(self, selectedPage: str):
+        #TODO: change page only for selected deck
+        for deckController in self.app.communicationHandler.deckController:
+            deckController.loadPage(selectedPage, True)
 class HamburgerMenu(Gtk.MenuButton):
     def __init__(self, app):
         super().__init__()
