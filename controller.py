@@ -10,7 +10,11 @@ import importlib
 import threading
 from time import sleep
 
+import gi
+gi.require_version('Gtk', '4.0')
+gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw, Gdk
+from gi.repository import GObject, Gio
 
 
 # Folder location of image assets used by this example.

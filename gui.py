@@ -1,16 +1,16 @@
 from time import sleep
+import gi
+gi.require_version('Gtk', '4.0')
+gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw, Gdk
 from gi.repository import GObject, Gio
 import sys
-import gi
 from controller import CommunicationHandler
 from controller import ASSETS_PATH
 from PluginBase import PluginBase
 import importlib
 import os
 import shutil
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
 
 #import guiClasses
 from guiClasses.CategoryButton import CategoryButton
