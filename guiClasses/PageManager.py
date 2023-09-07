@@ -51,19 +51,24 @@ class PageManager(Gtk.ApplicationWindow):
         self.removeAction = Gio.SimpleAction.new("remove", None)
 
         # Connect actions
-        self.removeAction.connect("activate", self.removePage)
+        self.removeAction.connect("activate", self.showConfirmationDialog)
 
         # Add actions
         self.add_action(self.removeAction)
 
     # Hamburger Menu actions
-    def removePage(self, action, param):
+    def removePage(self):
+        print('removing.....')
         if PageManager.nameOfSelectedPage is None:
             return
         print(f"remove {PageManager.nameOfSelectedPage}")
         self.app.communicationHandler.deletePage(PageManager.nameOfSelectedPage)
         self.app.pageSelector.update()
         self.loadPages()
+
+    def showConfirmationDialog(self, action, params):
+        dialog = ConfirmationDialog(self.app.win, self)
+        dialog.show()
         
 
 class PageManagerButton(Gtk.Grid):
@@ -120,3 +125,16 @@ class PageManagerHamburgerMenuButton(Gtk.Button):
         print("Clicked Page Manager")
         self.popover.popup()
         PageManager.nameOfSelectedPage = self.pageName
+
+class ConfirmationDialog(Gtk.MessageDialog):
+    def __init__(self, parent, pageManager: PageManager):
+        self.pageManager = pageManager
+        super().__init__(parent=parent, transient_for=parent, modal=True, buttons=Gtk.ButtonsType.OK_CANCEL, message_type=Gtk.MessageType.QUESTION, text=f"Are you sure you want to remove: {PageManager.nameOfSelectedPage}?")
+        # Call function saved in callOnConfirm
+        self.connect("response", self.onResponse)
+
+    def onResponse(self, dialog, response):
+        if response == Gtk.ResponseType.OK:
+            print('pressed OK')
+            self.pageManager.removePage()
+        self.destroy()
