@@ -106,8 +106,28 @@ class CommunicationHandler():
                 deckController.handleTickMethods()
             sleep(1)
 
-
+    def createPagesList(self, onlyName: bool = False) -> list:
+        pagesPath = "pages"
+        pages = []
+        for file in os.listdir(pagesPath):
+            if file.endswith(".json"):
+                if onlyName:
+                    pages.append(file[:-5]) # remove .json extension
+                    continue
+                pages.append(file)
+        return pages
     
+    def deletePage(self, pageName: str):
+        pageFilePath = os.path.join("pages", pageName + ".json")
+        if not os.path.exists(pageFilePath):
+            return
+        os.remove(pageFilePath) 
+
+        # Switch to main page on all decks that have loaded the deleted page
+        for deckController in self.deckController:
+            if deckController.loadedPage == pageName:
+                deckController.loadPage("main")
+
 
 class DeckController():
     def __init__(self, deck: StreamDeck.Devices, communicationHandler: CommunicationHandler):

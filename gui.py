@@ -18,6 +18,7 @@ from guiClasses.ConfigButton import ConfigButton
 from guiClasses.ActionButton import ActionButton
 from guiClasses.GridButton import GridButton
 from guiClasses.MultiActionConfig import MultiActionConfig
+from guiClasses.PageManager import PageManager
 
 
 #StreamDeck
@@ -147,24 +148,36 @@ class PageSelector(Gtk.Grid):
         super().__init__(margin_bottom=5, margin_top=5, margin_start=5, margin_end=5)
         self.app = app
 
-        self.label = Gtk.Label(label="Page:", margin_end=5)
+        self.label = Gtk.Label(label="Page:", margin_end=5)      
 
-        # Drop down menu
-        self.pageList = self.createPagesList(True)
-        self.dropDown = Gtk.DropDown().new_from_strings(self.pageList)
+        ## Dropdown menu
+        pages = self.app.communicationHandler.createPagesList(True)
+        self.dropDown = Gtk.DropDown().new_from_strings(pages)
+        # self.dropDown.insert_after('a', 'm')
         self.dropDown.set_size_request(150, -1)
         # self.dropDown.set_enable_search(True) #TODO: Enable search
 
-        # Get index of main page
-        mainPageIndex = self.pageList.index('main')
-        # Select main page
-        self.dropDown.set_selected(mainPageIndex)
-
         self.dropDown.connect('notify::selected-item', self.onChange) # Connecting after switching to the main page to avoid double loading 
 
-        #Attachments
+        ## Page manager
+        self.pageManagerButton = Gtk.Button(icon_name='settings', tooltip_text='Page Manager')
+        self.pageManagerButton.connect('clicked', self.onClickPageManager)
+
+        # Create a grid for the dropdown menu and the settings button to link them visually
+        self.settingsBox = Gtk.Box(css_classes=['linked'], orientation=Gtk.Orientation.HORIZONTAL)
+
+        # Attachments
         self.attach(self.label, 0, 0, 1, 1)
-        self.attach(self.dropDown, 2, 0, 1, 1)
+        self.attach(self.settingsBox, 1, 0, 1, 1)
+        self.settingsBox.append(self.dropDown)
+        self.settingsBox.append(self.pageManagerButton)
+
+        # PageManager object
+        self.pageManager =PageManager(self.app)
+
+        # self.settingsBox.remove(self.dropDown)
+        
+        # self.update()
         
     def onChange(self, dropdown, _pspec):
         selected = dropdown.props.selected_item
@@ -173,21 +186,43 @@ class PageSelector(Gtk.Grid):
             # return
             self.loadNewPageOnDeck(selected.props.string)
 
-    def createPagesList(self, onlyName: bool = False) -> list:
-        pagesPath = "pages"
-        pages = []
-        for file in os.listdir(pagesPath):
-            if file.endswith(".json"):
-                if onlyName:
-                    pages.append(file[:-5]) # remove .json extension
-                    continue
-                pages.append(file)
-        return pages
    
     def loadNewPageOnDeck(self, selectedPage: str):
         #TODO: change page only for selected deck
         for deckController in self.app.communicationHandler.deckController:
             deckController.loadPage(selectedPage, True)
+
+    def onClickPageManager(self, button):
+        print("Clicked Page Manager")
+        self.pageManager.showWindow()
+
+    def update(self):
+        # Note: For now I remove the old dropdown menu and replace it with a new one because I couldn't figure out how to correctly update the menu
+        
+        # Get pages
+        pageList = self.app.communicationHandler.createPagesList(True)
+        # Remove old drop down menu
+        self.settingsBox.remove(self.dropDown)
+
+        # Create new drop down
+        self.dropDown = Gtk.DropDown().new_from_strings(pageList)
+        self.dropDown.set_size_request(150, -1)
+        self.settingsBox.prepend(self.dropDown)
+        
+        ## Set active page
+        # Get loaded page
+        loadedPage = self.app.communicationHandler.deckController[0].loadedPage
+        # Get index of loadedPage
+        if loadedPage not in pageList:
+            loadedPage = 'main'
+        mainPageIndex = pageList.index(loadedPage)
+        # Select main page
+        self.dropDown.set_selected(mainPageIndex)
+        print()
+
+
+        
+
 class HamburgerMenu(Gtk.MenuButton):
     def __init__(self, app):
         super().__init__()
