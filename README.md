@@ -9,9 +9,10 @@ It has plugin support and a nice GTK GUI.
 This project uses [this](https://github.com/abcminiuser/python-elgato-streamdeck) Python library to control the StreamDeck.
 
 ## Planned features
-- Plugin support (in Python)
-- Support for multiple StreamDecks at the same time
-- GTK4 UI
+- [x] GTK4 UI
+- [x] Plugin support
+- [ ] In-App store for plugins
+- [ ] Support for multiple StreamDecks at the same time
 
 ## GUI
 Currently the UI looks like this:
