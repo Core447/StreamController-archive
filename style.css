@@ -41,3 +41,12 @@
 .category-label{
 	opacity: 0.5;
 }
+.confirm-button { 
+	background-color: #4990E7;
+}
+.confirm-button-error { 
+	background-color: #EA735D;
+}
+.warning-label {
+	color: #EA735D;
+}
