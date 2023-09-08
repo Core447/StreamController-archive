@@ -79,7 +79,6 @@ class PageManager(Gtk.ApplicationWindow):
             return
         print(f"remove {PageManager.nameOfSelectedPage}")
         self.app.communicationHandler.deletePage(PageManager.nameOfSelectedPage)
-        self.app.pageSelector.update()
         self.loadPages()
 
     def showConfirmationDialog(self, action, params):
@@ -113,10 +112,6 @@ class PageManagerButton(Gtk.Grid):
     def onClick(self, button):
         # Change page
         self.pageManager.app.communicationHandler.deckController[0].loadPage(self.pageName, True)
-
-        # Update active page in PageSelector in main window
-        self.pageManager.app.pageSelector.update()
-    
 
 class PageManagerHamburgerPopup(Gtk.PopoverMenu):
     def __init__(self):
@@ -201,7 +196,6 @@ class CreatePageDialog(Gtk.ApplicationWindow):
     def onConfirm(self, button):
         self.pageManager.app.communicationHandler.createNewPage(self.inputBox.get_text())
         self.pageManager.loadPages()
-        self.pageManager.app.pageSelector.update()
         self.destroy()
 
     def onNameChange(self, entry):

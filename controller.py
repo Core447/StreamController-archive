@@ -9,6 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 import importlib
 import threading
 from time import sleep
+import shutil
 
 import gi
 gi.require_version('Gtk', '4.0')
@@ -128,6 +129,18 @@ class CommunicationHandler():
             if deckController.loadedPage == pageName:
                 deckController.loadPage("main")
 
+        # Update pageselector in UI
+        self.app.pageSelector.update()
+
+    def createNewPage(self, pageName: str):
+        pageTemplatePath = os.path.join(ASSETS_PATH, 'templates', 'emptyPage.json')
+        newPagePath = os.path.join('pages', pageName + ".json")
+        #TODO
+        shutil.copy(pageTemplatePath, newPagePath)
+        
+        # Update pageselector in UI
+        self.app.pageSelector.update()
+
 
 class DeckController():
     def __init__(self, deck: StreamDeck.Devices, communicationHandler: CommunicationHandler):
@@ -212,6 +225,10 @@ class DeckController():
         #set loadedPage variables
         self.loadedPage = pageName
         self.loadedPageJson = pageData
+
+        # Update page selector in UI
+        # TODO: Only update if this is the selected deck
+        self.communicationHandler.app.pageSelector.update()
 
     def loadButton(self, keyIndex: int, imageName: str, captions: list, fontName: str, update: bool = False):
         if keyIndex in self.loadedButtons and not update:
