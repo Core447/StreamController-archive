@@ -118,6 +118,9 @@ class CommunicationHandler():
                 pages.append(file)
         return pages
     
+    def updateUIPageSelector(self):
+        self.app.pageSelector.update()
+    
     def deletePage(self, pageName: str):
         pageFilePath = os.path.join("pages", pageName + ".json")
         if not os.path.exists(pageFilePath):
@@ -130,7 +133,7 @@ class CommunicationHandler():
                 deckController.loadPage("main")
 
         # Update pageselector in UI
-        self.app.pageSelector.update()
+        self.updateUIPageSelector()
 
     def createNewPage(self, pageName: str):
         pageTemplatePath = os.path.join(ASSETS_PATH, 'templates', 'emptyPage.json')
@@ -139,7 +142,21 @@ class CommunicationHandler():
         shutil.copy(pageTemplatePath, newPagePath)
         
         # Update pageselector in UI
-        self.app.pageSelector.update()
+        self.updateUIPageSelector()
+
+    def renamePage(self, oldName, newName):
+        oldNamePath = os.path.join("pages", oldName + ".json")
+        newNamePath = os.path.join("pages", newName + ".json")
+
+        # Check if oldPage exists
+        if not os.path.isfile(oldNamePath):
+            return
+        
+        # Rename the page internally
+        shutil.move(oldNamePath, newNamePath)
+
+        #Update pageSelector in UI
+        self.updateUIPageSelector()
 
 
 class DeckController():

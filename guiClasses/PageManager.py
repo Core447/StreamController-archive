@@ -64,12 +64,15 @@ class PageManager(Gtk.ApplicationWindow):
         
     def initActions(self):
         # Create actions
+        self.renameAction = Gio.SimpleAction.new("rename", None)
         self.removeAction = Gio.SimpleAction.new("remove", None)
 
         # Connect actions
+        self.renameAction.connect("activate", self.renamePage)
         self.removeAction.connect("activate", self.showConfirmationDialog)
 
         # Add actions
+        self.add_action(self.renameAction)
         self.add_action(self.removeAction)
 
     # Hamburger Menu actions
@@ -87,8 +90,14 @@ class PageManager(Gtk.ApplicationWindow):
 
     def onClickCreateNewPage(self, button):
         print('create new page')
-        a = CreatePageDialog(pageManager = self)
-        a.show()
+        pageDialog = CreatePageDialog(pageManager = self)
+        pageDialog.show()
+
+    def renamePage(self, action, params):
+        if PageManager.nameOfSelectedPage is None:
+            return
+        pageDialog = RenamePageDialog(pageManager= self)
+        pageDialog.show()
         
 
 class PageManagerButton(Gtk.Grid):
@@ -121,6 +130,7 @@ class PageManagerHamburgerPopup(Gtk.PopoverMenu):
         self.menu = Gio.Menu.new()
 
         # Add the menu items
+        self.menu.append("Rename", "win.rename")
         self.menu.append("Remove", "win.remove")
 
         self.set_menu_model(self.menu)
@@ -155,11 +165,13 @@ class ConfirmationDialog(Gtk.MessageDialog):
             self.pageManager.removePage()
         self.destroy()
 
-
-class CreatePageDialog(Gtk.ApplicationWindow):
-    def __init__(self, pageManager: PageManager):
+class NamePage(Gtk.ApplicationWindow):
+    def __init__(self, pageManager: PageManager, title, defaultText:str = None, alwaysAllowPage:str = None, okButtonLabel:str = "OK"):
         self.pageManager = pageManager
-        super().__init__(transient_for=self.pageManager.app.win, modal=True, default_height=150, default_width=350, title = 'New Page')
+        self.defaultText = defaultText
+        self.alwaysAllowPage = alwaysAllowPage
+        self.okButtonLabel = okButtonLabel
+        super().__init__(transient_for=self.pageManager.app.win, modal=True, default_height=150, default_width=350, title = title)
         self.build()
 
     def build(self):
@@ -169,14 +181,14 @@ class CreatePageDialog(Gtk.ApplicationWindow):
         self.cancelButton = Gtk.Button(label='Cancel')
         self.cancelButton.connect('clicked', self.onCancel)
         # Confirm button
-        self.confirmButton = Gtk.Button(label='Create', css_classes=['confirm-button'], sensitive=False)
+        self.confirmButton = Gtk.Button(label=self.okButtonLabel, css_classes=['confirm-button'], sensitive=False)
         self.confirmButton.connect('clicked', self.onConfirm)
         # Main box
         self.mainBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, vexpand=True, margin_start=20, margin_end=20, margin_top=20, margin_bottom=20)
         # Label
         self.label = Gtk.Label(label='Page Name:')
         # Input box
-        self.inputBox = Gtk.Entry(hexpand=True, margin_top=10)
+        self.inputBox = Gtk.Entry(hexpand=True, margin_top=10, text=self.defaultText)
         self.inputBox.connect('changed', self.onNameChange)
         # Warning label
         self.warningLabel = Gtk.Label(label="The name can't be empty", css_classes=['warning-label'], margin_top=10)
@@ -190,10 +202,14 @@ class CreatePageDialog(Gtk.ApplicationWindow):
         self.mainBox.append(self.inputBox)
         self.mainBox.append(self.warningLabel)
 
+        # Set status
+        self.onNameChange(self.inputBox)
+
     def onCancel(self, button):
         self.destroy()
     
     def onConfirm(self, button):
+        return
         self.pageManager.app.communicationHandler.createNewPage(self.inputBox.get_text())
         self.pageManager.loadPages()
         self.destroy()
@@ -201,7 +217,7 @@ class CreatePageDialog(Gtk.ApplicationWindow):
     def onNameChange(self, entry):
         if entry.get_text() == '':
             self.setDialogStatus(0)
-        elif entry.get_text() not in self.pageManager.app.communicationHandler.createPagesList(onlyName = True):
+        elif entry.get_text() not in self.pageManager.app.communicationHandler.createPagesList(onlyName = True) or entry.get_text() == self.alwaysAllowPage:
             self.setDialogStatus(2)
         else:
             self.setDialogStatus(1)
@@ -236,3 +252,23 @@ class CreatePageDialog(Gtk.ApplicationWindow):
             # Button
             self.confirmButton.set_sensitive(True)
             self.confirmButton.set_css_classes(['confirm-button'])
+
+
+class CreatePageDialog(NamePage):
+    def __init__(self, pageManager: PageManager):
+        super().__init__(pageManager, "Create New Page", okButtonLabel="Create")
+
+    def onConfirm(self, button):
+        self.pageManager.app.communicationHandler.createNewPage(self.inputBox.get_text())
+        self.pageManager.loadPages()
+        super().destroy()
+
+
+class RenamePageDialog(NamePage):
+    def __init__(self, pageManager: PageManager):
+        super().__init__(pageManager, "Rename Page", alwaysAllowPage = PageManager.nameOfSelectedPage, defaultText=PageManager.nameOfSelectedPage, okButtonLabel="Rename")
+
+    def onConfirm(self, button):
+        self.pageManager.app.communicationHandler.renamePage(PageManager.nameOfSelectedPage, self.inputBox.get_text())
+        self.pageManager.loadPages()
+        super().destroy()
