@@ -27,15 +27,31 @@ class PageManager(Gtk.ApplicationWindow):
         self.titleBar = Gtk.HeaderBar()
         self.set_titlebar(self.titleBar)
 
+        #Main box
+        self.mainBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, vexpand=True)
+        self.set_child(self.mainBox)
+
         # Box for the buttons
-        self.buttonBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,valign=Gtk.Align.CENTER, hexpand=True, vexpand=True, homogeneous=True, css_classes=['linked'])
-        self.set_child(self.buttonBox)
+        self.buttonBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,valign=Gtk.Align.CENTER, hexpand=True, vexpand=True, css_classes=['linked'])
+        self.mainBox.append(self.buttonBox)
 
         # Add the buttons
         self.loadPages()
 
         # Init the actions
         self.initActions()
+
+        # Add a new box to the bottom of the window
+        self.bottomBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, hexpand=True)
+
+        # Add separator
+        self.mainBox.append(Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True))
+
+        # Add 'Add New Page' button
+        self.button = Gtk.Button(hexpand=True, label='Add New Page', margin_bottom=10, margin_top=10)
+        self.button.connect("clicked", self.onClickCreateNewPage)
+        self.bottomBox.append(self.button)
+        self.mainBox.append(self.bottomBox)
 
     def loadPages(self):
         self.clearButtonBox()
@@ -69,6 +85,11 @@ class PageManager(Gtk.ApplicationWindow):
     def showConfirmationDialog(self, action, params):
         dialog = ConfirmationDialog(self.app.win, self)
         dialog.show()
+
+    def onClickCreateNewPage(self, button):
+        print('create new page')
+        a = CreatePageDialog(pageManager = self)
+        a.show()
         
 
 class PageManagerButton(Gtk.Grid):
@@ -138,3 +159,86 @@ class ConfirmationDialog(Gtk.MessageDialog):
             print('pressed OK')
             self.pageManager.removePage()
         self.destroy()
+
+
+class CreatePageDialog(Gtk.ApplicationWindow):
+    def __init__(self, pageManager: PageManager):
+        self.pageManager = pageManager
+        super().__init__(transient_for=self.pageManager.app.win, modal=True, default_height=150, default_width=350, title = 'New Page')
+        self.build()
+
+    def build(self):
+        # Create title bar
+        self.titleBar = Gtk.HeaderBar(show_title_buttons=False)
+        # Cancel button
+        self.cancelButton = Gtk.Button(label='Cancel')
+        self.cancelButton.connect('clicked', self.onCancel)
+        # Confirm button
+        self.confirmButton = Gtk.Button(label='Create', css_classes=['confirm-button'], sensitive=False)
+        self.confirmButton.connect('clicked', self.onConfirm)
+        # Main box
+        self.mainBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, vexpand=True, margin_start=20, margin_end=20, margin_top=20, margin_bottom=20)
+        # Label
+        self.label = Gtk.Label(label='Page Name:')
+        # Input box
+        self.inputBox = Gtk.Entry(hexpand=True, margin_top=10)
+        self.inputBox.connect('changed', self.onNameChange)
+        # Warning label
+        self.warningLabel = Gtk.Label(label="The name can't be empty", css_classes=['warning-label'], margin_top=10)
+
+        # Add objects
+        self.set_titlebar(self.titleBar)
+        self.titleBar.pack_start(self.cancelButton)
+        self.titleBar.pack_end(self.confirmButton)
+        self.set_child(self.mainBox)
+        self.mainBox.append(self.label)
+        self.mainBox.append(self.inputBox)
+        self.mainBox.append(self.warningLabel)
+
+    def onCancel(self, button):
+        self.destroy()
+    
+    def onConfirm(self, button):
+        self.pageManager.app.communicationHandler.createNewPage(self.inputBox.get_text())
+        self.pageManager.loadPages()
+        self.pageManager.app.pageSelector.update()
+        self.destroy()
+
+    def onNameChange(self, entry):
+        if entry.get_text() == '':
+            self.setDialogStatus(0)
+        elif entry.get_text() not in self.pageManager.app.communicationHandler.createPagesList(onlyName = True):
+            self.setDialogStatus(2)
+        else:
+            self.setDialogStatus(1)
+
+    def setDialogStatus(self, status):
+        """
+        Sets the status of the dialog
+
+        Args:
+            status (int): The status of the dialog: 0: no name; 1:already in use; 2:ok
+        """
+        if status == 0:
+            # Label
+            if self.mainBox.get_last_child() is not self.warningLabel:
+                self.mainBox.append(self.warningLabel)
+            self.warningLabel.set_text("The name can't be empty")
+            # Button
+            self.confirmButton.set_sensitive(False)
+            self.confirmButton.set_css_classes(['confirm-button'])
+        if status == 1:
+            # Label
+            if self.mainBox.get_last_child() is not self.warningLabel:
+                self.mainBox.append(self.warningLabel)
+            self.warningLabel.set_text("This name is already in use")
+            # Button
+            self.confirmButton.set_sensitive(False)
+            self.confirmButton.set_css_classes(['confirm-button-error'])
+        if status == 2:
+            # Label
+            if self.mainBox.get_last_child() is self.warningLabel:
+                self.mainBox.remove(self.warningLabel)
+            # Button
+            self.confirmButton.set_sensitive(True)
+            self.confirmButton.set_css_classes(['confirm-button'])
