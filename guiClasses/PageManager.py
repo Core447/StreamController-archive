@@ -1,5 +1,8 @@
 from gi.repository import Gtk, Gdk, Adw, Gio, GLib
 from guiClasses.ConfigButton import ConfigButton
+import os
+from controller import ASSETS_PATH
+import shutil
 
 class PageManager(Gtk.ApplicationWindow):
     # This variable is used to inform the PageManager to which page the actions belong
@@ -42,15 +45,22 @@ class PageManager(Gtk.ApplicationWindow):
         self.initActions()
 
         # Add a new box to the bottom of the window
-        self.bottomBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, hexpand=True)
+        self.bottomBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, hexpand=True)
 
         # Add separator
         self.mainBox.append(Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True))
 
+
         # Add 'Add New Page' button
-        self.button = Gtk.Button(hexpand=True, label='Add New Page', margin_bottom=10, margin_top=10)
-        self.button.connect("clicked", self.onClickCreateNewPage)
-        self.bottomBox.append(self.button)
+        self.createButton = Gtk.Button(hexpand=True, label='Add New Page', margin_bottom=10, margin_top=10)
+        self.createButton.connect("clicked", self.onClickCreateNewPage)
+        self.bottomBox.append(self.createButton)
+        
+        #  Add import button
+        self.importButton = Gtk.Button(label='Import', hexpand=True, margin_bottom=10, margin_top=10, margin_start=10)
+        self.importButton.connect("clicked", self.onClickImport)
+        self.bottomBox.append(self.importButton)
+
         self.mainBox.append(self.bottomBox)
 
     def loadPages(self):
@@ -66,14 +76,17 @@ class PageManager(Gtk.ApplicationWindow):
         # Create actions
         self.renameAction = Gio.SimpleAction.new("rename", None)
         self.removeAction = Gio.SimpleAction.new("remove", None)
-
+        self.exportAction = Gio.SimpleAction.new("export", None)
+        
         # Connect actions
         self.renameAction.connect("activate", self.renamePage)
         self.removeAction.connect("activate", self.showConfirmationDialog)
+        self.exportAction.connect("activate", self.exportPage)
 
         # Add actions
         self.add_action(self.renameAction)
         self.add_action(self.removeAction)
+        self.add_action(self.exportAction)
 
     # Hamburger Menu actions
     def removePage(self):
@@ -98,7 +111,195 @@ class PageManager(Gtk.ApplicationWindow):
             return
         pageDialog = RenamePageDialog(pageManager= self)
         pageDialog.show()
+
+    def exportPage(self, action, params):
+        ExportDialog(self)
+    
+    def onClickImport(self, button):
+        ImportDialog(self)
         
+class ExportDialog(Gtk.FileDialog):
+    def __init__(self, pageManager):
+        super().__init__(title="Export Page",
+                         accept_label="Export",
+                         initial_name=f"{PageManager.nameOfSelectedPage}.json"
+                         )
+        self.save(pageManager, None, self.callback)
+
+    def callback(self, dialog, result):
+        try:
+            selectedFile = dialog.save_finish(result)
+            filePath = selectedFile.get_path()
+        except GLib.Error as err:
+            print(f"Got error while openeing file: {err}")
+            return
+        
+        # Export/Copy the page
+        src = os.path.join("pages", f"{PageManager.nameOfSelectedPage}.json")
+        # Add file extension if necessary
+        if not filePath.endswith(".json"):
+            filePath += ".json"
+        shutil.copy(src, filePath)
+
+
+class ImportDialog(Gtk.FileDialog):
+    def __init__(self, pageManager):
+        self.pageManager = pageManager
+        super().__init__(title="Import Page(s)",
+                         accept_label="Import",
+                         )
+        self.open_multiple(pageManager, None, self.callback)
+
+    def callback(self, dialog, result):
+        fileList = self.open_multiple_finish(result)
+
+        alreadyPresentPages = []
+        for i in range(0, fileList.get_n_items()):
+            filePath = fileList.get_item(i).get_path()
+            # Check if file is a page
+            if not os.path.isfile(filePath):
+                ImportWarning(self.pageManager, "Error during import", f"{filePath} is a directory not a file")
+            if not filePath.endswith(".json"):
+                ImportWarning(self.pageManager, "Error during import", f"{filePath} is not a .json file")
+            if os.path.basename(filePath) in os.listdir("pages"):
+                # Page does already exist - ask to rename it
+                alreadyPresentPages.append(filePath)
+                continue
+            print(f"Importing page: {filePath}")
+            # Import the page
+            dst = os.path.join("pages", os.path.basename(filePath))
+            shutil.copy(filePath, dst)
+
+        
+        PresentFilesRenamingDialog(self.pageManager, alreadyPresentPages)
+
+
+        self.pageManager.loadPages()
+        self.pageManager.app.communicationHandler.updateUIPageSelector()
+
+class PresentFilesRenamingDialog(Gtk.ApplicationWindow):
+    def __init__(self, pageManager, fileList):
+        self.pageManager = pageManager
+        self.fileList = fileList
+        self.dialogs = []
+        super().__init__(transient_for=pageManager,
+                         title="Name already in use"
+                         )
+        
+        # Main box
+        self.mainBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, margin_start=10, margin_end=10, margin_top=10, margin_bottom=10)
+        self.set_child(self.mainBox)
+
+        # Label
+        if len(self.fileList) == 1:
+            self.label = Gtk.Label(label="The following page name is already in use:")
+        if len(self.fileList) > 1:
+            self.label = Gtk.Label(label="The following pages names are already in use:")
+            self.set_title("Names already in use")
+        self.mainBox.append(self.label)
+
+        self.build()
+
+        self.show()
+
+    def build(self):
+        self.titleBar = Gtk.HeaderBar(show_title_buttons=False)
+        # Cancel button
+        self.cancelButton = Gtk.Button(label='Cancel')
+        self.cancelButton.connect('clicked', self.onCancel)
+        # Confirm button
+        self.confirmButton = Gtk.Button(label="Rename", css_classes=['confirm-button'], sensitive=False)
+        self.confirmButton.connect('clicked', self.onConfirm)
+        # Title bar
+        self.set_titlebar(self.titleBar)
+        self.titleBar.pack_start(self.cancelButton)
+        self.titleBar.pack_end(self.confirmButton)
+
+        self.generateWindow()
+
+    def onCancel(self, button):
+        self.destroy()
+    
+    def onConfirm(self, button):
+        # Send each dialog to import and rename the page
+        for dialog in self.dialogs:
+            dialog.performAction()
+        self.pageManager.loadPages()
+        self.pageManager.app.communicationHandler.updateUIPageSelector()
+        self.destroy()
+
+    def generateWindow(self):
+        for file in self.fileList:
+            self.dialogs.append(PresentFilesRenamingDialogBlock(self, file))
+            self.mainBox.append(self.dialogs[-1])
+
+    def updateButtonSensitivity(self):
+        for dialog in self.dialogs:
+            if not dialog.canContinue:
+                self.confirmButton.set_sensitive(False)
+                return
+
+        self.confirmButton.set_sensitive(True)
+
+
+class PresentFilesRenamingDialogBlock(Gtk.Box):
+    def __init__(self, renamingDialog, filePath):
+        self.filePath = filePath
+        self.renamingDialog = renamingDialog
+        super().__init__(orientation=Gtk.Orientation.VERTICAL, margin_top=10)
+        self.canContinue = False
+        self.build()
+
+    def build(self):
+        self.separator = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL, margin_bottom=10)
+        self.fileNameLabel = Gtk.Label(label=f"{self.filePath}:", margin_bottom=5, xalign=0, margin_start=20)
+        self.entryBoxLabel = "".join(os.path.basename(self.filePath).split(".")[:-1])
+        self.entryBox = Gtk.Entry(margin_start=20, margin_end=20, text=self.entryBoxLabel)
+        self.entryBox.connect("changed", self.onEntryBoxChange)
+        self.checkButton = Gtk.CheckButton(label="Skip this file",  margin_start=15)
+        self.checkButton.connect("toggled", self.onCheckButtonToggled)
+        self.append(self.separator)
+        self.append(self.fileNameLabel)
+        self.append(self.entryBox)
+        self.append(self.checkButton)
+
+    def onCheckButtonToggled(self, button):
+        if button.get_active():
+            self.entryBox.set_sensitive(False)
+            self.canContinue = True
+        else:
+            self.entryBox.set_sensitive(True)
+            if self.entryBox.get_text() is self.entryBoxLabel:
+                self.canContinue = False
+
+        self.renamingDialog.updateButtonSensitivity()
+
+    def onEntryBoxChange(self, entry):
+        if entry.get_text() is not self.entryBoxLabel:
+            self.canContinue = True
+        else:
+            self.canContinue = False
+
+        self.renamingDialog.updateButtonSensitivity()
+
+    def performAction(self):
+        if self.checkButton.get_active():
+            return
+        # Copy file under new name
+        newName = self.entryBox.get_text()
+        shutil.copy(self.filePath, os.path.join("pages", newName + ".json"))
+        
+
+class ImportWarning(Gtk.MessageDialog):
+    def __init__(self, parent, title, message):
+        super().__init__(transient_for=parent, title=title, message_type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.OK, secondary_text=message)
+        self.connect("response", self.onResponse)
+        self.show()
+
+    def onResponse(self, dialog, response):
+        if response == Gtk.ResponseType.OK:
+            self.destroy()
+
 
 class PageManagerButton(Gtk.Grid):
     def __init__(self, pageManager: PageManager, pageName):
@@ -132,6 +333,7 @@ class PageManagerHamburgerPopup(Gtk.PopoverMenu):
         # Add the menu items
         self.menu.append("Rename", "win.rename")
         self.menu.append("Remove", "win.remove")
+        self.menu.append('Export', 'win.export')
 
         self.set_menu_model(self.menu)
         
