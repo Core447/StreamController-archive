@@ -18,7 +18,6 @@ class PausePlay(ActionBase):
         self.playerctlAvailable = False
         if self.runShellCommand("type -p playerctl") != None:
             self.playerctlAvailable = True
-        print(self.playerctlAvailable)
 
         self.oldMediaStatus = None
 

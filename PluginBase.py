@@ -65,11 +65,6 @@ class PluginBase():
             buttonData[pageName][buttonCoords][actionIndex] = {}
         #if key not in buttonData[pageName][buttonCoords][actionIndex]:
         #    buttonData[pageName][buttonCoords][key][actionIndex] = {}
-        try:
-            print("is at:")
-            print(buttonData[pageName][buttonCoords][key][actionIndex])
-        except:
-            pass
         buttonData[pageName][buttonCoords][actionIndex][key] = value
 
         with open(buttonSettingsFilePath, 'w') as file:

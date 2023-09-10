@@ -96,8 +96,6 @@ class DeviceSelector(Gtk.ComboBox):
             self.deviceList.append([deck.deck_type()])
 
     def onChange(self, combo):
-        print(self.get_active())
-        print(streamdecksRaw[0].deck_type())
         self.keyGrid.createGrid(streamdecksRaw[self.get_active()].key_layout())
 
 
@@ -119,8 +117,6 @@ class CategorySelector(Gtk.Grid):
         self.stack.add_titled(self, "Categories", "Categories")
 
     def loadCategories(self, categories: list):
-        print("*****************")
-        
         for row in range(len(categories)):
             categoryButton = CategoryButton(self.app, self, self.stack, row+1, categories[row])
             #actionSelector = ActionSelector(self., categories[row])
@@ -182,7 +178,6 @@ class PageSelector(Gtk.Grid):
     def onChange(self, dropdown, _pspec):
         selected = dropdown.props.selected_item
         if selected is not None:
-            print(f'Selected: {selected.props.string}')
             # return
             self.loadNewPageOnDeck(selected.props.string)
 
@@ -193,7 +188,6 @@ class PageSelector(Gtk.Grid):
             deckController.loadPage(selectedPage, True)
 
     def onClickPageManager(self, button):
-        print("Clicked Page Manager")
         self.pageManager.showWindow()
 
     def update(self):
@@ -218,7 +212,6 @@ class PageSelector(Gtk.Grid):
         mainPageIndex = pageList.index(loadedPage)
         # Select main page
         self.dropDown.set_selected(mainPageIndex)
-        print()
 
 
         
@@ -350,7 +343,6 @@ class StreamControllerApp(Adw.Application):
         
         allCats = []
         for plugin in PluginBase.plugins:
-            print(plugin)
             allCats.append(plugin)
         self.categoryGrid.loadCategories(allCats)    
 
@@ -359,16 +351,11 @@ class StreamControllerApp(Adw.Application):
 
 
         allActions = {}
-        print("loading...")
-        print(PluginBase.plugins)
         for pluginName in list(PluginBase.plugins.keys()):
-            print(pluginName)
             allActions[pluginName] = []
             for action in PluginBase.plugins[pluginName].pluginActions:
-                print(action.ACTION_NAME)
                 allActions[pluginName].append(action.ACTION_NAME)
         
-        print(allActions)
 
 
         for key in list(allActions.keys()):
@@ -408,7 +395,6 @@ class StreamControllerApp(Adw.Application):
         
         self.keyGrid = KeyGrid(self)
         self.keyGrid.createGrid(streamdecksRaw[0].key_layout())
-        #print(streamdecksRaw[0].key_layout())
 
         #self.leftSideGrid.append(self.keyGrid)
 
@@ -449,7 +435,6 @@ class StreamControllerApp(Adw.Application):
 
 
     def categoryClick(self, button):
-        print("catClick")
         self.stack.set_visible_child_name("actions")
 
     def goBackToCategories(self, button):

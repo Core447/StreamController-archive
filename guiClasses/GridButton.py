@@ -53,8 +53,6 @@ class GridButton(Gtk.Button):
         self.set_child(self.image)
   
     def on_dnd_drop(self, drop_target, value, x, y):
-        #print(f'in on_dnd_drop(); value={value}, x={x}, y={y}')
-        #print(list(value))
         if isinstance(value, ActionButton):
             #ActionButton got dropped
             self.addActionToGrid(value)
@@ -62,19 +60,16 @@ class GridButton(Gtk.Button):
         return True
 
     def on_dnd_accept(self, drop, user_data):
-        print(type(user_data))
         return True
 
     def on_dnd_enter(self, drop_target, x, y):
-        print(f'in on_dnd_enter(); drop_target={drop_target}, x={x}, y={y}')
         return Gdk.DragAction.COPY
 
     def on_dnd_motion(self, drop_target, x, y):
-        print(f'in on_dnd_motion(); drop_target={drop_target}, x={x}, y={y}')
         return Gdk.DragAction.COPY
 
     def on_dnd_leave(self, user_data):
-        print(f'in on_dnd_leave(); user_data={user_data}')
+        pass
 
     
 
@@ -88,7 +83,6 @@ class GridButton(Gtk.Button):
         buttonInitialJson = self.app.communicationHandler.actionIndex[actions].getInitialJson()
 
         jsonButtonCoords = f"{self.gridPosition[0]}x{self.gridPosition[1]}"
-        print(jsonButtonCoords)
         newButtonJson = {jsonButtonCoords: buttonInitialJson}
         
         pageData = self.app.communicationHandler.deckController[0].loadedPageJson
@@ -100,8 +94,6 @@ class GridButton(Gtk.Button):
 
         #get first deck #TODO: use the selected deck
         deckController = self.app.communicationHandler.deckController[0]
-        #print(deckController.)
-        print(f"loading Page: {pageName}")
         deckController.loadPage(pageName, True)
 
         self.actions = actions
@@ -223,6 +215,5 @@ class GridButtonContextMenu:
         self.gridButton.addActionByEventTag(GridButtonContextMenu.copiedEventTag)
 
     def editMulti(self, action, param):
-        print(f"Multi: {self.gridButton.actions}")
         #self.app.leftStack.set_visible_child(self.app.MultiActionConfig)
         self.app.MultiActionConfig.loadFromButton(self.gridButton)

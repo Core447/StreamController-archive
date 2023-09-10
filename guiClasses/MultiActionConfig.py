@@ -107,12 +107,9 @@ class MultiActionConfig(Gtk.Box):
     
     def onDndAccept(self, drop, userData):
         self.dropUserData = userData
-        print(f'in on_dnd_accept(); drop={drop}, user_data={userData}')
         return True
     
     def onDndEnter(self, dropTarget, x, y):
-        print("FIND ME")
-        print(type(self.dropUserData))
         return Gdk.DragAction.COPY
     def getNRealActions(self) -> int:
         child = self.actionBox.get_first_child()
@@ -132,7 +129,6 @@ class MultiActionConfig(Gtk.Box):
 
         alreadyHadPreview = False
 
-        print("label")
         child = self.actionBox.get_first_child() 
         while True:
             if child == None: break
@@ -142,7 +138,6 @@ class MultiActionConfig(Gtk.Box):
                 alreadyHadPreview = True
                 child = child.get_next_sibling()
                 continue
-            print(child.eventTag)
             self.gridButton.actions.append(child.eventTag)
             child = child.get_next_sibling()
 
@@ -224,7 +219,6 @@ class MultiActionConfigButton(Gtk.Button):
         self.add_controller(dndTarget)
 
     def on_dnd_prepare(self, drag_source, x, y):
-        print(f'in on_dnd_prepare(); drag_source={drag_source}, x={x}, y={y}')
         self.multiActionConfig.preview.set_label(self.eventLabel.get_label())
         self.set_visible(False)
        
@@ -232,16 +226,13 @@ class MultiActionConfigButton(Gtk.Button):
             Gtk.WidgetPaintable.new(self),
             self.get_width() / 2, self.get_height() / 2
         )
-        print(f"content: {type(self)}, -> {self}")
         content = Gdk.ContentProvider.new_for_value(self)
         return content
 
     def on_dnd_begin(self, drag_source, data):
         content = data.get_content()
-        print(f'in on_dnd_begin(); drag_source={drag_source}, data={data}, content={content}')
 
     def on_dnd_end(self, drag, drag_data, flag):
-        print(f'in on_dnd_end(); drag={drag}, drag_data={drag_data}, flag={flag}')
         self.multiActionConfig.preview.set_visible(False)
         self.multiActionConfig.actionBox.reorder_child_after(self, self.multiActionConfig.preview)
         self.set_visible(True)
@@ -261,15 +252,10 @@ class MultiActionConfigButton(Gtk.Button):
         if not self.multiActionConfig.preview.get_visible():
             self.multiActionConfig.preview.set_visible(True)
         if y < self.get_allocation().height/2:
-            print("top")
             self.multiActionConfig.actionBox.reorder_child_after(self, self.multiActionConfig.preview)
         else:
-            print("buttom")
             self.multiActionConfig.actionBox.reorder_child_after(self.multiActionConfig.preview, self)
         pass
-        print(f'in on_dnd_motion(); drop_target={drop_target}, x={x}, y={y}')
-        print("position:")
-        print(self.get_allocation().y)
         return Gdk.DragAction.COPY
     
     def onRightMouseButtonPress(self, widget, nPress, x, y):
@@ -288,8 +274,6 @@ class MultiActionConfigButton(Gtk.Button):
 
     #focus
     def onEntryFocusIn(self, event):
-        print("focus FINDME")
-        print(f"Tag: {self.eventTag}; Number: {self.getRealChildNumber(self)}; Coords: {self.multiActionConfig.gridButtonPosition}")
         pageName = self.app.communicationHandler.deckController[0].loadedPage
         self.app.actionConfigBox.load(pageName, self.eventTag, self.multiActionConfig.gridButtonPosition, self.getRealChildNumber(self))
     
@@ -362,7 +346,6 @@ class MultiActionConfigButtonContextMenu:
         MultiActionConfigButtonContextMenu.copiedEventTag = self.configButton.eventTag
 
     def pasteBelow(self, action, param):
-        print(f"tag: {MultiActionConfigButtonContextMenu.copiedEventTag}")
         eventTag = MultiActionConfigButtonContextMenu.copiedEventTag
         newButton = MultiActionConfigButton(self.app, self.configButton.multiActionConfig,  "".join(eventTag.split(":")[1:]), eventTag)
         self.configButton.multiActionConfig.actionBox.append(newButton)

@@ -90,10 +90,8 @@ class PageManager(Gtk.ApplicationWindow):
 
     # Hamburger Menu actions
     def removePage(self):
-        print('removing.....')
         if PageManager.nameOfSelectedPage is None:
             return
-        print(f"remove {PageManager.nameOfSelectedPage}")
         self.app.communicationHandler.deletePage(PageManager.nameOfSelectedPage)
         self.loadPages()
 
@@ -102,7 +100,6 @@ class PageManager(Gtk.ApplicationWindow):
         dialog.show()
 
     def onClickCreateNewPage(self, button):
-        print('create new page')
         pageDialog = CreatePageDialog(pageManager = self)
         pageDialog.show()
 
@@ -131,7 +128,6 @@ class ExportDialog(Gtk.FileDialog):
             selectedFile = dialog.save_finish(result)
             filePath = selectedFile.get_path()
         except GLib.Error as err:
-            print(f"Got error while openeing file: {err}")
             return
         
         # Export/Copy the page
@@ -165,7 +161,6 @@ class ImportDialog(Gtk.FileDialog):
                 # Page does already exist - ask to rename it
                 alreadyPresentPages.append(filePath)
                 continue
-            print(f"Importing page: {filePath}")
             # Import the page
             dst = os.path.join("pages", os.path.basename(filePath))
             shutil.copy(filePath, dst)
@@ -350,7 +345,6 @@ class PageManagerHamburgerMenuButton(Gtk.Button):
         self.connect('clicked', self.onClick)
 
     def onClick(self, button):
-        print("Clicked Page Manager")
         self.popover.popup()
         PageManager.nameOfSelectedPage = self.pageName
 
@@ -363,7 +357,6 @@ class ConfirmationDialog(Gtk.MessageDialog):
 
     def onResponse(self, dialog, response):
         if response == Gtk.ResponseType.OK:
-            print('pressed OK')
             self.pageManager.removePage()
         self.destroy()
 

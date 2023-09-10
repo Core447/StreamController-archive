@@ -62,7 +62,6 @@ class CommunicationHandler():
         self.actionIndex = {}
         for key in list(PluginBase.plugins.keys()):
             for action in PluginBase.plugins[key].pluginActions:
-                print(f"action: {action.ACTION_NAME} from plugin: {key}")
                 if (key + ":" + action.ACTION_NAME) in list(self.actionIndex.keys()):
                     raise ValueError(f"Duplicate action {action.ACTION_NAME} in plugin {key}")
                 self.actionIndex[key + ":" + action.ACTION_NAME] = action
@@ -77,7 +76,6 @@ class CommunicationHandler():
             if os.path.exists(os.path.join(path, folder, folder+".py")):
                 modulePath = path.replace("/",".") + "." + folder + "." + folder
                 if modulePath[0] == ".": modulePath = modulePath[1:]
-                print(modulePath)
                 importlib.import_module(modulePath)
 
     #helper methods
@@ -317,7 +315,6 @@ class DeckController():
             raise ValueError("Icon filename must be a string")
         #check if captions is a list
         if not isinstance(captions, list):
-            print(captions)
             raise ValueError("Captions must be a list")
         #check if fontFilename is a string
         if not isinstance(fontName, str):
@@ -375,7 +372,6 @@ class DeckController():
         #load json from string
         captions = str(captions).replace("'",'"')
         captions = json.loads(captions)
-        print(f"captions: {captions}")
         
         fontSize = 14
         for caption in captions:
@@ -417,20 +413,15 @@ class DeckController():
         #check if button is defined on the current StreamDeck
         if buttonCoords[0] > self.deck.key_layout()[0] or buttonCoords[1] > self.deck.key_layout()[1]:
             return None
-        print(f"Button: {buttonName}, returned: {buttonCoords[0]*self.deck.key_layout()[1] + buttonCoords[1]}")
         return buttonCoords[0]*self.deck.key_layout()[1] + buttonCoords[1]
     
     def keyChangeCallback(self, deck, key, state):
-        # Print new key state
-        print("Deck {} Key {} = {}".format(deck.id(), key, state), flush=True)
-        print(f"KeyCoords: {self.getJsonKeySyntaxByIndex(key)}")
         button = self.loadedPageJson["buttons"]
         if button is None or self.getJsonKeySyntaxByIndex(key) not in button:
             #button is not defined
             return
         
         if state == True and button[self.getJsonKeySyntaxByIndex(key)]["actions"] != []:
-            print(button[self.getJsonKeySyntaxByIndex(key)]["actions"])
             self.doActions(button[self.getJsonKeySyntaxByIndex(key)]["actions"], key, True)
         '''
         elif state == False and button[self.getJsonKeySyntaxByIndex(key)]["actions"]["on-release"] != "none":
@@ -455,11 +446,8 @@ class DeckController():
             raise ValueError(f"Key index must be an int. Got {keyIndex}")
         
 
-        print("got:")
-        print(actions)
         for actionIndex in range(len(actions)):
             if actions[actionIndex] not in list(self.communicationHandler.actionIndex.keys()):
-                print(f"Action '{actions[actionIndex]}' not found, skipping")
                 continue
             if keyState == True:
                 self.communicationHandler.actionIndex[actions[actionIndex]].onKeyDown(self, self.deck, keyIndex, actionIndex)
@@ -480,15 +468,11 @@ class DeckController():
             for actionIndex in range(len(actions)):
                 actionName = actions[actionIndex]
                 if actionName == "none":
-                    print(f"buttonName: {buttonName}, no action defined")
                     #no action defined
                     continue
                 action = self.communicationHandler.actionIndex[actionName]
                 if hasattr(action, "tick"):
-                    print("object has tick method")
-
                     controller = self
                     deck = self.deck
                     keyIndex = self.buttonNameToIndex(buttonName)
-                    print(f"updating index: {keyIndex}")
                     action.tick(controller, deck, keyIndex, actionIndex)
