@@ -410,11 +410,6 @@ class NamePage(Gtk.ApplicationWindow):
     def onCancel(self, button):
         self.destroy()
     
-    def onConfirm(self, button):
-        return
-        self.pageManager.app.communicationHandler.createNewPage(self.inputBox.get_text())
-        self.pageManager.loadPages()
-        self.destroy()
 
     def onNameChange(self, entry):
         if entry.get_text() == '':
