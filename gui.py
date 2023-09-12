@@ -19,7 +19,7 @@ from guiClasses.ActionButton import ActionButton
 from guiClasses.GridButton import GridButton
 from guiClasses.MultiActionConfig import MultiActionConfig
 from guiClasses.PageManager import PageManager
-
+from guiClasses.ConfigArea import ConfigArea
 
 #StreamDeck
 from StreamDeck.DeviceManager import DeviceManager
@@ -259,27 +259,7 @@ class AboutDialog(Gtk.AboutDialog):
         self.show()
 
 
-class ActionConfigBox(Gtk.Box):
-    def __init__(self, app):
-        super().__init__(orientation=Gtk.Orientation.VERTICAL, hexpand=True, margin_bottom=10)
-        self.app = app
 
-    def clear(self):
-        while self.get_first_child() != None:
-            self.remove(self.get_first_child())
-
-    def load(self, pageName, eventTag, buttonJsonName, actionIndex):
-        self.clear()
-
-        
-        action = self.app.communicationHandler.actionIndex[eventTag]
-        if not hasattr(action, "getConfigLayout"):
-            return
-        configLayout = action.getConfigLayout(pageName, buttonJsonName, actionIndex)
-        self.append(configLayout)
-
-        #add separator
-        self.prepend(Gtk.Separator(orientation=Gtk.Orientation.VERTICAL, margin_bottom=10))
 
 
 
@@ -412,12 +392,6 @@ class StreamControllerApp(Adw.Application):
 
         self.keyGrid.createGrid((3, 5))
 
-
-        #add grid where all action configs can be displayed
-        self.actionConfigBox = ActionConfigBox(self)
-        self.leftSideGrid.append(self.actionConfigBox)
-
-
         #add multiaction edit page to stack
         self.MultiActionConfig = MultiActionConfig(self)
         self.leftStack.add_titled(self.MultiActionConfig, "multi", "multi")
@@ -429,6 +403,11 @@ class StreamControllerApp(Adw.Application):
         self.actionBackButton = builder.get_object("action-back-button")
         self.actionBackButton.set_visible(False)
         self.actionBackButton.connect("clicked", self.goBackToCategories)
+
+
+        # Add config area to the left side
+        self.configArea = ConfigArea(self)
+        self.leftSideGrid.append(self.configArea)
 
 
         

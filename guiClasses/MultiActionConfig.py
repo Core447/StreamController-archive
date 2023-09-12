@@ -275,7 +275,9 @@ class MultiActionConfigButton(Gtk.Button):
     #focus
     def onEntryFocusIn(self, event):
         pageName = self.app.communicationHandler.deckController[0].loadedPage
-        self.app.actionConfigBox.load(pageName, self.eventTag, self.multiActionConfig.gridButtonPosition, self.getRealChildNumber(self))
+        self.app.configArea.showConfig(inMultiAction = True)
+        self.app.configArea.actionConfigBox.show()
+        self.app.configArea.actionConfigBox.load(pageName, self.eventTag, self.multiActionConfig.gridButtonPosition, self.getRealChildNumber(self))
     
 class MultiActionConfigButtonContextMenu:
     def __init__(self, app, configButton):

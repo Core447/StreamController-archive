@@ -100,17 +100,27 @@ class GridButton(Gtk.Button):
 
 
     def clearActionConfigBox(self):
+        self.app.configBox.actionConfigBox.clear()
+        return
         while(self.app.actionConfigBox.get_first_child() != None):
             self.app.actionConfigBox.remove(self.app.actionConfigBox.get_first_child())  
 
     def onEntryFocusIn(self, event):
+        # Tell the configArea which button is active
+        self.app.configArea.activeGridButton = self
+        # Update image chooser button in configArea
+        self.app.configArea.update()
         if self.actions == None:
             #no actions specified
+            self.app.configArea.hide()
             return
 
         if len(self.actions) > 1:
             #button is a multiaction
-            self.app.actionConfigBox.clear()
+            self.app.configArea.show()
+            self.app.configArea.actionConfigBox.clear()
+            warningLabel = Gtk.Label(label="Multiactions don't support configs", hexpand=True, halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER)
+            self.app.configArea.actionConfigBox.append(warningLabel)
             return
 
         eventTag = self.actions[0]
@@ -118,7 +128,9 @@ class GridButton(Gtk.Button):
         buttonJsonName = f"{self.gridPosition[0]}x{self.gridPosition[1]}"
         actionIndex = 0 # because it isn't a multiaction
 
-        self.app.actionConfigBox.load(pageName, eventTag, buttonJsonName, actionIndex)
+        self.app.configArea.actionConfigBox.load(pageName, eventTag, buttonJsonName, actionIndex)
+        self.app.configArea.showConfig()
+        self.app.configArea.actionConfigBox.show()
 
     def onRightMouseButtonPress(self, widget, nPress, x, y):
         contextMenu = GridButtonContextMenu(self.app, self)

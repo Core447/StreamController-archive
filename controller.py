@@ -230,7 +230,10 @@ class DeckController():
 
         for button in pageData["buttons"]:
             buttonIndex = self.buttonNameToIndex(button)
-            self.loadButton(buttonIndex, pageData["buttons"][button]["default-image"], pageData["buttons"][button]["captions"], "Roboto-Regular.ttf", update=update)
+            imageToLoad = "default-image"
+            if "custom-image" in pageData["buttons"][button]:
+                imageToLoad = "custom-image"
+            self.loadButton(buttonIndex, pageData["buttons"][button][imageToLoad], pageData["buttons"][button]["captions"], "Roboto-Regular.ttf", update=update)
 
             #update eventTag of ui button
             eventTag = pageData["buttons"][button]["actions"][0]
@@ -245,6 +248,9 @@ class DeckController():
         # TODO: Only update if this is the selected deck
         self.communicationHandler.app.pageSelector.update()
 
+    def realoadPage(self):
+        self.loadPage(self.loadedPage, update=True)
+
     def loadButton(self, keyIndex: int, imageName: str, captions: list, fontName: str, update: bool = False):
         if keyIndex in self.loadedButtons and not update:
             if self.loadedButtons[keyIndex] == [imageName, captions, fontName]:
@@ -255,7 +261,7 @@ class DeckController():
         if not isinstance(keyIndex, int):
             raise ValueError("Key index must be an int")
         #check if imagePath is a string
-        if not isinstance(imageName, str):
+        if not isinstance(imageName, str) and imageName is not None:
             raise ValueError("Image path must be a string")
         #check if captions is a list
         if not isinstance(captions, list):
@@ -311,7 +317,7 @@ class DeckController():
 
         #Create deck image
         #check if iconFilename is a string
-        if not isinstance(iconFilename, str):
+        if not isinstance(iconFilename, str) and iconFilename is not None:
             raise ValueError("Icon filename must be a string")
         #check if captions is a list
         if not isinstance(captions, list):
@@ -335,7 +341,7 @@ class DeckController():
                         raise FileNotFoundError(f"Font {fontName} could not be found")
                     
         #create icon
-        if iconFilename == "":
+        if iconFilename == "" or iconFilename is None:
             deckIcon = Image.new("RGB", (32, 32), (0,0,0))
             uiIcon = Image.new("RGBA", (32, 32), (0,0,0,0))
         else:
