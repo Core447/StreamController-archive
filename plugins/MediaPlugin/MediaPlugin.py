@@ -23,13 +23,13 @@ class PausePlay(ActionBase):
 
         self.showCurrentMediaState = None
                     
-    def onKeyDown(self, controller, deck, keyIndex, actionIndex):
+    def onKeyDown(self, controller, deck, pageName, keyIndex, actionIndex):
         self.pluginBase.keyboard.press(Key.media_play_pause)
         sleep(0.1)
         self.pluginBase.keyboard.release(Key.media_play_pause)
         return
     
-    def tick(self, controller, deck, keyIndex, actionIndex):
+    def tick(self, controller, deck, pageName, keyIndex, actionIndex):
         """
         This function is called every second to allow constant updating
         """

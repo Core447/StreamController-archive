@@ -456,7 +456,7 @@ class DeckController():
             if actions[actionIndex] not in list(self.communicationHandler.actionIndex.keys()):
                 continue
             if keyState == True:
-                self.communicationHandler.actionIndex[actions[actionIndex]].onKeyDown(self, self.deck, keyIndex, actionIndex)
+                self.communicationHandler.actionIndex[actions[actionIndex]].onKeyDown(self, self.deck, self.loadedPage, keyIndex, actionIndex)
             '''
             else:
                 self.communicationHandler.actionIndex[action].onKeyUp(self, self.deck, keyIndex)
@@ -481,4 +481,4 @@ class DeckController():
                     controller = self
                     deck = self.deck
                     keyIndex = self.buttonNameToIndex(buttonName)
-                    action.tick(controller, deck, keyIndex, actionIndex)
+                    action.tick(controller, deck, self.loadedPage, keyIndex, actionIndex)
