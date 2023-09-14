@@ -2,7 +2,7 @@ import json, os
 class PluginBase():
     #List of all plugins
     plugins = {}
-    pluginActions = []
+    # pluginActions = []
 
     #Change these variables to match your plugin
     PLUGIN_NAME = ""
@@ -15,6 +15,8 @@ class PluginBase():
             raise ValueError("Please set PLUGIN_PATH for your plugin")
         if self.PLUGIN_NAME in PluginBase.plugins:
             raise ValueError(f"Plugin {self.PLUGIN_NAME} already exists")
+        if not hasattr(self, "pluginActions"):
+            raise ValueError(f"Plugin {self.PLUGIN_NAME}: You need to define the pluginActions list, having all your actions in it")
         PluginBase.plugins[self.PLUGIN_NAME] = self
         pass
 

@@ -96,7 +96,7 @@ class RunCommand(ActionBase):
 class OS(PluginBase):
     PLUGIN_NAME = "OS"
     PLUGIN_PATH = os.path.dirname(os.path.relpath(__file__)) #set path to plugin
-    #pluginActions = []
+    pluginActions = []
     def __init__(self):
         super().__init__()
         self.initActions()
