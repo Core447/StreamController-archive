@@ -24,32 +24,31 @@ class PluginBase():
     def createUiConfigMenu(): #TODO: return Gtk Widget
         return
     
-    def getPluginSetting(self, key):
+    def getButtonSetting(self, buttonCoords: str, pageName: str, key, value, actionIndex = 0):
         """
         Retrieves the value associated with the given key from the plugin settings.
-
-        Parameters:
-            key (str): The key to retrieve the value for.
 
         Returns:
             The value associated with the key if it exists, otherwise None.
         """
-        #check if file exists
-        pluginSettingsFilePath = os.path.join(self.PLUGIN_PATH, "pluginSettings.json")
-        if not os.path.exists(pluginSettingsFilePath):
-            pluginData = {}
-        else:
-            #load json
-            with open(pluginSettingsFilePath) as file:
-                pluginData = json.load(file)
-        
-        if key not in pluginData:
+        buttonSettingsFilePath = os.path.join(self.PLUGIN_PATH, "buttonSettings.json")
+        buttonData = {}
+
+        if os.path.exists(buttonSettingsFilePath):
+            with open(buttonSettingsFilePath) as file:
+                buttonData = json.load(file)
+
+        if pageName not in buttonData:
             return None
-        return pluginData[key]
+        if buttonCoords not in buttonData[pageName]:
+            return None
+        if str(actionIndex) not in buttonData[pageName][buttonCoords]:
+            return None
+        return buttonData[pageName][buttonCoords][str(actionIndex)][key]
     
     
     
-    def setButtonSetting(self, buttonCoords, pageName, key, value, actionIndex = 0):
+    def setButtonSetting(self, buttonCoords: str, pageName: str, key, value, actionIndex = 0):
         buttonSettingsFilePath = os.path.join(self.PLUGIN_PATH, "buttonSettings.json")
         buttonData = {}
 
