@@ -96,7 +96,7 @@ class GridButton(Gtk.Button):
         deckController = self.app.communicationHandler.deckController[0]
         deckController.loadPage(pageName, True)
 
-        self.actions = actions
+        self.actions = [actions]
 
 
     def clearActionConfigBox(self):
