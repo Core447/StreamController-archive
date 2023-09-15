@@ -62,11 +62,11 @@ class PluginBase():
             buttonData[pageName] = {}
         if buttonCoords not in buttonData[pageName]:
             buttonData[pageName][buttonCoords] = {}
-        if actionIndex not in buttonData[pageName][buttonCoords]:
-            buttonData[pageName][buttonCoords][actionIndex] = {}
+        if str(actionIndex) not in buttonData[pageName][buttonCoords]:
+            buttonData[pageName][buttonCoords][str(actionIndex)] = {}
         #if key not in buttonData[pageName][buttonCoords][actionIndex]:
         #    buttonData[pageName][buttonCoords][key][actionIndex] = {}
-        buttonData[pageName][buttonCoords][actionIndex][key] = value
+        buttonData[pageName][buttonCoords][str(actionIndex)][key] = value
 
         with open(buttonSettingsFilePath, 'w') as file:
             json.dump(buttonData, file, indent=4)
