@@ -19,7 +19,7 @@ class PluginPreview(Gtk.FlowBoxChild):
         self.mainBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, vexpand=True, homogeneous=False)
         self.mainButton.set_child(self.mainBox)
         # Image of the plugin
-        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale("MediaPlugin.png",
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale("tmp/assets/MediaPlugin.png",
                                                          width=250, height=50, preserve_aspect_ratio=True)
         self.image = Gtk.Picture(hexpand=False,vexpand=False, css_classes=["plugin-store-image"])
         self.image.set_pixbuf(pixbuf)
