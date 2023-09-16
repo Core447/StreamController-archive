@@ -54,3 +54,25 @@
 	font-size: 18px;
 	font-weight: bold;
 }
+.no-padding {
+	padding: 0px;
+}
+.plugin-store-image {
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+}
+.official-mark {
+	background-color: #242424;
+	color: white;
+	border-radius: 6px;
+	font-size: 12px;
+	padding: 1px;
+}
+.plugin-store-name {
+	font-size: 18px;
+	font-weight: bold;
+}
+.official-mark-btn {
+	font-size: 14px;
+	margin-left: 0px;
+}

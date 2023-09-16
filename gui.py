@@ -20,6 +20,7 @@ from guiClasses.GridButton import GridButton
 from guiClasses.MultiActionConfig import MultiActionConfig
 from guiClasses.PageManager import PageManager
 from guiClasses.ConfigArea import ConfigArea
+from guiClasses.PluginStore.PluginStore import PluginStore
 
 #StreamDeck
 from StreamDeck.DeviceManager import DeviceManager
@@ -223,6 +224,7 @@ class HamburgerMenu(Gtk.MenuButton):
 
         #create a menu
         self.menu = Gio.Menu.new()
+        self.menu.append("Plugin Store", "app.pluginstore")
         self.menu.append("About", "app.aboutdialog")
 
         #create a popover
@@ -409,9 +411,14 @@ class StreamControllerApp(Adw.Application):
         self.configArea = ConfigArea(self)
         self.leftSideGrid.append(self.configArea)
 
+        # Link the plugin store
+        self.pluginStoreAction = Gio.SimpleAction(name="pluginstore")
+        self.pluginStoreAction.connect("activate", self.openPluginStore)
+        self.add_action(self.pluginStoreAction)
 
-        
-
+    def openPluginStore(self, action, params):
+        self.pluginStore = PluginStore(self)
+        self.pluginStore.show()
 
     def categoryClick(self, button):
         self.stack.set_visible_child_name("actions")
