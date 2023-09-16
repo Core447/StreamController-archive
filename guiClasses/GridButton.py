@@ -100,7 +100,7 @@ class GridButton(Gtk.Button):
 
 
     def clearActionConfigBox(self):
-        self.app.configBox.actionConfigBox.clear()
+        self.app.configArea.actionConfigBox.clear()
         return
         while(self.app.actionConfigBox.get_first_child() != None):
             self.app.actionConfigBox.remove(self.app.actionConfigBox.get_first_child())  
