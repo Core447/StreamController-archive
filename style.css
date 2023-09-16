@@ -1,0 +1,56 @@
+.cat-button{
+	
+}
+.label{
+	color: green;
+}
+.media{
+	color: green;
+}
+.gridButton{
+	min-width:75px;	
+	max-width:75px;
+	margin-right:10px;
+	min-height:75px;
+	max-height:75px;
+	margin-bottom:5px;
+	margin-top:5px;
+}
+.page-text {
+	font-size:30px;
+	font-weight: bold;
+	/* text-decoration: underline; */
+	margin:11px;
+
+}
+.action-config-header{
+	font-size: 20px;
+	font-weight: bold;
+	text-decoration: underline;
+}
+.multi-action-config-button{
+	min-width: 500px;
+	min-height: 75px;
+	border-radius: 10px;
+}
+.multi-action-config-title{
+	margin-left: 5px;
+	font-size: 22px;
+	font-weight: bold;
+}
+.category-label{
+	opacity: 0.5;
+}
+.confirm-button { 
+	background-color: #4990E7;
+}
+.confirm-button-error { 
+	background-color: #EA735D;
+}
+.warning-label {
+	color: #EA735D;
+}
+.header{
+	font-size: 18px;
+	font-weight: bold;
+}
