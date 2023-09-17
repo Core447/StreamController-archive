@@ -1,9 +1,11 @@
 from gi.repository import Gtk, Gdk, Adw, Gio, GLib
-import sys
+import sys, json
+from urllib.parse import urlparse
 
 # Import own modules
 sys.path.append("guiClasses/PluginStore")
 from PluginPreview import PluginPreview
+from GitHubHelper import GitHubHelper
 
 class PluginStore(Gtk.ApplicationWindow):
     """
@@ -17,7 +19,11 @@ class PluginStore(Gtk.ApplicationWindow):
                          transient_for=self.app.win,
                          modal=True
                          )
+        self.githubHelper = GitHubHelper()
         self.build()
+
+    def onResize(self, width, height):
+        print("resize")
     
     def build(self):
         # Init objects
@@ -39,5 +45,29 @@ class PluginStore(Gtk.ApplicationWindow):
         self.mainBox.append(self.topBox)
         self.mainBox.append(self.contentBox)
         self.contentBox.append(self.mainFlowBox)
-        for i in range(0, 20):
-            self.mainFlowBox.append(PluginPreview(self))
+        # for i in range(0, 20):
+            # self.mainFlowBox.append(PluginPreview(self))
+
+        self.loadPreviews()
+
+    def loadPreviews(self):
+        pluginList = self.githubHelper.getRaw("https://github.com/Core447/StreamController-Plugins", "Plugins.json", branchName="main")
+        print(pluginList)
+        pluginList = json.loads(pluginList)
+
+        for plugin in pluginList:
+            # Get backend infos
+            pluginUrl = pluginList[plugin]["url"]
+            pluginVerifiedCommit = pluginList[plugin]["verified-commit"]
+            
+
+            # Get frontend infos
+            pluginManifest = json.loads(self.githubHelper.getRaw(pluginUrl, "manifest.json", branchName="main"))
+            pluginName = pluginManifest["name"]
+            pluginDescription = pluginManifest["description"]
+
+            # Save thumbnail
+            thumbnailPath = self.githubHelper.downloadThumbnail(pluginUrl, pluginManifest["thumbnail"], commitSHA=pluginVerifiedCommit)
+
+            # Load the preview in the store
+            self.mainFlowBox.append(PluginPreview(self, pluginName, pluginDescription, thumbnailPath))

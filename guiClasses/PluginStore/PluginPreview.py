@@ -6,7 +6,12 @@ sys.path.append("guiClasses/PluginStore")
 from OfficialMark import OfficialMark
 
 class PluginPreview(Gtk.FlowBoxChild):
-    def __init__(self, pluginStore):
+    def __init__(self, pluginStore, pluginName, pluginDescription, thumbnailPath):
+        self.pluginStore = pluginStore
+        self.pluginName = pluginName
+        self.pluginDescription = pluginDescription
+        self.thumbnailPath = thumbnailPath
+
         super().__init__(width_request=100, height_request=100)
         self.build()
         
@@ -22,6 +27,7 @@ class PluginPreview(Gtk.FlowBoxChild):
         self.mainButtonBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, vexpand=False, homogeneous=False)
         self.mainButton.set_child(self.mainButtonBox)
         # Image of the plugin
+        self.pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(self.thumbnailPath,
                                                          width=250, height=90, preserve_aspect_ratio=False)
         self.image = Gtk.Picture(hexpand=False, css_classes=["plugin-store-image"],
                                  content_fit=Gtk.ContentFit.COVER, height_request=90, width_request=250, vexpand_set=True)
@@ -32,7 +38,7 @@ class PluginPreview(Gtk.FlowBoxChild):
         self.bottomBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, vexpand=False, valign=0, margin_start=5, margin_top=5)
         self.mainButtonBox.append(self.bottomBox)
         # Label with the name of the plugin
-        self.nameLabel = Gtk.Label(label="Media Plugin", halign=Gtk.Align.START, css_classes=["plugin-store-name"])
+        self.nameLabel = Gtk.Label(label=self.pluginName, halign=Gtk.Align.START, css_classes=["plugin-store-name"])
         self.bottomBox.append(self.nameLabel)
         # Marks area
         self.marksBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, halign=Gtk.Align.START, hexpand=True, margin_top=5)
@@ -40,15 +46,13 @@ class PluginPreview(Gtk.FlowBoxChild):
         # Official mark
         self.marksBox.append(OfficialMark())
         # Description
-        descriptionText = "Control your media playback from all sources"
-        self.descriptionLabel = Gtk.Label(label=descriptionText, halign=Gtk.Align.START,
+        self.descriptionLabel = Gtk.Label(label=self.pluginDescription, halign=Gtk.Align.START,
                                           css_classes=["plugin-store-description"], margin_top=10, wrap=True, lines=5,
                                           max_width_chars=20,
                                           ellipsize=Pango.EllipsizeMode.END,
                                           margin_bottom=10,
                                           sensitive=False
                                           )
-        
         self.bottomBox.append(self.descriptionLabel)
         # Button Box
         self.buttonBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, halign=Gtk.Align.START, hexpand=True, margin_top=0, css_classes=["gray"])
