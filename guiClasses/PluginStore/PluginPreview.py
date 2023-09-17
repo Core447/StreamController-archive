@@ -11,24 +11,26 @@ class PluginPreview(Gtk.FlowBoxChild):
         self.build()
         
     def build(self):
+        # Main box
+        self.mainBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, vexpand=False, css_classes=["no-bottom-rounding"])
+        self.set_child(self.mainBox)
         # Main button covering the hole FlowBoxChild
-        self.mainButton = Gtk.Button(hexpand=True, vexpand=True, width_request=250, height_request=200,
-                                     margin_start=0, margin_end=0, css_classes=["no-padding"])
-        self.set_child(self.mainButton)
+        self.mainButton = Gtk.Button(hexpand=True, vexpand=False, width_request=250, height_request=200,
+                                     margin_start=0, margin_end=0, css_classes=["no-padding", "no-bottom-rounding"])
+        self.mainBox.append(self.mainButton)
         # Main box covering the hole button
-        self.mainBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, vexpand=True, homogeneous=False)
-        self.mainButton.set_child(self.mainBox)
+        self.mainButtonBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, vexpand=False, homogeneous=False)
+        self.mainButton.set_child(self.mainButtonBox)
         # Image of the plugin
-        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale("tmp/assets/MediaPlugin.png",
-                                                         width=250, height=50, preserve_aspect_ratio=True)
-        self.image = Gtk.Picture(hexpand=False,vexpand=False, css_classes=["plugin-store-image"])
-        self.image.set_pixbuf(pixbuf)
+                                                         width=250, height=90, preserve_aspect_ratio=False)
+        self.image = Gtk.Picture(hexpand=False, css_classes=["plugin-store-image"],
+                                 content_fit=Gtk.ContentFit.COVER, height_request=90, width_request=250, vexpand_set=True)
+        self.image.set_pixbuf(self.pixbuf)
         self.image.set_valign(Gtk.Align.START)
-        self.image.set_size_request(2, 2)
-        self.mainBox.append(self.image)
+        self.mainButtonBox.append(self.image)
         # Bottom box with all infos
-        self.bottomBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, vexpand=True, valign=0, margin_start=5, margin_top=5)
-        self.mainBox.append(self.bottomBox)
+        self.bottomBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, vexpand=False, valign=0, margin_start=5, margin_top=5)
+        self.mainButtonBox.append(self.bottomBox)
         # Label with the name of the plugin
         self.nameLabel = Gtk.Label(label="Media Plugin", halign=Gtk.Align.START, css_classes=["plugin-store-name"])
         self.bottomBox.append(self.nameLabel)
@@ -48,3 +50,16 @@ class PluginPreview(Gtk.FlowBoxChild):
                                           )
         
         self.bottomBox.append(self.descriptionLabel)
+        # Button Box
+        self.buttonBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, halign=Gtk.Align.START, hexpand=True, margin_top=0, css_classes=["gray"])
+        # self.mainBox.append(self.buttonBox)
+
+        self.downloadButton = Gtk.Button(icon_name="download-symbolic", width_request=50, vexpand=False, css_classes=["no-top-rounding"])
+        # self.buttonBox.append(self.downloadButton)
+        self.mainBox.append(self.downloadButton)
+        self.downloadButton.connect("clicked", self.onClickDownload)
+
+        # self.bottomBox.append(Gtk.Box(hexpand=True))
+
+    def onClickDownload(self, widget):
+        print("download")

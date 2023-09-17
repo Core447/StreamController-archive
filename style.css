@@ -60,6 +60,9 @@
 .plugin-store-image {
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;
+	margin-left: 0px;
+	margin-right: 0px;
+	margin-top: 0px;
 }
 .official-mark {
 	background-color: #242424;
@@ -75,4 +78,18 @@
 .official-mark-btn {
 	font-size: 14px;
 	margin-left: 0px;
+}
+.gray {
+	background-color: #3A3A3A;
+}
+.light-gray {
+	background-color: #4E4E4E;
+}
+.no-bottom-rounding {
+	border-bottom-left-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+.no-top-rounding {
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;
 }
