@@ -93,3 +93,15 @@
 	border-top-left-radius: 0px;
 	border-top-right-radius: 0px;
 }
+.no-bottom-left-rounding {
+	border-bottom-left-radius: 0px;
+}
+.no-bottom-right-rounding {
+	border-bottom-right-radius: 0px;
+}
+.no-top-left-rounding {
+	border-top-left-radius: 0px;
+}
+.no-top-right-rounding {
+	border-top-right-radius: 0px;
+}

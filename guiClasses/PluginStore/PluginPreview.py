@@ -1,18 +1,19 @@
 from gi.repository import Gtk, Gdk, Adw, Gio, GLib, GdkPixbuf, Gsk, Pango
-import sys
+import sys, webbrowser
 
 # Import own modules
 sys.path.append("guiClasses/PluginStore")
 from OfficialMark import OfficialMark
 
 class PluginPreview(Gtk.FlowBoxChild):
-    def __init__(self, pluginStore, pluginName, pluginDescription, thumbnailPath, userName, stargazers):
+    def __init__(self, pluginStore, pluginName, pluginDescription, thumbnailPath, userName, stargazers, websiteUrl):
         self.pluginStore = pluginStore
         self.pluginName = pluginName
         self.pluginDescription = pluginDescription
         self.thumbnailPath = thumbnailPath
         self.userName = userName
         self.stargazers = stargazers
+        self.websiteUrl = websiteUrl
 
         super().__init__(width_request=100, height_request=100)
         self.build()
@@ -121,22 +122,38 @@ class PluginPreview(Gtk.FlowBoxChild):
         )
         self.bottomBox.append(self.descriptionLabel)
 
+        self.mainButtonBox.append(Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True))
+
         self.buttonBox = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL,
-            halign=Gtk.Align.START,
+            halign=Gtk.Align.FILL,
             hexpand=True,
             margin_top=0,
-            css_classes=["gray"]
+            homogeneous=True,
+            css_classes=["linked"]
         )
+        self.mainBox.append(self.buttonBox)
 
         self.downloadButton = Gtk.Button(
             icon_name="download-symbolic",
-            width_request=50,
-            vexpand=False,
-            css_classes=["no-top-rounding"]
+            # width_request=50,
+            hexpand=True,
+            css_classes=["no-top-rounding", "no-bottom-right-rounding"]
         )
-        self.mainBox.append(self.downloadButton)
         self.downloadButton.connect("clicked", self.onClickDownload)
+        self.buttonBox.append(self.downloadButton)
+
+        self.websiteButton = Gtk.Button(
+            icon_name="github-symbolic",
+            hexpand=True,
+            css_classes=["no-top-rounding", "no-bottom-left-rounding"]
+        )
+        self.websiteButton.connect("clicked", self.onClickWebsite)
+        self.buttonBox.append(self.websiteButton)
+
 
     def onClickDownload(self, widget):
         print("download")
+
+    def onClickWebsite(self, widget):
+        webbrowser.open_new_tab(self.websiteUrl)
