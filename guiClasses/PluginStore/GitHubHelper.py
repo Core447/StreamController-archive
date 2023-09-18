@@ -206,3 +206,20 @@ class GitHubHelper:
         self.downloadFile(repoUrl, remotePath, f"tmp/thumbnails/{repoName}.{fileExtension}", branchName=branchName, commitSHA=commitSHA)
 
         return f"tmp/thumbnails/{repoName}.{fileExtension}"
+    
+    def getUserNameFromUrl(self, repoUrl: str) -> str:
+        """
+        Get the username from a given repository URL.
+        """
+        splitted =  repoUrl.split("/")
+        return splitted[splitted.index("github.com")+1]
+    
+    def getStargzersCount(self, repoUrl: str) -> int:
+        """
+        Get the stargzers count from a given repository URL.
+        """
+        userName = self.getUserNameFromUrl(repoUrl)
+        repoName = repoUrl.split("/")[-1]
+
+        apiAnswer = json.loads(urlopen(f"https://api.github.com/repos/{userName}/{repoName}").read())
+        return apiAnswer["stargazers_count"]

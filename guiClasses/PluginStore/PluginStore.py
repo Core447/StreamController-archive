@@ -69,5 +69,9 @@ class PluginStore(Gtk.ApplicationWindow):
             # Save thumbnail
             thumbnailPath = self.githubHelper.downloadThumbnail(pluginUrl, pluginManifest["thumbnail"], commitSHA=pluginVerifiedCommit)
 
+            # Get user infos
+            userName = self.githubHelper.getUserNameFromUrl(pluginUrl)
+            stargazers = self.githubHelper.getStargzersCount(pluginUrl)
+
             # Load the preview in the store
-            self.mainFlowBox.append(PluginPreview(self, pluginName, pluginDescription, thumbnailPath))
+            self.mainFlowBox.append(PluginPreview(self, pluginName, pluginDescription, thumbnailPath, userName, stargazers))

@@ -6,11 +6,13 @@ sys.path.append("guiClasses/PluginStore")
 from OfficialMark import OfficialMark
 
 class PluginPreview(Gtk.FlowBoxChild):
-    def __init__(self, pluginStore, pluginName, pluginDescription, thumbnailPath):
+    def __init__(self, pluginStore, pluginName, pluginDescription, thumbnailPath, userName, stargazers):
         self.pluginStore = pluginStore
         self.pluginName = pluginName
         self.pluginDescription = pluginDescription
         self.thumbnailPath = thumbnailPath
+        self.userName = userName
+        self.stargazers = stargazers
 
         super().__init__(width_request=100, height_request=100)
         self.build()
@@ -45,13 +47,19 @@ class PluginPreview(Gtk.FlowBoxChild):
         self.bottomBox.append(self.marksBox)
         # Official mark
         self.marksBox.append(OfficialMark())
+        # User name
+        self.userNameLabel = Gtk.Label(label=f"By {self.userName}", halign=Gtk.Align.START, sensitive=False, margin_start=2, margin_top=7)
+        self.bottomBox.append(self.userNameLabel)
+        # Stargazers
+        self.stargazersLabel = Gtk.Label(label=f"{self.stargazers} GitHub Stars", halign=Gtk.Align.START, sensitive=False, margin_start=2, margin_top=2)
+        self.bottomBox.append(self.stargazersLabel)
         # Description
         self.descriptionLabel = Gtk.Label(label=self.pluginDescription, halign=Gtk.Align.START,
-                                          css_classes=["plugin-store-description"], margin_top=10, wrap=True, lines=5,
+                                          css_classes=["plugin-store-description"], margin_top=7, wrap=True, lines=5,
                                           max_width_chars=20,
                                           ellipsize=Pango.EllipsizeMode.END,
-                                          margin_bottom=10,
-                                          sensitive=False
+                                          margin_bottom=10
+                                        #   sensitive=False
                                           )
         self.bottomBox.append(self.descriptionLabel)
         # Button Box
