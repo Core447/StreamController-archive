@@ -111,7 +111,8 @@ class GitHubHelper:
         os.system(f"cd tmp/downloads/{projectName} && git reset --hard {commitHash}")
 
         # Install the plugin if wished
-        self.installPlugin(f"tmp/downloads/{projectName}", projectName)
+        if install:
+            self.installPlugin(f"tmp/downloads/{projectName}", projectName)
 
     def clearDirExceptSettings(self, dirPath: str):
         """
