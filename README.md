@@ -15,6 +15,7 @@ This project uses [this](https://github.com/abcminiuser/python-elgato-streamdeck
 - [ ] Support for multiple StreamDecks at the same time
 - [ ] Discord Server
 - [ ] Official plugins for OBS etc.
+- [ ] Website
 
 ## GUI
 Currently the UI looks like this:
