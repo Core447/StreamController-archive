@@ -82,7 +82,7 @@ class GitHubHelper:
         rawFileUrl += "/"+filePath
         return rawFileUrl
     
-    def cloneAtCommit(self, repoUrl: str, commitHash: str):
+    def cloneAtCommit(self, repoUrl: str, commitHash: str, install: bool = False):
         """
         Clones a repository at a specific commit.
         """
@@ -110,8 +110,21 @@ class GitHubHelper:
         # Revert repository to the specified commit
         os.system(f"cd tmp/downloads/{projectName} && git reset --hard {commitHash}")
 
-        # Install the plugin
+        # Install the plugin if wished
         self.installPlugin(f"tmp/downloads/{projectName}", projectName)
+
+    def clearDirExceptSettings(self, dirPath: str):
+        """
+        Clears a directory except for the settings file (buttonSettings.json).
+        """
+        for file in os.listdir(dirPath):
+            if file == "buttonSettings.json":
+                continue
+
+            if os.path.isfile(os.path.join(dirPath, file)):
+                os.remove(os.path.join(dirPath, file))
+            else:
+                shutil.rmtree(os.path.join(dirPath, file))
 
     def installPlugin(self, pluginPath: str, folderName: str):
         """
@@ -133,11 +146,25 @@ class GitHubHelper:
             raise TypeError("folderName must be a string")
         
         # Install the plugin
-        if os.path.isdir(f"tmp/downloads/{folderName}"):
+        if os.path.isdir(f"plugins/{folderName}"):
             print(f"Warning: The plugin {folderName} already exists, continue anyway...")
-            shutil.rmtree(f"tmp/downloads/{folderName}")
-        # Copy plugin folder
-        shutil.copytree(pluginPath, f"tmp/downloads/{folderName}")
+            self.clearDirExceptSettings(f"plugins/{folderName}")
+            # Copy files
+            self.copyContainingFiles(f"tmp/downloads/{folderName}", f"plugins/{folderName}")
+        else:
+            # Copy plugin folder
+            shutil.copytree(pluginPath, f"tmp/downloads/{folderName}")
+
+    def copyContainingFiles(self, srcPath: str, dstPath: str):
+        """
+        Copies all files in the specified source path to the destination path.
+        """
+        for file in os.listdir(srcPath):
+            if os.path.isfile(os.path.join(srcPath, file)):
+                shutil.copy(os.path.join(srcPath, file), dstPath)
+            elif os.path.isdir(os.path.join(srcPath, file)):
+                shutil.copytree(os.path.join(srcPath, file), os.path.join(dstPath, file))
+
 
     def downloadFile(self, repoUrl: str, repoFilePath: str, localFilePath: str, branchName: str = None, commitSHA: str = None):
         """
@@ -223,3 +250,8 @@ class GitHubHelper:
 
         apiAnswer = json.loads(urlopen(f"https://api.github.com/repos/{userName}/{repoName}").read())
         return apiAnswer["stargazers_count"]
+    
+if __name__ == "__main__":
+    gh = GitHubHelper()
+    gh.cloneAtCommit("https://github.com/Core447/MediaPlugin", "ee4bedefac62fcf605894cb2ac75181071bc2473")
+    # gh.installPlugin("tmp/downloads/MediaPlugin", "MediaPlugin")

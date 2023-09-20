@@ -74,4 +74,4 @@ class PluginStore(Gtk.ApplicationWindow):
             stargazers = self.githubHelper.getStargzersCount(pluginUrl)
 
             # Load the preview in the store
-            self.mainFlowBox.append(PluginPreview(self, pluginName, pluginDescription, thumbnailPath, userName, stargazers, pluginUrl))
+            self.mainFlowBox.append(PluginPreview(self, pluginName, pluginDescription, thumbnailPath, userName, stargazers, pluginUrl, pluginVerifiedCommit))

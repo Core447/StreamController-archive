@@ -6,14 +6,15 @@ sys.path.append("guiClasses/PluginStore")
 from OfficialMark import OfficialMark
 
 class PluginPreview(Gtk.FlowBoxChild):
-    def __init__(self, pluginStore, pluginName, pluginDescription, thumbnailPath, userName, stargazers, websiteUrl):
+    def __init__(self, pluginStore, pluginName, pluginDescription, thumbnailPath, userName, stargazers, websiteUrl, verifiedCommit):
         self.pluginStore = pluginStore
         self.pluginName = pluginName
         self.pluginDescription = pluginDescription
         self.thumbnailPath = thumbnailPath
         self.userName = userName
         self.stargazers = stargazers
-        self.websiteUrl = websiteUrl
+        self.websiteUrl = websiteUrl 
+        self.verifiedCommit = verifiedCommit
 
         super().__init__(width_request=100, height_request=100)
         self.build()
@@ -153,7 +154,6 @@ class PluginPreview(Gtk.FlowBoxChild):
 
 
     def onClickDownload(self, widget):
-        print("download")
-
+        self.pluginStore.githubHelper.cloneAtCommit(self.websiteUrl, self.verifiedCommit, install=True)
     def onClickWebsite(self, widget):
         webbrowser.open_new_tab(self.websiteUrl)
