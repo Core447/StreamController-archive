@@ -155,5 +155,6 @@ class PluginPreview(Gtk.FlowBoxChild):
 
     def onClickDownload(self, widget):
         self.pluginStore.githubHelper.cloneAtCommit(self.websiteUrl, self.verifiedCommit, install=True)
+        self.downloadButton.set_icon_name("edit-delete")
     def onClickWebsite(self, widget):
         webbrowser.open_new_tab(self.websiteUrl)
