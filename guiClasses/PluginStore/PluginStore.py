@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 sys.path.append("guiClasses/PluginStore")
 from PluginPreview import PluginPreview
 from GitHubHelper import GitHubHelper
+from InfoSaver import InfoSaver
 
 class PluginStore(Gtk.ApplicationWindow):
     """
@@ -20,6 +21,7 @@ class PluginStore(Gtk.ApplicationWindow):
                          modal=True
                          )
         self.githubHelper = GitHubHelper()
+        self.infoSaver = InfoSaver()
         self.build()
 
     def onResize(self, width, height):
@@ -63,7 +65,7 @@ class PluginStore(Gtk.ApplicationWindow):
 
             # Get frontend infos
             pluginManifest = json.loads(self.githubHelper.getRaw(pluginUrl, "manifest.json", branchName="main"))
-            pluginName = pluginManifest["name"]
+            pluginName = pluginUrl.split("/")[-1]
             pluginDescription = pluginManifest["description"]
 
             # Save thumbnail

@@ -154,7 +154,7 @@ class GitHubHelper:
             self.copyContainingFiles(f"tmp/downloads/{folderName}", f"plugins/{folderName}")
         else:
             # Copy plugin folder
-            shutil.copytree(pluginPath, f"tmp/downloads/{folderName}")
+            shutil.copytree(pluginPath, os.path.join("plugins", folderName))
 
     def copyContainingFiles(self, srcPath: str, dstPath: str):
         """

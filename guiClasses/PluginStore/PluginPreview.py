@@ -1,5 +1,5 @@
 from gi.repository import Gtk, Gdk, Adw, Gio, GLib, GdkPixbuf, Gsk, Pango
-import sys, webbrowser
+import sys, webbrowser, os, shutil
 
 # Import own modules
 sys.path.append("guiClasses/PluginStore")
@@ -152,9 +152,70 @@ class PluginPreview(Gtk.FlowBoxChild):
         self.websiteButton.connect("clicked", self.onClickWebsite)
         self.buttonBox.append(self.websiteButton)
 
+        # Update download button icon status
+        self.setInstallButtonIconStatus()
+
 
     def onClickDownload(self, widget):
+        print(self.downloadButton.get_icon_name())
+        if self.downloadButton.get_icon_name() == "edit-delete":
+            # Remove the plugin
+            self.unInstall()        
+        else:
+            # Install or update the plugin
+            self.install()
+
+        # Update download button
+        self.setInstallButtonIconStatus()
+
+    def unInstall(self):
+        pluginPath = os.path.join("plugins", self.pluginName)
+        # Remove everthing inside the folder except buttonSettings.json
+        self.pluginStore.githubHelper.clearDirExceptSettings(pluginPath)
+
+        # Update pluginInfos.json
+        infos = self.pluginStore.infoSaver.loadInfos()
+        del infos["installed-plugins"][self.websiteUrl]
+        self.pluginStore.infoSaver.saveInfos(infos)
+
+    def install(self):
         self.pluginStore.githubHelper.cloneAtCommit(self.websiteUrl, self.verifiedCommit, install=True)
-        self.downloadButton.set_icon_name("edit-delete")
+
+        # Update pluginInfos.json
+        infos = self.pluginStore.infoSaver.loadInfos()
+        if "installed-plugins" not in infos:
+            infos["installed-plugins"] = {}
+        if self.websiteUrl not in infos["installed-plugins"]:
+            infos["installed-plugins"][self.websiteUrl] = {}
+        infos["installed-plugins"][self.websiteUrl]["verified-commit"] = self.verifiedCommit
+        self.pluginStore.infoSaver.saveInfos(infos)
+
     def onClickWebsite(self, widget):
         webbrowser.open_new_tab(self.websiteUrl)
+
+    # Helper methods
+    def isInstalled(self):
+        infos = self.pluginStore.infoSaver.loadInfos()
+        if "installed-plugins" not in infos:
+            return False
+        if self.websiteUrl not in infos["installed-plugins"]:
+            return False
+        return True
+    
+    def isUpToDate(self):
+        if not self.isInstalled():
+            return False
+        infos = self.pluginStore.infoSaver.loadInfos()
+        # No need to verify the infos, because self.isInstalled already did
+        
+        return infos["installed-plugins"][self.websiteUrl]["verified-commit"] == self.verifiedCommit
+    
+    def setInstallButtonIconStatus(self):
+        if self.isInstalled():
+            self.downloadButton.set_icon_name("edit-delete")
+        else:
+            self.downloadButton.set_icon_name("download-symbolic")
+            return
+        if not self.isUpToDate():
+            self.downloadButton.set_icon_name("software-update-available")
+        
