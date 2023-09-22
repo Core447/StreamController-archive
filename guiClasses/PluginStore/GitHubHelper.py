@@ -40,7 +40,12 @@ class GitHubHelper:
 
         # rawFileUrl = self.makeRawUrl(repoUrl, filePath, branchName=branchName, commitSHA=commitSHA)
         print(rawFileUrl)
-        return urlopen(rawFileUrl).read()
+        openedUrl = self.safeUrlOpen(rawFileUrl)
+        if openedUrl == None:
+            return openedUrl
+        return openedUrl.read()
+
+
     
     def makeRawUrl(self, repoUrl: str, filePath: str, branchName: str = None, commitSHA: str = None):
         """
@@ -198,8 +203,11 @@ class GitHubHelper:
             raise ValueError("Please provide either branchName or commitSHA for the request")
         
         fileContent = self.getRaw(repoUrl, repoFilePath, branchName=branchName, commitSHA=commitSHA)
+        if fileContent == None:
+            return False
         with open(localFilePath, "wb") as file:
             file.write(fileContent)
+        return True
 
     def downloadThumbnail(self, repoUrl: str, remotePath: str, branchName: str = None, commitSHA: str = None):
         """
@@ -231,7 +239,9 @@ class GitHubHelper:
         if not os.path.isdir("tmp/thumbnails"):
             os.mkdir("tmp/thumbnails")
         fileExtension = os.path.splitext(remotePath)[1]
-        self.downloadFile(repoUrl, remotePath, f"tmp/thumbnails/{repoName}.{fileExtension}", branchName=branchName, commitSHA=commitSHA)
+        success = self.downloadFile(repoUrl, remotePath, f"tmp/thumbnails/{repoName}.{fileExtension}", branchName=branchName, commitSHA=commitSHA)
+        if not success:
+            return None
 
         return f"tmp/thumbnails/{repoName}.{fileExtension}"
     
@@ -249,8 +259,21 @@ class GitHubHelper:
         userName = self.getUserNameFromUrl(repoUrl)
         repoName = repoUrl.split("/")[-1]
 
-        apiAnswer = json.loads(urlopen(f"https://api.github.com/repos/{userName}/{repoName}").read())
+        openedUrl = self.safeUrlOpen(f"https://api.github.com/repos/{userName}/{repoName}")
+        if openedUrl == None:
+            return openedUrl
+
+        apiAnswer = json.loads(openedUrl.read())
         return apiAnswer["stargazers_count"]
+    
+    def safeUrlOpen(self, url:str):
+        if not isinstance(url, str):
+            raise TypeError("url must be a string")
+        try:
+            return urlopen(url)
+        except:
+            print(f"Failed to open URL: {url}")
+            return None
     
 if __name__ == "__main__":
     gh = GitHubHelper()

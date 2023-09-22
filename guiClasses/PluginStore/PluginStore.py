@@ -54,19 +54,31 @@ class PluginStore(Gtk.ApplicationWindow):
 
     def loadPreviews(self):
         pluginList = self.githubHelper.getRaw("https://github.com/Core447/StreamController-Plugins", "Plugins.json", branchName="main")
+        if pluginList == None:
+            print("Plugin list could not be loaded")
+            return
         print(pluginList)
         pluginList = json.loads(pluginList)
 
         for plugin in pluginList:
             # Get backend infos
+            if "url" not in pluginList[plugin]: continue
             pluginUrl = pluginList[plugin]["url"]
+
+            if "verified-commit" not in pluginList[plugin]: continue
             pluginVerifiedCommit = pluginList[plugin]["verified-commit"]
             
-
             # Get frontend infos
-            pluginManifest = json.loads(self.githubHelper.getRaw(pluginUrl, "manifest.json", branchName="main"))
+            rawManifest = self.githubHelper.getRaw(pluginUrl, "manifest.json", branchName="main")
+            if rawManifest == None: continue
+
+            pluginManifest = json.loads(rawManifest)
             pluginName = pluginUrl.split("/")[-1]
-            pluginDescription = pluginManifest["description"]
+            
+            if "description" in pluginManifest:
+                pluginDescription = pluginManifest["description"]
+            else:
+                pluginDescription = None
 
             # Save thumbnail
             thumbnailPath = self.githubHelper.downloadThumbnail(pluginUrl, pluginManifest["thumbnail"], commitSHA=pluginVerifiedCommit)

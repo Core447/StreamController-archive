@@ -63,7 +63,14 @@ class PluginPreview(Gtk.FlowBoxChild):
         )
         self.image.set_pixbuf(self.pixbuf)
         self.image.set_valign(Gtk.Align.START)
-        self.mainButtonBox.append(self.image)
+        if self.thumbnailPath is None:
+            self.mainButtonBox.append(Gtk.Label(label="No image provided",
+                                                halign=Gtk.Align.CENTER,
+                                                width_request=250,
+                                                height_request=90,
+                                                css_classes=["plugin-store-no-thumbnail"]))
+        else:
+            self.mainButtonBox.append(self.image)
 
         self.bottomBox = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL,
@@ -108,7 +115,8 @@ class PluginPreview(Gtk.FlowBoxChild):
             margin_start=2,
             margin_top=2
         )
-        self.bottomBox.append(self.stargazersLabel)
+        if self.stargazers is not None:
+            self.bottomBox.append(self.stargazersLabel)
 
         self.descriptionLabel = Gtk.Label(
             label=self.pluginDescription,
@@ -121,7 +129,8 @@ class PluginPreview(Gtk.FlowBoxChild):
             ellipsize=Pango.EllipsizeMode.END,
             margin_bottom=10
         )
-        self.bottomBox.append(self.descriptionLabel)
+        if self.pluginDescription is not None:
+            self.bottomBox.append(self.descriptionLabel)
 
         self.mainButtonBox.append(Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True))
 
