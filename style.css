@@ -108,3 +108,9 @@
 .plugin-store-no-thumbnail {
 	font-size: 16px;
 }
+.filter-button-selected {
+	background-color: #4990E7;
+}
+.filter-button-unselected {
+	background-color: #3A3A3A;
+}

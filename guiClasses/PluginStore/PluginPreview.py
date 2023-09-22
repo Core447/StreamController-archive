@@ -6,7 +6,7 @@ sys.path.append("guiClasses/PluginStore")
 from OfficialMark import OfficialMark
 
 class PluginPreview(Gtk.FlowBoxChild):
-    def __init__(self, pluginStore, pluginName, pluginDescription, thumbnailPath, userName, stargazers, websiteUrl, verifiedCommit):
+    def __init__(self, pluginStore, pluginName, pluginDescription, thumbnailPath, userName, stargazers, websiteUrl, verifiedCommit, official):
         self.pluginStore = pluginStore
         self.pluginName = pluginName
         self.pluginDescription = pluginDescription
@@ -15,8 +15,10 @@ class PluginPreview(Gtk.FlowBoxChild):
         self.stargazers = stargazers
         self.websiteUrl = websiteUrl 
         self.verifiedCommit = verifiedCommit
+        self.official = official
 
         super().__init__(width_request=100, height_request=100)
+        self.set_name(pluginName)
         self.build()
         
     def build(self):
