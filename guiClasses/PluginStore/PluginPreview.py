@@ -1,5 +1,5 @@
 from gi.repository import Gtk, Gdk, Adw, Gio, GLib, GdkPixbuf, Gsk, Pango
-import sys, webbrowser, os, shutil
+import sys, webbrowser, os, shutil, math, textwrap
 
 # Import own modules
 sys.path.append("guiClasses/PluginStore")
@@ -125,11 +125,13 @@ class PluginPreview(Gtk.FlowBoxChild):
             halign=Gtk.Align.START,
             css_classes=["plugin-store-description"],
             margin_top=7,
-            wrap=True,
-            lines=5,
+            lines=3,
             max_width_chars=20,
             ellipsize=Pango.EllipsizeMode.END,
-            margin_bottom=10
+            margin_bottom=10,
+            use_markup=True,
+            height_request=60,
+            yalign=0
         )
         if self.pluginDescription is not None:
             self.bottomBox.append(self.descriptionLabel)
