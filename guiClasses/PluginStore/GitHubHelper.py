@@ -172,7 +172,7 @@ class GitHubHelper:
                 shutil.copytree(os.path.join(srcPath, file), os.path.join(dstPath, file))
 
 
-    def downloadFile(self, repoUrl: str, repoFilePath: str, localFilePath: str, branchName: str = None, commitSHA: str = None):
+    def downloadFile(self, repoUrl: str, repoFilePath: str, localFilePath: str, branchName: str = None, commitSHA: str = None, returnFile: bool = False):
         """
         Downloads a file from a given repository URL and saves it to a specified local file path.
 
@@ -207,6 +207,9 @@ class GitHubHelper:
             return False
         with open(localFilePath, "wb") as file:
             file.write(fileContent)
+
+        if returnFile:
+            return fileContent
         return True
 
     def downloadThumbnail(self, repoUrl: str, remotePath: str, branchName: str = None, commitSHA: str = None):

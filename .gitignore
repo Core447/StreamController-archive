@@ -167,3 +167,7 @@ tmp/*
 !tmp/.gitkeep
 !tmp/assets/
 !tmp/assets/*
+
+#Plugin cache infos
+plugins/Plugins.json
+plugins/PluginsCacheInfos.json

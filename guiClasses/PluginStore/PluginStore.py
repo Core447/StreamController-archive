@@ -1,5 +1,6 @@
 from gi.repository import Gtk, Gdk, Adw, Gio, GLib
-import sys, json, re
+import sys, json, re, os, threading
+from time import sleep
 from fuzzywuzzy import fuzz, process
 from urllib.parse import urlparse
 
@@ -9,6 +10,7 @@ from PluginPreview import PluginPreview
 from GitHubHelper import GitHubHelper
 from InfoSaver import InfoSaver
 from UpperPart import UpperPart
+from StoreLoadingThread import StoreLoadingThread
 
 class PluginStore(Gtk.ApplicationWindow):
     """
@@ -27,6 +29,8 @@ class PluginStore(Gtk.ApplicationWindow):
 
         self.filterOfficial = False
         self.filterVerified = False
+        
+        self.officials = None
 
         self.build()
 
@@ -58,7 +62,9 @@ class PluginStore(Gtk.ApplicationWindow):
             # self.mainFlowBox.append(PluginPreview(self))
         
 
-        self.loadPreviews()
+        # self.loadPreviews()
+        loadPreviewsThread = threading.Thread(target=self.loadPreviews)
+        loadPreviewsThread.start()
 
         self.mainFlowBox.set_filter_func(self.filterFunc)
         self.mainFlowBox.set_sort_func(self.sortFunc)
@@ -174,49 +180,38 @@ class PluginStore(Gtk.ApplicationWindow):
         return re.sub(tag_pattern, '', string)
     
     def isOfficial(self, userName: str) -> bool:
-        rawOfficials = self.githubHelper.getRaw("https://github.com/Core447/StreamController-Plugins", "OfficialAuthors.json", branchName="main")
-        if rawOfficials == None:
-            return False
-        officialList = json.loads(rawOfficials)
-        return userName in officialList["officialAuthors"]
+        if self.officials == None:
+            rawOfficials = self.githubHelper.getRaw("https://github.com/Core447/StreamController-Plugins", "OfficialAuthors.json", branchName="main")
+            if rawOfficials == None:
+                return False
+            officialList = json.loads(rawOfficials)
+            self.officials = officialList["officialAuthors"]
+        return userName in self.officials
 
     def loadPreviews(self):
-        pluginList = self.githubHelper.getRaw("https://github.com/Core447/StreamController-Plugins", "Plugins.json", branchName="main")
-        if pluginList == None:
-            print("Plugin list could not be loaded")
-            return
-        print(pluginList)
-        pluginList = json.loads(pluginList)
+        while not self.app.storeLoadingThread.ready:
+            print("please wait while the store is loading")
+            sleep(0.5)
+            continue
 
-        for plugin in pluginList:
-            # Get backend infos
-            if "url" not in pluginList[plugin]: continue
-            pluginUrl = pluginList[plugin]["url"]
+        for plugin in self.app.storeLoadingThread.plugins:
+            pluginName = plugin["name"]
+            pluginUrl = plugin["url"]
+            pluginVerifiedCommit = plugin["verified-commit"]
+            userName = plugin["user"]
 
-            if "verified-commit" not in pluginList[plugin]: continue
-            pluginVerifiedCommit = pluginList[plugin]["verified-commit"]
-            
-            # Get frontend infos
-            rawManifest = self.githubHelper.getRaw(pluginUrl, "manifest.json", branchName="main")
-            if rawManifest == None: continue
 
-            pluginManifest = json.loads(rawManifest)
-            pluginName = pluginUrl.split("/")[-1]
-
-            if "description" in pluginManifest:
-                pluginDescription = pluginManifest["description"]
-            else:
-                pluginDescription = None
-
-            # Save thumbnail
-            thumbnailPath = self.githubHelper.downloadThumbnail(pluginUrl, pluginManifest["thumbnail"], commitSHA=pluginVerifiedCommit)
-
-            # Get user infos
-            userName = self.githubHelper.getUserNameFromUrl(pluginUrl)
-            stargazers = self.githubHelper.getStargzersCount(pluginUrl)
-
-            # Get official status
             pluginOfficial = self.isOfficial(userName)
+            # stargazers = self.githubHelper.getStargzersCount(pluginUrl)
+            #TODO: To avoid exceeding the api limit the stars get loaded in the detailed view of a plugin
+            stargazers = None
 
-            # Load the preview in the store
+            manifestPath = plugin["manifestPath"]
+            # Open json from path
+            with open(manifestPath, "r") as f:
+                manifest = json.load(f)
+
+            pluginDescription = manifest["description"]
+            thumbnailPath = plugin["thumbnailPath"]
+
             self.mainFlowBox.append(PluginPreview(self, pluginName, pluginDescription, thumbnailPath, userName, stargazers, pluginUrl, pluginVerifiedCommit, pluginOfficial))
