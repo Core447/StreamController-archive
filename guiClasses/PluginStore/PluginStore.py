@@ -170,11 +170,12 @@ class PluginStore(Gtk.ApplicationWindow):
     def getTagValue(self, tag: str, string: str) -> str:
         if tag not in string:
             return
-        if string.split(tag)[1][1] == '"':
-            # string is a quoted string
-            # return text between quotes
-            quotesEnd = string.split(tag)[1][2:].find('"')
-            return string.split(tag)[1][2:quotesEnd+2]
+        if len(string.split(tag)[1]) > 1:
+            if string.split(tag)[1][1] == '"':
+                # string is a quoted string
+                # return text between quotes
+                quotesEnd = string.split(tag)[1][2:].find('"')
+                return string.split(tag)[1][2:quotesEnd+2]
         
         # Return from tag to next space
         nextSpace = string.split(tag)[1].find(" ")
