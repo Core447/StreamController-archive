@@ -89,6 +89,22 @@ class PluginStore(Gtk.ApplicationWindow):
         # Plugin name
         if self.normString(self.getTagValue("name", searchString)) not in [self.normString(child.pluginName), None]:
             return False
+        # Installed
+        if self.normString(self.getTagValue("status", searchString)) == "installed":
+            if not child.isInstalled():
+                return False
+        # Uninstalled
+        if self.normString(self.getTagValue("status", searchString)) == "uninstalled":
+            if child.isInstalled():
+                return False
+        # Up to date
+        if self.normString(self.getTagValue("status", searchString)) == "uptodate":
+            if not child.isUpToDate():
+                return False
+        # Old
+        if self.normString(self.getTagValue("status", searchString)) == "old":
+            if child.isUpToDate():
+                return False
         
         # Normal filters
         stringRemovedTags = self.remove_tags(searchString)
