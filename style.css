@@ -108,6 +108,25 @@
 .plugin-store-no-thumbnail {
 	font-size: 16px;
 }
+.update-button-search {
+	background-color: #4990E7;
+	transition: all 0.5s linear;
+}
+.update-button-search-loading {
+	background-color: #3b6fad;
+}
+.update-button-search:hover {
+	background-color: #5996e0;
+}
+.update-button-search:active {
+	background-color: #74aaeb;
+}
+.update-button-search-available {
+	background-color: #EA735D;
+}
+.update-button-search-uptodate {
+	background-color: #31BA77;
+}
 .filter-button-selected {
 	background-color: #4990E7;
 }

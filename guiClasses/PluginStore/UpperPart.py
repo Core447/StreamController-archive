@@ -1,4 +1,6 @@
 from gi.repository import Gtk, Gdk, Adw, Gio, GLib
+from time import sleep
+import threading
 
 class UpperPart(Gtk.Box):
     def __init__(self, pluginStore):
@@ -23,6 +25,14 @@ class UpperPart(Gtk.Box):
         self.verifiedButton = VerifiedButton(self, margin_start=5)
         self.filterBox.append(self.officialButton)
         self.filterBox.append(self.verifiedButton)
+
+        # Update button
+        self.updateButtonBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True, margin_top=5)
+        self.append(self.updateButtonBox)
+
+        self.updateButton = UpdateButton(self)
+        self.updateButtonBox.append(self.updateButton)
+
         # Separator
         self.separator = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL, margin_top=10, hexpand=True)
         self.append(self.separator)
@@ -31,6 +41,65 @@ class UpperPart(Gtk.Box):
         print("Search entry changed")
         self.pluginStore.mainFlowBox.invalidate_filter()
         self.pluginStore.mainFlowBox.invalidate_sort()
+
+class UpdateButton(Gtk.Button):
+    def __init__(self, upperPart):
+        self.upperPart = upperPart
+        super().__init__(label="Search for updates", css_classes=["update-button-search"])
+        self.connect("clicked", self.onClick)
+
+        updatesAvailable = False
+
+        self.build()
+
+    def build(self):
+        self.mainBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        self.set_child(self.mainBox)
+
+        self.icon = Gtk.Image(icon_name="system-search")
+        self.mainBox.append(self.icon)
+
+        self.label = Gtk.Label(label="Search for updates", margin_start=3)
+        self.mainBox.append(self.label)
+
+    def onClick(self, widget):
+        print("Update button clicked")
+        if self.label.get_text() == "Search for updates":
+            self.label.set_label("Searching for updates")
+            self.set_sensitive(False)
+            threading.Thread(target=self.checkForUpdates).start()
+        elif self.label.get_text() == "Install updates":
+            self.label.set_label("Installing updates")
+            self.set_sensitive(False)
+            threading.Thread(target=self.installUpdates).start()
+
+    def installUpdates(self):
+        self.upperPart.pluginStore.app.storeLoadingThread.installUpdates()
+        self.updatesAvailable = False
+        self.updateStatus()
+        
+    def checkForUpdates(self) -> bool:
+        self.updatesAvailable = self.upperPart.pluginStore.app.storeLoadingThread.checkForUpdates()
+
+        self.updateStatus()
+
+    def updateStatus(self):
+        if self.updatesAvailable:
+            self.label.set_label("Install updates")
+            self.set_sensitive(True)
+            self.set_css_classes(["update-button-search-available"])
+        else:
+            self.label.set_label("You're up to date")
+            self.set_css_classes(["update-button-search-uptodate"])
+
+            threading.Thread(target=self.resetToNormalState).start()
+
+    def resetToNormalState(self):
+        sleep(3)
+        self.set_sensitive(True)
+        self.set_css_classes(["update-button-search"])
+        self.label.set_label("Search for updates")
+
 
 class OfficialButton(Gtk.Button):
     def __init__(self, upperPart, **kwargs):

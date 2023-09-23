@@ -190,16 +190,7 @@ class PluginPreview(Gtk.FlowBoxChild):
         self.pluginStore.infoSaver.saveInfos(infos)
 
     def install(self):
-        self.pluginStore.githubHelper.cloneAtCommit(self.websiteUrl, self.verifiedCommit, install=True)
-
-        # Update pluginInfos.json
-        infos = self.pluginStore.infoSaver.loadInfos()
-        if "installed-plugins" not in infos:
-            infos["installed-plugins"] = {}
-        if self.websiteUrl not in infos["installed-plugins"]:
-            infos["installed-plugins"][self.websiteUrl] = {}
-        infos["installed-plugins"][self.websiteUrl]["verified-commit"] = self.verifiedCommit
-        self.pluginStore.infoSaver.saveInfos(infos)
+        self.pluginStore.app.storeLoadingThread.installPlugin(self.websiteUrl, self.verifiedCommit, install=True)
 
     def onClickWebsite(self, widget):
         webbrowser.open_new_tab(self.websiteUrl)

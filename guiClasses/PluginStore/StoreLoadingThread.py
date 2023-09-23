@@ -23,13 +23,73 @@ class StoreLoadingThread(threading.Thread):
         while not self.ready:
             self.downloadCache()
 
-    def downloadCache(self):
-        #TODO: Detect missing folders and reload them even if nothing has changed in Plugins.json
+    def reloadCache(self):
+        self.ready = False
+        while not self.ready:
+            self.downloadCache()
+        self.ready = True
+
+    def installUpdates(self):
+        # Update local cache
+        self.reloadCache()
+
+        # Install updates
+        changedPlugins = self.getChangedPlugins()
+        for plugin in changedPlugins:
+            print(plugin)
+            continue
+
+    def getChangedPlugins(self):
         oldPluginList, newPluginList = self.getJsons()
         if oldPluginList == None or newPluginList == None:
             return
         
-        changedPlugins = self.getChanges(oldPluginList, newPluginList)
+        return self.getChanges(oldPluginList, newPluginList)
+
+    def checkForUpdates(self) -> bool:
+        # Update local cache
+        self.reloadCache()
+
+        if self.plugins == []:
+            return False
+        
+        infos = self.app.pluginStore.infoSaver.loadInfos()
+        for pluginUrl in infos["installed-plugins"]:
+            if infos["installed-plugins"][pluginUrl]["verified-commit"] != self.getPluginForUrl(pluginUrl)["verified-commit"]:
+                return True
+        return False
+    
+    def installUpdates(self):
+        # Update local cache
+        self.reloadCache()
+
+        # Install updates
+        infos = self.app.pluginStore.infoSaver.loadInfos()
+        for pluginUrl in infos["installed-plugins"]:
+            if infos["installed-plugins"][pluginUrl]["verified-commit"] != self.getPluginForUrl(pluginUrl)["verified-commit"]:
+                self.installPlugin(pluginUrl, self.getPluginForUrl(pluginUrl)["verified-commit"], install=True)
+
+    def installPlugin(self, pluginUrl, verifiedCommit, install=False):
+        self.githubHelper.cloneAtCommit(pluginUrl, verifiedCommit, install=install)
+
+        # Update pluginInfos.json
+        infos = self.app.pluginStore.infoSaver.loadInfos()
+        if "installed-plugins" not in infos:
+            infos["installed-plugins"] = {}
+        if pluginUrl not in infos["installed-plugins"]:
+            infos["installed-plugins"][pluginUrl] = {}
+        infos["installed-plugins"][pluginUrl]["verified-commit"] = verifiedCommit
+        self.app.pluginStore.infoSaver.saveInfos(infos)
+            
+    def getPluginForUrl(self, url:str):
+        for plugin in self.plugins:
+            if plugin["url"] == url:
+                return plugin
+
+    def downloadCache(self):
+        #TODO: Detect missing folders and reload them even if nothing has changed in Plugins.json
+        oldPLuginList, newPluginList = self.getJsons()
+        changedPlugins = self.getChangedPlugins()
 
         for plugin in changedPlugins:
             # Get backend infos
