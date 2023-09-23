@@ -11,7 +11,7 @@ This project uses [this](https://github.com/abcminiuser/python-elgato-streamdeck
 ## Planned features
 - [x] GTK4 UI
 - [x] Plugin support
-- [ ] In-App store for plugins
+- [x] In-App store for plugins
 - [ ] Support for multiple StreamDecks at the same time
 - [ ] Discord Server
 - [ ] Official plugins for OBS etc.
