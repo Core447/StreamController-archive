@@ -39,6 +39,7 @@ class PluginPreview(Gtk.FlowBoxChild):
             margin_end=0,
             css_classes=["no-padding", "no-bottom-rounding"]
         )
+        self.mainButton.connect("clicked", self.onMainClick)
         self.mainBox.append(self.mainButton)
 
         self.mainButtonBox = Gtk.Box(
@@ -222,4 +223,9 @@ class PluginPreview(Gtk.FlowBoxChild):
             return
         if not self.isUpToDate():
             self.downloadButton.set_icon_name("software-update-available")
-        
+
+
+    def onMainClick(self, widget):
+        self.pluginStore.pluginDetailedView.load(self.pluginName, self.userName, self.thumbnailPath, self.pluginDescription, "", official = self.official)
+        self.pluginStore.mainStack.add_titled(self.pluginStore.pluginDetailedView, "PluginDetailedView", "Plugin Detailed View")
+        self.pluginStore.pluginDetailedView.show()

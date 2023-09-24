@@ -11,6 +11,7 @@ from GitHubHelper import GitHubHelper
 from InfoSaver import InfoSaver
 from UpperPart import UpperPart
 from StoreLoadingThread import StoreLoadingThread
+from PluginDetailedView import PluginDetailedView
 
 class PluginStore(Gtk.ApplicationWindow):
     """
@@ -34,6 +35,26 @@ class PluginStore(Gtk.ApplicationWindow):
 
         self.build()
 
+        #click controller
+        self.backClickCtrl = Gtk.GestureClick().new()
+        self.backClickCtrl.connect("pressed", self.onMouseBackButtonPressed)
+        self.backClickCtrl.set_button(8) #right mouse button
+        self.add_controller(self.backClickCtrl)
+        self.forwardClickCtrl = Gtk.GestureClick().new()
+        self.forwardClickCtrl.connect("pressed", self.onMouseForwardButtonPressed)
+        self.forwardClickCtrl.set_button(9) #right mouse button
+        self.add_controller(self.forwardClickCtrl)
+
+        # Needs access to title bar
+        self.pluginDetailedView = PluginDetailedView(self)
+
+    def onMouseBackButtonPressed(self, widget, nPress, x, y):
+        self.mainStack.set_visible_child_name("overview")
+        self.pluginDetailedView.backButton.hide()
+
+    def onMouseForwardButtonPressed(self, widget, nPress, x, y):
+        self.pluginDetailedView.showLast()
+
     def onResize(self, width, height):
         print("resize")
     
@@ -41,6 +62,7 @@ class PluginStore(Gtk.ApplicationWindow):
         # Init objects
         self.titleBar = Gtk.HeaderBar()
         self.scrolledWindow = Gtk.ScrolledWindow(hexpand=True, vexpand=True)
+        self.mainStack = Gtk.Stack(hexpand=True, vexpand=True, transition_type=Gtk.StackTransitionType.SLIDE_LEFT_RIGHT)
         self.scrolledWindowMain = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, vexpand=True)
         self.contentBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True, vexpand=True)
         self.mainFlowBox = Gtk.FlowBox(vexpand=True, hexpand=True, homogeneous=True)
@@ -52,15 +74,19 @@ class PluginStore(Gtk.ApplicationWindow):
 
         # Attach objects
         self.set_titlebar(self.titleBar)
-        self.set_child(self.mainBox)
+        self.set_child(self.mainStack)
         self.mainBox.append(self.upperPart)
         self.mainBox.append(self.scrolledWindow)
         self.scrolledWindow.set_child(self.scrolledWindowMain)
+        self.mainStack.add_titled(self.mainBox, "overview", "Overview")
         self.scrolledWindowMain.append(self.contentBox)
         self.contentBox.append(self.mainFlowBox)
         # for i in range(0, 20):
             # self.mainFlowBox.append(PluginPreview(self))
-        
+
+        # Title bar
+        self.titleBar = Gtk.HeaderBar()
+        self.set_titlebar(self.titleBar)
 
         # self.loadPreviews()
         loadPreviewsThread = threading.Thread(target=self.loadPreviews)

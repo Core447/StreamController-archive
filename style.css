@@ -133,3 +133,17 @@
 .filter-button-unselected {
 	background-color: #3A3A3A;
 }
+.store-detailed-plugin-name {
+	font-size: 38px;
+	font-weight: bold;
+}
+.bottom-box {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+.plugin-store-detailed-view-description{
+	font-weight: bold;
+}
+.bold{
+	font-weight: bold;
+}
