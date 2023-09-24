@@ -3,7 +3,7 @@ import sys, webbrowser, os, shutil, math, textwrap
 
 # Import own modules
 sys.path.append("guiClasses/PluginStore")
-from OfficialMark import OfficialMark
+from StoreBatch import StoreBatch
 
 class PluginPreview(Gtk.FlowBoxChild):
     def __init__(self, pluginStore, pluginName, pluginDescription, thumbnailPath, userName, stargazers, websiteUrl, verifiedCommit, official):
@@ -100,7 +100,10 @@ class PluginPreview(Gtk.FlowBoxChild):
         )
         self.bottomBox.append(self.marksBox)
 
-        self.marksBox.append(OfficialMark())
+        if self.official:
+            self.marksBox.append(StoreBatch("official"))
+        if self.verifiedCommit != None:
+            self.marksBox.append(StoreBatch("verified"))
 
         self.userNameLabel = Gtk.Label(
             label=f"By {self.userName}",
@@ -226,6 +229,6 @@ class PluginPreview(Gtk.FlowBoxChild):
 
 
     def onMainClick(self, widget):
-        self.pluginStore.pluginDetailedView.load(self.pluginName, self.userName, self.thumbnailPath, self.pluginDescription, "",self.websiteUrl ,official = self.official)
+        self.pluginStore.pluginDetailedView.load(self.pluginName, self.userName, self.thumbnailPath, self.pluginDescription, "",self.websiteUrl, official = self.official, verified=self.verifiedCommit != None)
         self.pluginStore.mainStack.add_titled(self.pluginStore.pluginDetailedView, "PluginDetailedView", "Plugin Detailed View")
         self.pluginStore.pluginDetailedView.show()

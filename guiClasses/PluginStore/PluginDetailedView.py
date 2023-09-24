@@ -9,7 +9,7 @@ import sys
 
 # Import own modules
 sys.path.append("guiClasses/PluginStore")
-from OfficialMark import OfficialMark
+from StoreBatch import StoreBatch
 
 class PluginDetailedView(Gtk.ScrolledWindow):
     def __init__(self, pluginStore):
@@ -26,7 +26,7 @@ class PluginDetailedView(Gtk.ScrolledWindow):
         self.mainBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, vexpand=True)
         self.set_child(self.mainBox)
 
-    def load(self, pluginName, userName, thumbnailPath, description, markUp, pluginUrl, official = False):
+    def load(self, pluginName, userName, thumbnailPath, description, markUp, pluginUrl, official = False, verified = False):
         self.clear()
 
         self.imageBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, hexpand=True, vexpand=True)
@@ -55,10 +55,13 @@ class PluginDetailedView(Gtk.ScrolledWindow):
         self.bottomBox.append(self.pluginLabel)
 
         # Batches
-        if official:
+        if official or verified:
             self.batchesBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True, margin_top=10)
             self.bottomBox.append(self.batchesBox)
-            self.batchesBox.append(OfficialMark())
+            if official:
+                self.batchesBox.append(StoreBatch("official"))
+            if verified:
+                self.batchesBox.append(StoreBatch("verified"))
 
         # User name
         self.userNameLabel = Gtk.Label(label=f"By {userName}", xalign=0, sensitive=False, margin_top=7, css_classes=["bold"])
