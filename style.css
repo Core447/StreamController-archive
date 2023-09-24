@@ -147,3 +147,8 @@
 .bold{
 	font-weight: bold;
 }
+.store-detailed-github-label {
+	font-size: 24px;
+	text-decoration: underline;
+	font-weight: bold;
+}

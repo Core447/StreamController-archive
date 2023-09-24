@@ -226,6 +226,6 @@ class PluginPreview(Gtk.FlowBoxChild):
 
 
     def onMainClick(self, widget):
-        self.pluginStore.pluginDetailedView.load(self.pluginName, self.userName, self.thumbnailPath, self.pluginDescription, "", official = self.official)
+        self.pluginStore.pluginDetailedView.load(self.pluginName, self.userName, self.thumbnailPath, self.pluginDescription, "",self.websiteUrl ,official = self.official)
         self.pluginStore.mainStack.add_titled(self.pluginStore.pluginDetailedView, "PluginDetailedView", "Plugin Detailed View")
         self.pluginStore.pluginDetailedView.show()
