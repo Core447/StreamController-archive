@@ -171,3 +171,7 @@ tmp/*
 #Plugin cache infos
 plugins/Plugins.json
 plugins/PluginsCacheInfos.json
+
+# Plugin folder
+plugins/*
+!plugins/.gitkeep
