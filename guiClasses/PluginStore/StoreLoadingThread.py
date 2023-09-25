@@ -16,7 +16,8 @@ class StoreLoadingThread(threading.Thread):
         else:
             self.plugins = []
             # Reset Plugins.json which contains the current state of the cache
-            os.remove("plugins/Plugins.json")
+            if os.path.exists("plugins/Plugins.json"):
+                os.remove("plugins/Plugins.json")
         self.ready = False
 
     def run(self):
