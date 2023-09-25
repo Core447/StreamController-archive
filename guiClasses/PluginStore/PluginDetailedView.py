@@ -1,4 +1,5 @@
 import gi
+import threading
 
 gi.require_version('Gtk', '4.0')
 gi.require_version('WebKit', '6.0')
@@ -81,14 +82,23 @@ class PluginDetailedView(Gtk.ScrolledWindow):
         self.bottomBox.append(self.githubLabel)
 
         # WebKit
-        self.webView = WebKit.WebView(hexpand=True, vexpand=True, height_request=700)
-        self.webView.load_uri(f"{pluginUrl}#readme")
+        self.webView = WebKit.WebView(hexpand=True, vexpand=True, height_request=700, margin_end=7)
+        self.webView.load_uri(pluginUrl)
         self.bottomBox.append(self.webView)
 
-        self.markupLabel = Gtk.Label(label=markUp, css_classes=["store-detailed-markup"], xalign=0, margin_top=25, wrap=True)
-        self.markupLabel.set_markup(markUp)
-        self.bottomBox.append(self.markupLabel)
+        threading.Thread(target=self.hideDivs).start()
 
+    def hideDivs(self):
+        while self.webView.is_loading():
+            continue
+
+        self.webHideByClassName("AppHeader")
+        self.webHideByClassName("Header-old") # The old header is used when accessing github with webkit
+        # self.webHideByClassName("BorderGrid-cell")
+
+    def webHideByClassName(self, className):
+        js_code = f"var elementsToHide = document.getElementsByClassName('{className}'); if (elementsToHide.length > 0) for (var i = 0; i < elementsToHide.length; i++) elementsToHide[i].style.display = 'none';"
+        self.webView.evaluate_javascript(js_code, -1, None, None, None, None, None)
 
     def showLast(self):
         if self.mainBox.get_first_child() is None:
