@@ -26,7 +26,7 @@ class PluginBase():
     def createUiConfigMenu(): #TODO: return Gtk Widget
         return
     
-    def getButtonSetting(self, buttonCoords: str, pageName: str, key, value, actionIndex = 0):
+    def getButtonSetting(self, buttonCoords: str, pageName: str, key, actionIndex = 0):
         """
         Retrieves the value associated with the given key from the plugin settings.
 
