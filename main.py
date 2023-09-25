@@ -3,6 +3,8 @@ from gui import *
 import threading
 from time import sleep
 
+from guiClasses.PluginStore.StoreLoadingThread import StoreLoadingThread
+
 app = None
 
 def runApp():
@@ -22,8 +24,9 @@ if __name__ == "__main__":
     t = threading.Thread(target=runApp)
     t.start()
 
- 
-
+    storeLoadingThread = StoreLoadingThread(app)
+    storeLoadingThread.start()
+    app.storeLoadingThread = storeLoadingThread
 
     communicationHandler.loadPlugins()
     communicationHandler.loadActionIndex()
