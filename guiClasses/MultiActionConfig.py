@@ -266,6 +266,10 @@ class MultiActionConfigButton(Gtk.Button):
         number = -1
         currentchild = self.multiActionConfig.actionBox.get_first_child()
         while currentchild != None:
+            if currentchild == self.app.MultiActionConfig.preview:
+                # Ignore the preview button
+                currentchild = currentchild.get_next_sibling()
+                continue
             number += 1
             if currentchild == child:
                 return number
