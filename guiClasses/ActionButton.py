@@ -1,7 +1,7 @@
 from gi.repository import Gtk, Gdk
 from guiClasses.ConfigButton import ConfigButton
 class ActionButton(ConfigButton):
-    def __init__(self, app, grid, row, label, iconPath, eventTag: str):
+    def __init__(self, app, label, iconPath, eventTag: str):
         #TODO: check if eventTag is already in use
         #check eventTag
         self.app = app
@@ -14,7 +14,6 @@ class ActionButton(ConfigButton):
         self.buttonIcon.set_from_file(iconPath)
 
         self.createDnD()
-        grid.attach(self, 0, row, 1, 1)
 
     def createDnD(self):
         #Create all elements needed for drag and drop      

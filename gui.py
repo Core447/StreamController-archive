@@ -123,19 +123,17 @@ class CategorySelector(Gtk.Grid):
             #actionSelector.loadActions(["A","B"])
 
 class ActionSelector(Gtk.Grid):
-    def __init__(self, app, stack, categoryName):
-        self.stack = stack
+    def __init__(self, app, categoryName):
         self.app = app
         super().__init__(column_homogeneous=True)        
         self.label = Gtk.Label(label=categoryName, xalign=0,
                                css_classes=["page-text"])
         self.attach(self.label, 0, 0, 1, 1)
 
-        self.stack.add_titled(self, categoryName, categoryName)
-
     def loadActions(self, actions: list, categoryName: str):
         for row in range(len(actions)):
-            actionButton = ActionButton(self.app, self, row+1, actions[row], "", categoryName+":"+actions[row])
+            actionButton = ActionButton(self.app, actions[row], "", categoryName+":"+actions[row])
+            self.attach(actionButton, 0, row+1, 1, 1)
             pass
 
 
@@ -342,11 +340,12 @@ class StreamControllerApp(Adw.Application):
                 allActions[pluginName].append(action.ACTION_NAME)
         
 
-
         for key in list(allActions.keys()):
-            actionGrid = ActionSelector(self, self.stack, key)
+            actionScrolledWindow = Gtk.ScrolledWindow(hexpand=True, vexpand=True)
+            self.stack.add_titled(actionScrolledWindow, key, key)
+            actionGrid = ActionSelector(self, key)
             actionGrid.loadActions(allActions[key], key)
-
+            actionScrolledWindow.set_child(actionGrid)
         
         #exit()
         
