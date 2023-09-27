@@ -108,18 +108,17 @@ allActions = {
 
 
 class CategorySelector(Gtk.Grid):
-    def __init__(self, app, stack):
-        self.stack = stack
+    def __init__(self, app):
         self.app = app
         super().__init__(column_homogeneous=True)        
         self.label = Gtk.Label(label="Categories", xalign=0,
                                css_classes=["page-text"])
         self.attach(self.label, 0, 0, 1, 1)
-        self.stack.add_titled(self, "Categories", "Categories")
 
     def loadCategories(self, categories: list):
         for row in range(len(categories)):
-            categoryButton = CategoryButton(self.app, self, self.stack, row+1, categories[row])
+            categoryButton = CategoryButton(self.app, categories[row])
+            self.attach(categoryButton, 0, row+1, 1, 1)
             #actionSelector = ActionSelector(self., categories[row])
             #actionSelector.loadActions(["A","B"])
 
@@ -315,11 +314,15 @@ class StreamControllerApp(Adw.Application):
             self.pagesModel.append()
 
         
+        self.categoryScrolledWindow = Gtk.ScrolledWindow(hexpand=True, vexpand=True)
+        self.stack.add_titled(self.categoryScrolledWindow, "Categories", "Categories")
+
+        self.categoryGrid = CategorySelector(self)
+        self.categoryScrolledWindow.set_child(self.categoryGrid)
         
      
         
 
-        self.categoryGrid = CategorySelector(self, self.stack)
         #self.categoryGrid.loadCategories(["One", "Two", "Three"])
 
         
