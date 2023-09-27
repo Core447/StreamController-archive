@@ -37,6 +37,7 @@
             <property name="row-homogeneous">True</property>
             <child>
               <object class="GtkGrid">
+                <property name="margin-end">3</property>
                 <child>
                   <object class="GtkGrid">
                     <property name="margin-end">3</property>

@@ -42,6 +42,7 @@
 	(1,111,"GtkWidget","halign","end",None,None,None,None,None,None,None,None,None),
 	(1,111,"GtkWidget","margin-end","3",None,None,None,None,None,None,None,None,None),
 	(1,130,"GtkGrid","row-homogeneous","True",None,None,None,None,None,None,None,None,None),
+	(1,137,"GtkWidget","margin-end","3",None,None,None,None,None,None,None,None,None),
 	(1,138,"GtkWidget","margin-end","3",None,None,None,None,None,None,None,None,None),
 	(1,138,"GtkWidget","margin-top","5",None,None,None,None,None,None,None,None,None),
 	(1,139,"GtkWidget","hexpand","True",None,None,None,None,None,None,None,None,None),
