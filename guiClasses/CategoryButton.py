@@ -10,5 +10,5 @@ class CategoryButton(ConfigButton):
         self.connect("clicked", self.onClick)
 
     def onClick(self, button):
-        self.stack.set_visible_child_name(self.label)
+        self.app.stack.set_visible_child_name(self.label)
         self.app.actionBackButton.set_visible(True)
