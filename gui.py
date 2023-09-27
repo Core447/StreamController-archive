@@ -426,7 +426,7 @@ class StreamControllerApp(Adw.Application):
         self.stack.set_visible_child_name("actions")
 
     def goBackToCategories(self, button):
-        self.stack.set_visible_child(self.categoryGrid)
+        self.stack.set_visible_child(self.categoryScrolledWindow)
         self.actionBackButton.set_visible(False)
 
     def onWindowClose(self, window):
