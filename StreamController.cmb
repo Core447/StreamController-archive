@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<cambalache-project version="0.12.0" target_tk="gtk-4.0">
+<cambalache-project version="0.13.1" target_tk="gtk-4.0">
   <ui>
 	(1,None,"streamcontroller.ui","streamcontroller.ui",None,None,None,None,None,None,None)
   </ui>
@@ -22,10 +22,7 @@
 	(1,128,"(external)","125",None,None,None,None,None,None),
 	(1,130,"GtkGrid",None,2,None,None,None,4,None),
 	(1,137,"GtkGrid",None,130,None,None,None,None,None),
-	(1,138,"GtkGrid",None,137,None,None,None,None,None),
-	(1,139,"GtkSearchEntry",None,138,None,None,None,None,None),
-	(1,140,"GtkButton",None,138,None,None,None,1,None),
-	(1,141,"GtkButton",None,138,None,None,None,2,None),
+	(1,138,"GtkGrid","right-search-grid",137,None,None,None,None,None),
 	(1,142,"GtkStack","stack",137,None,None,None,2,None),
 	(1,159,"GtkButton","action-back-button",138,None,None,None,None,None),
 	(1,166,"GtkBox","left-side-grid",2,None,None,None,4,None),
@@ -45,11 +42,6 @@
 	(1,137,"GtkWidget","margin-end","3",None,None,None,None,None,None,None,None,None),
 	(1,138,"GtkWidget","margin-end","3",None,None,None,None,None,None,None,None,None),
 	(1,138,"GtkWidget","margin-top","5",None,None,None,None,None,None,None,None,None),
-	(1,139,"GtkWidget","hexpand","True",None,None,None,None,None,None,None,None,None),
-	(1,140,"GtkButton","icon-name","edit-copy-symbolic",None,None,None,None,None,None,None,None,None),
-	(1,140,"GtkWidget","margin-end","3",None,None,None,None,None,None,None,None,None),
-	(1,140,"GtkWidget","margin-start","3",None,None,None,None,None,None,None,None,None),
-	(1,141,"GtkButton","icon-name","format-justify-fill-symbolic",None,None,None,None,None,None,None,None,None),
 	(1,142,"GtkStack","transition-type","slide-left-right",None,None,None,None,None,None,None,None,None),
 	(1,159,"GtkButton","icon-name","go-previous",None,None,None,None,None,None,None,None,None),
 	(1,159,"GtkWidget","margin-end","3",None,None,None,None,None,None,None,None,None),
@@ -64,15 +56,9 @@
 	(1,2,111,"GtkGridLayoutChild","column","1",None,None,None,None),
 	(1,2,130,"GtkGridLayoutChild","column","3",None,None,None,None),
 	(1,2,166,"GtkGridLayoutChild","column-span","2",None,None,None,None),
-	(1,137,142,"GtkGridLayoutChild","row","2",None,None,None,None),
-	(1,138,139,"GtkGridLayoutChild","column","1",None,None,None,None),
-	(1,138,139,"GtkGridLayoutChild","row","0",None,None,None,None),
-	(1,138,140,"GtkGridLayoutChild","column","2",None,None,None,None),
-	(1,138,140,"GtkGridLayoutChild","row","0",None,None,None,None),
-	(1,138,141,"GtkGridLayoutChild","column","3",None,None,None,None),
-	(1,138,141,"GtkGridLayoutChild","row","0",None,None,None,None)
+	(1,137,142,"GtkGridLayoutChild","row","2",None,None,None,None)
   </object_layout_property>
   <object_data>
-	(1,138,"GtkWidget",2,2,None,1,None)
+	(1,138,"GtkWidget",2,2,None,1,None,None,None,None)
   </object_data>
 </cambalache-project>

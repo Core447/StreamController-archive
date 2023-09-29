@@ -152,3 +152,6 @@
 	text-decoration: underline;
 	font-weight: bold;
 }
+.button-active {
+	background-color: #4990E7;
+}

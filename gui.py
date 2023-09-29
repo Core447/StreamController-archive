@@ -258,9 +258,37 @@ class AboutDialog(Gtk.AboutDialog):
         self.show()
 
 
+class SearchArea(Gtk.Box):
+    def __init__(self, app):
+        super().__init__(orientation=Gtk.Orientation.HORIZONTAL)
+        self.app = app
+        self.build()
 
+    def build(self):
+        self.searchBar = Gtk.SearchEntry(hexpand=True, margin_start=5)
+        self.append(self.searchBar)
 
+        self.buttonsBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, css_classes=["linked"], margin_start=7)
+        self.append(self.buttonsBox)
 
+        self.categoryButton = Gtk.Button(icon_name="folder-saved-search")
+        self.categoryButton.connect("clicked", self.onClickButton)
+        self.buttonsBox.append(self.categoryButton)
+
+        self.actionButton = Gtk.Button(icon_name="format-justify-fill")
+        self.actionButton.connect("clicked", self.onClickButton)
+        self.buttonsBox.append(self.actionButton)
+
+    def onClickButton(self, button):
+        if "button-active" in button.get_css_classes():
+            button.set_css_classes([])
+            return
+        if button == self.categoryButton:
+            self.categoryButton.set_css_classes(["button-active"])
+            self.actionButton.set_css_classes([])
+        else:
+            self.categoryButton.set_css_classes([])
+            self.actionButton.set_css_classes(["button-active"])
 
 
 class StreamControllerApp(Adw.Application):
@@ -417,6 +445,11 @@ class StreamControllerApp(Adw.Application):
         self.pluginStoreAction = Gio.SimpleAction(name="pluginstore")
         self.pluginStoreAction.connect("activate", self.openPluginStore)
         self.add_action(self.pluginStoreAction)
+
+        # Search area
+        self.rightSearchGrid = builder.get_object("right-search-grid")
+        self.searchArea = SearchArea(self)
+        self.rightSearchGrid.attach(self.searchArea, 1, 0, 1, 1)
 
     def openPluginStore(self, action, params):
         self.pluginStore = PluginStore(self)
