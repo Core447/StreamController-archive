@@ -2,6 +2,8 @@ from time import sleep
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
+gi.require_version("Xdp", "1.0")
+from gi.repository import Xdp
 from gi.repository import Gtk, Adw, Gdk
 from gi.repository import GObject, Gio
 import sys
@@ -451,6 +453,20 @@ class StreamControllerApp(Adw.Application):
         self.searchArea = SearchArea(self)
         self.rightSearchGrid.attach(self.searchArea, 1, 0, 1, 1)
 
+
+    def setupAutostart(self):
+        xdp = Xdp.Portal.new()
+        xdp.request_background(
+            None,
+            "StreamController",
+            [],
+            Xdp.BackgroundFlags.AUTOSTART,
+            None,
+            lambda portal, result, user_data: print(
+                f"[Utils] request autostart sucess={portal.request_background_finish(result)}"),
+            None,
+        )
+        self.hold()
     def openPluginStore(self, action, params):
         self.pluginStore = PluginStore(self)
         self.pluginStore.show()
