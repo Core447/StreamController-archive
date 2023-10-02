@@ -4,7 +4,7 @@ class ActionBase():
     actions = {}
 
     #Change these variables to match your action
-    ACTION_NAME = "run_command"
+    ACTION_NAME = ""
     def __init__(self):
         ActionBase.instances.append(self)
         if self.ACTION_NAME in ActionBase.actions:
