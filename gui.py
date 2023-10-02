@@ -124,6 +124,14 @@ class CategorySelector(Gtk.Grid):
             #actionSelector = ActionSelector(self., categories[row])
             #actionSelector.loadActions(["A","B"])
 
+    def clear(self):
+        child = self.label.get_next_sibling()
+        while child != None:
+            nextChild = child.get_next_sibling()
+            self.remove(child)
+            child = nextChild
+
+
 class ActionSelector(Gtk.Grid):
     def __init__(self, app, categoryName):
         self.app = app
@@ -245,7 +253,7 @@ class AboutDialog(Gtk.AboutDialog):
         self.set_authors(["Core447"])
         self.set_copyright("Copyright 2023 Core447")
         self.set_license_type(Gtk.License.GPL_3_0)
-        self.set_website("https://github.com/Core447/StreamController")
+        self.set_website("https://github.com/Core447/StreamController-archive")
         self.set_website_label("GitHub")
         self.set_version("v0.1")
         self.set_program_name("StreamController")
@@ -354,28 +362,13 @@ class StreamControllerApp(Adw.Application):
         #self.categoryGrid.loadCategories(["One", "Two", "Three"])
 
         
-        allCats = []
-        for plugin in PluginBase.plugins:
-            allCats.append(plugin)
-        self.categoryGrid.loadCategories(allCats)    
+        self.loadCategories()  
 
         #self.categoryGrid.loadCategories(list(allActions.keys()))
         #self.stack.add_titled(self.categoryGrid, "categories", "Categories")
 
 
-        allActions = {}
-        for pluginName in list(PluginBase.plugins.keys()):
-            allActions[pluginName] = []
-            for action in PluginBase.plugins[pluginName].pluginActions:
-                allActions[pluginName].append(action.ACTION_NAME)
-        
-
-        for key in list(allActions.keys()):
-            actionScrolledWindow = Gtk.ScrolledWindow(hexpand=True, vexpand=True)
-            self.stack.add_titled(actionScrolledWindow, key, key)
-            actionGrid = ActionSelector(self, key)
-            actionGrid.loadActions(allActions[key], key)
-            actionScrolledWindow.set_child(actionGrid)
+        self.buildActionSelector()
         
         #exit()
         
@@ -453,6 +446,29 @@ class StreamControllerApp(Adw.Application):
         self.searchArea = SearchArea(self)
         self.rightSearchGrid.attach(self.searchArea, 1, 0, 1, 1)
 
+        # self.setupAutostart()
+
+    def buildActionSelector(self):
+        allActions = {}
+        for pluginName in list(PluginBase.plugins.keys()):
+            allActions[pluginName] = []
+            for action in PluginBase.plugins[pluginName]["object"].pluginActions:
+                allActions[pluginName].append(action.ACTION_NAME)
+        
+
+        for key in list(allActions.keys()):
+            actionScrolledWindow = Gtk.ScrolledWindow(hexpand=True, vexpand=True)
+            self.stack.add_titled(actionScrolledWindow, key, key)
+            actionGrid = ActionSelector(self, key)
+            actionGrid.loadActions(allActions[key], key)
+            actionScrolledWindow.set_child(actionGrid)
+
+    def loadCategories(self):
+        allCats = []
+        for plugin in PluginBase.plugins:
+            allCats.append(plugin)
+        self.categoryGrid.clear()
+        self.categoryGrid.loadCategories(allCats)  
 
     def setupAutostart(self):
         xdp = Xdp.Portal.new()
@@ -467,6 +483,7 @@ class StreamControllerApp(Adw.Application):
             None,
         )
         self.hold()
+
     def openPluginStore(self, action, params):
         self.pluginStore = PluginStore(self)
         self.pluginStore.show()
@@ -480,6 +497,9 @@ class StreamControllerApp(Adw.Application):
 
     def onWindowClose(self, window):
         print("windows close")
+        self.hold()
+        # self.win.hide()
+        # return True
 
     def quit(self, widget, _):
         print("quit")

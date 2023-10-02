@@ -17,7 +17,8 @@ class PluginBase():
             raise ValueError(f"Plugin {self.PLUGIN_NAME} already exists")
         if not hasattr(self, "pluginActions"):
             raise ValueError(f"Plugin {self.PLUGIN_NAME}: You need to define the pluginActions list, having all your actions in it")
-        PluginBase.plugins[self.PLUGIN_NAME] = self
+        PluginBase.plugins[self.PLUGIN_NAME] = {"object": self,
+                                                "fileName": os.path.basename(self.PLUGIN_PATH)}
         pass
 
     def initActions(self) -> None:

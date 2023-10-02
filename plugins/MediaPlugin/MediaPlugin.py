@@ -1,4 +1,4 @@
-from Action import ActionBase
+from ActionBase import ActionBase
 from PluginBase import PluginBase
 
 from time import sleep

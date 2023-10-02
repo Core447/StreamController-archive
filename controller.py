@@ -61,7 +61,7 @@ class CommunicationHandler():
     def loadActionIndex(self):
         self.actionIndex = {}
         for key in list(PluginBase.plugins.keys()):
-            for action in PluginBase.plugins[key].pluginActions:
+            for action in PluginBase.plugins[key]["object"].pluginActions:
                 if (key + ":" + action.ACTION_NAME) in list(self.actionIndex.keys()):
                     raise ValueError(f"Duplicate action {action.ACTION_NAME} in plugin {key}")
                 self.actionIndex[key + ":" + action.ACTION_NAME] = action

@@ -1,4 +1,4 @@
-import threading, time, json, os, sys
+import threading, time, json, os, sys, importlib
 
 sys.path.append("guiClasses/PluginStore")
 from GitHubHelper import GitHubHelper
@@ -81,6 +81,21 @@ class StoreLoadingThread(threading.Thread):
             infos["installed-plugins"][pluginUrl] = {}
         infos["installed-plugins"][pluginUrl]["verified-commit"] = verifiedCommit
         self.app.pluginStore.infoSaver.saveInfos(infos)
+
+        # Import plugin
+        if install:
+            # Get name of repository
+            projectName = pluginUrl.split("/")[-1]
+            # Note: the .py file has the same name as the repository
+            sys.path.append(os.path.join("plugins", projectName))
+            importlib.import_module(projectName)
+        
+        # Update action selector
+        self.app.buildActionSelector()
+        self.app.loadCategories()
+
+        # Regenerate action index
+        self.app.communicationHandler.loadActionIndex()
             
     def getPluginForUrl(self, url:str):
         for plugin in self.plugins:

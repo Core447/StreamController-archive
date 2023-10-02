@@ -5,6 +5,9 @@ import sys, webbrowser, os, shutil, math, textwrap
 sys.path.append("guiClasses/PluginStore")
 from StoreBatch import StoreBatch
 
+from PluginBase import PluginBase
+from ActionBase import ActionBase
+
 class PluginPreview(Gtk.FlowBoxChild):
     def __init__(self, pluginStore, pluginName, pluginDescription, thumbnailPath, userName, stargazers, websiteUrl, verifiedCommit, official):
         self.pluginStore = pluginStore
@@ -187,6 +190,7 @@ class PluginPreview(Gtk.FlowBoxChild):
 
     def unInstall(self):
         pluginPath = os.path.join("plugins", self.pluginName)
+
         # Remove everthing inside the folder except buttonSettings.json
         self.pluginStore.githubHelper.clearDirExceptSettings(pluginPath)
 
@@ -195,8 +199,70 @@ class PluginPreview(Gtk.FlowBoxChild):
         del infos["installed-plugins"][self.websiteUrl]
         self.pluginStore.infoSaver.saveInfos(infos)
 
+        # Remove plugin from plugins list
+        print(PluginBase.plugins)
+        print(self.pluginName)
+        keyName = self.getPluginDictKeyByFileName(self.pluginName)
+        if keyName == None:
+            return
+        print(keyName)
+
+
+        plugin = PluginBase.plugins[keyName]["object"]
+        # Remove plugin action objects
+        for action in plugin.pluginActions:
+            # Remove action from ActionBase.actions
+            self.removeActionFromActionBase(action)
+            # Delete object
+            del action
+        # Remove plugin object from memory
+        del plugin
+
+        # Clear actions
+        print(ActionBase.actions)
+        print()
+
+
+        # print(plugin.PLUGIN_NAME)
+        print(PluginBase.plugins)
+        del PluginBase.plugins[keyName]
+        print("new:")
+        print(PluginBase.plugins)
+        # Update action selector
+        self.pluginStore.app.buildActionSelector()
+        self.pluginStore.app.loadCategories()
+
+        # Unimport module
+        # print(sys.modules)
+        print("unimporting....")
+        # print(sys.modules)
+        # del sys.modules["/mnt/P3/Development/Programmieren/Python/StreamController/branches/main-dev/plugins/OSPlugin/OSPlugin.py"]
+        if self.pluginName in sys.modules:
+            del sys.modules[self.pluginName]
+        # del sys.modules["OSPlugin"]
+        # exec(f"del {self.pluginName}")
+    
+        # Remove object from action index
+        print(self.pluginStore.app.communicationHandler.actionIndex)
+        print("new")
+        self.pluginStore.app.communicationHandler.loadActionIndex()
+        print(self.pluginStore.app.communicationHandler.actionIndex)
+        return
+
+
     def install(self):
         self.pluginStore.app.storeLoadingThread.installPlugin(self.websiteUrl, self.verifiedCommit, install=True)
+
+    def getPluginDictKeyByFileName(self, fileName):
+        for key, value in PluginBase.plugins.items():
+            if value["fileName"] == fileName:
+                return key
+        return None
+    
+    def removeActionFromActionBase(self, actionObject):
+        for key, value in ActionBase.actions.items():
+            if value == actionObject:
+                del ActionBase.actions[key]
 
     def onClickWebsite(self, widget):
         webbrowser.open_new_tab(self.websiteUrl)
