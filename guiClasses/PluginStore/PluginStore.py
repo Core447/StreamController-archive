@@ -224,7 +224,7 @@ class PluginStore(Gtk.ApplicationWindow):
     
     def isOfficial(self, userName: str) -> bool:
         if self.officials == None:
-            rawOfficials = self.githubHelper.getRaw("https://github.com/Core447/StreamController-Plugins", "OfficialAuthors.json", branchName="main")
+            rawOfficials = self.githubHelper.getRaw("https://github.com/Core447/StreamController-Plugins-archive", "OfficialAuthors.json", branchName="main")
             if rawOfficials == None:
                 return False
             officialList = json.loads(rawOfficials)

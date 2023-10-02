@@ -280,5 +280,5 @@ class GitHubHelper:
     
 if __name__ == "__main__":
     gh = GitHubHelper()
-    gh.cloneAtCommit("https://github.com/Core447/MediaPlugin", "ee4bedefac62fcf605894cb2ac75181071bc2473")
+    gh.cloneAtCommit("https://github.com/Core447/MediaPlugin-archive", "ee4bedefac62fcf605894cb2ac75181071bc2473")
     # gh.installPlugin("tmp/downloads/MediaPlugin", "MediaPlugin")

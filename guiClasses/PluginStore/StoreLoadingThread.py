@@ -133,7 +133,7 @@ class StoreLoadingThread(threading.Thread):
         self.ready = True
 
     def getJsons(self) -> tuple:
-        newPluginList = self.githubHelper.getRaw("https://github.com/Core447/StreamController-Plugins", "Plugins.json", branchName="main")
+        newPluginList = self.githubHelper.getRaw("https://github.com/Core447/StreamController-Plugins-archive", "Plugins.json", branchName="main")
         if newPluginList == None:
             print("Plugin list could not be loaded")
             return
