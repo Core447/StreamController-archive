@@ -1,6 +1,7 @@
 # StreamController
 
-:warning: **WORK IN PROGRESS** :warning:
+:warning: **Discontinued** :warning:
+Please have a look at the [new version](https://github.com/Core447/StreamController).
 
 
 This application can control Elgato StreamDecks on Linux.
