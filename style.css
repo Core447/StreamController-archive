@@ -1,0 +1,157 @@
+.cat-button{
+	
+}
+.label{
+	color: green;
+}
+.media{
+	color: green;
+}
+.gridButton{
+	min-width:75px;	
+	max-width:75px;
+	margin-right:10px;
+	min-height:75px;
+	max-height:75px;
+	margin-bottom:5px;
+	margin-top:5px;
+}
+.page-text {
+	font-size:30px;
+	font-weight: bold;
+	/* text-decoration: underline; */
+	margin:11px;
+
+}
+.action-config-header{
+	font-size: 20px;
+	font-weight: bold;
+	text-decoration: underline;
+}
+.multi-action-config-button{
+	min-width: 500px;
+	min-height: 75px;
+	border-radius: 10px;
+}
+.multi-action-config-title{
+	margin-left: 5px;
+	font-size: 22px;
+	font-weight: bold;
+}
+.category-label{
+	opacity: 0.5;
+}
+.confirm-button { 
+	background-color: #4990E7;
+}
+.confirm-button-error { 
+	background-color: #EA735D;
+}
+.warning-label {
+	color: #EA735D;
+}
+.header{
+	font-size: 18px;
+	font-weight: bold;
+}
+.no-padding {
+	padding: 0px;
+}
+.plugin-store-image {
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	margin-left: 0px;
+	margin-right: 0px;
+	margin-top: 0px;
+}
+.official-mark {
+	background-color: #242424;
+	color: white;
+	border-radius: 6px;
+	font-size: 12px;
+	padding: 1px;
+}
+.plugin-store-name {
+	font-size: 18px;
+	font-weight: bold;
+}
+.official-mark-btn {
+	font-size: 14px;
+	margin-left: 0px;
+}
+.gray {
+	background-color: #3A3A3A;
+}
+.light-gray {
+	background-color: #4E4E4E;
+}
+.no-bottom-rounding {
+	border-bottom-left-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+.no-top-rounding {
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;
+}
+.no-bottom-left-rounding {
+	border-bottom-left-radius: 0px;
+}
+.no-bottom-right-rounding {
+	border-bottom-right-radius: 0px;
+}
+.no-top-left-rounding {
+	border-top-left-radius: 0px;
+}
+.no-top-right-rounding {
+	border-top-right-radius: 0px;
+}
+.plugin-store-no-thumbnail {
+	font-size: 16px;
+}
+.update-button-search {
+	background-color: #4990E7;
+	transition: all 0.5s linear;
+}
+.update-button-search-loading {
+	background-color: #3b6fad;
+}
+.update-button-search:hover {
+	background-color: #5996e0;
+}
+.update-button-search:active {
+	background-color: #74aaeb;
+}
+.update-button-search-available {
+	background-color: #EA735D;
+}
+.update-button-search-uptodate {
+	background-color: #31BA77;
+}
+.filter-button-selected {
+	background-color: #4990E7;
+}
+.filter-button-unselected {
+	background-color: #3A3A3A;
+}
+.store-detailed-plugin-name {
+	font-size: 38px;
+	font-weight: bold;
+}
+.bottom-box {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+.plugin-store-detailed-view-description{
+	font-weight: bold;
+}
+.bold{
+	font-weight: bold;
+}
+.store-detailed-github-label {
+	font-size: 24px;
+	text-decoration: underline;
+	font-weight: bold;
+}
+.button-active {
+	background-color: #4990E7;
+}

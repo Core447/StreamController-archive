@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.16.0 -->
+<interface>
+  <!-- interface-name streamcontroller.ui -->
+  <requires lib="gtk" version="4.12"/>
+  <requires lib="libadwaita" version="1.0"/>
+  <object class="GtkWindow" id="main_window">
+    <property name="default-height">800</property>
+    <property name="default-width">1250</property>
+    <property name="title">StreamController</property>
+    <child>
+      <object class="GtkGrid">
+        <property name="column-homogeneous">True</property>
+        <property name="row-homogeneous">True</property>
+        <child>
+          <object class="GtkGrid">
+            <property name="column-homogeneous">True</property>
+            <property name="row-homogeneous">True</property>
+            <layout>
+              <property name="column">3</property>
+              <property name="row">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSeparator">
+            <property name="halign">end</property>
+            <property name="margin-end">3</property>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkGrid">
+            <property name="row-homogeneous">True</property>
+            <child>
+              <object class="GtkGrid">
+                <property name="margin-end">3</property>
+                <child>
+                  <object class="GtkGrid" id="right-search-grid">
+                    <property name="margin-end">3</property>
+                    <property name="margin-top">5</property>
+                    <child>
+                      <object class="GtkButton" id="action-back-button">
+                        <property name="icon-name">go-previous</property>
+                        <property name="margin-end">3</property>
+                        <property name="tooltip-text">Go back to category page</property>
+                        <property name="visible">False</property>
+                        <property name="width-request">80</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkStack" id="stack">
+                    <property name="transition-type">slide-left-right</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">2</property>
+                    </layout>
+                  </object>
+                </child>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                </layout>
+              </object>
+            </child>
+            <layout>
+              <property name="column">3</property>
+              <property name="row">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox" id="left-side-grid">
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkStack" id="left-stack">
+                <property name="transition-type">over-up</property>
+              </object>
+            </child>
+            <layout>
+              <property name="column">0</property>
+              <property name="column-span">2</property>
+              <property name="row">0</property>
+            </layout>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child type="titlebar">
+      <object class="GtkHeaderBar" id="header"/>
+    </child>
+  </object>
+  <object class="AdwViewStackPage"/>
+  <object class="AdwViewStackPage"/>
+</interface>
